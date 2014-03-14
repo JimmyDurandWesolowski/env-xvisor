@@ -1,0 +1,4 @@
+guest kick guest0
+vserial bind guest0/uart0
+autoexec
+vscreen hard_bind guest0

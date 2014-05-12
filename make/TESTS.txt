@@ -1,0 +1,9 @@
+		Tests
+
+Configure:
+	Test unknown option
+	Test help
+	Test board list
+	Test correct board configuration
+	Test not board configuration
+	Test without option

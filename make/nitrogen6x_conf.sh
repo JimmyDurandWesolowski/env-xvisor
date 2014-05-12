@@ -1,0 +1,3 @@
+BOARD_BUSYBOX=1
+BOARD_QEMU=0
+QEMU_BINARY="qemu-system-arm"

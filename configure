@@ -1,0 +1,174 @@
+#! /bin/sh
+
+
+# The called program name, i.e. configure with its path
+PROGNAME=$0
+
+# Default board name:
+BOARDNAME=vexpress-a9
+
+# Directory where the configure script is
+CURDIR=$(realpath $(dirname ${PROGNAME}))
+
+# Script and Make file directory
+MAKEDIR=${CURDIR}/make
+
+# Build directory, used by this script to write the resulting configuration
+# (the next variable)
+BUILDDIR=${CURDIR}/build
+
+# The resulting configuration
+CONF=${BUILDDIR}/.env_config
+
+# Does the board require busybox
+BOARD_BUSYBOX=1
+
+# Does the board will run under Qemu
+BOARD_QEMU=0
+
+# Verbosity option, that can be modify through the program arguments
+VERBOSE=0
+
+# Component path
+XVISOR_VERSION=0.2.4
+XVISOR_PATH=${CURDIR}/xvisor-${XVISOR_VERSION}
+
+# Since we may manage multi-architecture, the Qemu binary will depend on the
+# selected board.
+QEMU_BINARY=""
+
+
+print() {
+    if [ ${VERBOSE} -eq 0 ]; then
+	return
+    fi
+
+    printf "$*"
+}
+
+usage() {
+    RET=$1
+
+    if [ -z "${RET}" ]; then
+	RET=1
+    fi
+
+    if [ ${RET} -eq 1 ]; then
+	OUTPUT=/dev/stderr
+    else
+	OUTPUT=/dev/stdout
+    fi
+
+    printf "Usage: ${PROGNAME} [OPTION]\n" > ${OUTPUT}
+    printf "Configure the ELA hypervisor build system.\n" > ${OUTPUT}
+    printf "\n" > ${OUTPUT}
+    printf "Options are:\n" > ${OUTPUT}
+    printf "  --board BOARDNAME\t\tBuild the hypervisor and the " > ${OUTPUT}
+    printf "required components for the board BOARDNAME\n" > ${OUTPUT}
+    printf "  -l, --list\t\t\tList the supported boards\n" > ${OUTPUT}
+    printf "  -h, --help\t\t\tDisplay this help\n" > ${OUTPUT}
+    printf "  -v, --verbose\t\t\tIncrease the build system " > ${OUTPUT}
+    printf "verbosity\n" > ${OUTPUT}
+
+    exit ${RET}
+}
+
+board_list() {
+    RET=$1
+
+    if [ -z "${RET}" ]; then
+	RET=1
+    fi
+
+    if [ ${RET} -eq 1 ]; then
+	OUTPUT=/dev/stderr
+    else
+	OUTPUT=/dev/stdout
+    fi
+
+    printf "Available board support:\n"
+    printf "  - vexpress-a9:\tARM Versatile Express A9\n"
+    printf "\t\t\tThe reference platform to emulate the hypervisor.\n"
+    printf "  - nitrogen6x:\t\tBoundary Devices Nitrogen6x platform\n"
+    printf "\t\t\tThe real board to run the hypervisor on.\n"
+
+    exit ${RET}
+}
+
+option_parse() {
+    while [ $# -gt 0 ]; do
+	case $1 in
+	    (--board)
+		shift
+		BOARDNAME=$0
+		break;;
+
+	    (-l|--list)
+		board_list 0
+		break;;
+
+	    (-h|--help)
+		usage 0
+		break;;
+
+	    (-v|--verbose)
+		VERBOSE=1
+		break;;
+
+	    (*)
+		printf "Unrecognized option \"$1\"\n" >/dev/stderr
+		usage 1
+	esac
+	shift
+    done
+
+    # Check that the board has been
+    if [ -z "${BOARDNAME}" ]; then
+	usage 1
+    fi
+
+    # Check that the board is correct
+    case ${BOARDNAME} in
+	("vexpress-a9"|"nitrogen6x")
+	    break;;
+	(*)
+	    board_list 1
+	    break;;
+    esac
+}
+
+option_board() {
+    BOARD_CONF="${MAKEDIR}/${BOARDNAME}_conf.sh"
+
+    print "Sourcing \"${BOARD_CONF}\"\n"
+    source ${BOARD_CONF}
+}
+
+option_check() {
+    print "BOARD_BUSYBOX=${BOARD_BUSYBOX}\n"
+    print "BOARD_QEMU=${BOARD_QEMU}\n"
+    print "QEMU_BINARY=${QEMU_BINARY}\n"
+    exit 0
+
+    if [ ${BOARD_QEMU} -eq 1 ]; then
+	which ${QEMU_BINARY}
+	echo $?
+    fi
+}
+
+config_write_common() {
+    mkdir -p $(dirname ${CONF})
+    echo "# Component path definitions" > ${CONF}
+    echo "XVISOR_PATH=${XVISOR_PATH}" > ${CONF}
+}
+
+# Write the board dependent options
+config_write_board() {
+    echo
+}
+
+option_parse $*
+option_board
+option_check
+config_write_common
+config_write_board

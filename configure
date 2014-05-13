@@ -128,19 +128,19 @@ config_write() {
     echo "FILE_SERVER=${FILE_SERVER}" >> ${CONF}
     printf "\n\n" >> ${CONF}
 
-    echo "# Environment configuration:" >> ${CONF}
-    for elt in COMPONENTS CURDIR MAKEDIR BUILDDIR; do
+    echo "# Environment configuration" >> ${CONF}
+    for elt in COMPONENTS CURDIR MAKEDIR BUILDDIR BUILD_VERBOSE; do
 	echo "${elt}=${!elt}" >> ${CONF}
     done
     printf "\n\n" >> ${CONF}
 
-    echo "# Board configuration:" >> ${CONF}
+    echo "# Board configuration" >> ${CONF}
     for elt in BOARDNAME ARCH QEMU_ARCH BOARD_BUSYBOX BOARD_QEMU BOARD_LOADER \
 	BOARD_UBOOT TOOLCHAIN_PREFIX; do
 	echo "${elt}=${!elt}" >> ${CONF}
     done
 
-    printf "\n\n# Components:\n" >> ${CONF}
+    printf "\n\n# Components\n" >> ${CONF}
     for component in ${COMPONENTS}; do
 	COMPONENT_VERSION=${component}_VERSION
 	COMPONENT_PATH=${component}_PATH
@@ -166,11 +166,6 @@ config_write() {
 	fi
 	echo >> ${CONF}
     done
-}
-
-# Write the board dependent options
-config_write_board() {
-    echo TODO config_write_board
 }
 
 option_parse $*

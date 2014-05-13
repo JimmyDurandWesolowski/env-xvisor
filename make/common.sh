@@ -29,18 +29,21 @@ usage() {
     fi
 
     printf "Usage: ${PROGNAME} [OPTION]\n" > ${OUTPUT}
-    printf "Configure the ELA hypervisor build system.\n" > ${OUTPUT}
+    printf "Configure the ELA hypervisor build system.\n" >> ${OUTPUT}
     printf "If no board is selected, the Versatile Express A9 will be "
-    printf "set.\n" > ${OUTPUT}
-    printf "\n" > ${OUTPUT}
-    printf "Options are:\n" > ${OUTPUT}
-    printf "  --board BOARDNAME\t\tBuild the hypervisor and the " > ${OUTPUT}
-    printf "required components for the board BOARDNAME\n" > ${OUTPUT}
-    printf "  -l, --list\t\t\tList the supported boards\n" > ${OUTPUT}
-    printf "  -h, --help\t\t\tDisplay this help\n" > ${OUTPUT}
-    printf "  -v, --verbose\t\t\tIncrease the build system " > ${OUTPUT}
-    printf "verbosity\n" > ${OUTPUT}
-    printf "  -n\t\t\t\tEquivalent to \"--board nitrogen6x\"\n" > ${OUTPUT}
+    printf "set.\n" >> ${OUTPUT}
+    printf "\n" >> ${OUTPUT}
+    printf "Options are:\n" >> ${OUTPUT}
+    printf "  -b BOARDNAME,--board BOARDNAME\tBuild the " >> ${OUTPUT}
+    printf "hypervisor and the required components for the " >> ${OUTPUT}
+    printf "board BOARDNAME\n" >> ${OUTPUT}
+    printf "  -l, --list\t\t\t\tList the supported boards\n" >> ${OUTPUT}
+    printf "  -h, --help\t\t\t\tDisplay this help\n" >> ${OUTPUT}
+    printf "  -v, --verbose\t\t\t\tIncrease the build system " >> ${OUTPUT}
+    printf "verbosity\n" >> ${OUTPUT}
+    printf "  -d, --debug\t\t\t\tBuild system debugging\n" >> ${OUTPUT}
+    printf "  -V\t\t\t\t\tIncrease the configuration verbosity\n" >> ${OUTPUT}
+    printf "  -n\t\t\t\t\tEquivalent to \"--board nitrogen6x\"\n" >> ${OUTPUT}
 
     exit ${RET}
 }
@@ -48,7 +51,7 @@ usage() {
 option_parse() {
     while [ $# -gt 0 ]; do
 	case "$1" in
-	    (--board)
+	    (-b|--board)
 		shift
 		BOARDNAME=$1
 		;;
@@ -66,6 +69,14 @@ option_parse() {
 		break;;
 
 	    (-v|--verbose)
+		BUILD_VERBOSE=1
+		;;
+
+	    (-d|--debug)
+		BUILD_DEBUG=1
+		;;
+
+	    (-V)
 		VERBOSE=1
 		;;
 

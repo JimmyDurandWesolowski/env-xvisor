@@ -116,24 +116,31 @@ option_check() {
 
 config_write() {
     source ${MAKEDIR}/components.sh
-
-    mkdir -p $(dirname ${CONF})
-    cat > ${CONF} <<-EOF
-	# File server
-	FILE_SERVER=${FILE_SERVER}
-
-
-	# Configuration
-	EOF
-
-    for elt in ARCH QEMU_ARCH BOARD_BUSYBOX BOARD_QEMU BOARD_LOADER \
-	BOARD_UBOOT COMPONENTS TOOLCHAIN_PREFIX; do
-	echo "${elt}=${!elt}" >> ${CONF}
-    done
-    printf "\n\n# Components:\n" >> ${CONF}
-
     print "${BOLD}Components:${NORMAL} ${COMPONENTS}\n"
 
+    mkdir -p $(dirname ${CONF})
+
+    echo "# Configuration generated on: $(date)" > ${CONF}
+    echo "# by ${USER} on ${HOSTNAME}" >> ${CONF}
+    printf "\n\n" >> ${CONF}
+
+    echo "# File server" >> ${CONF}
+    echo "FILE_SERVER=${FILE_SERVER}" >> ${CONF}
+    printf "\n\n" >> ${CONF}
+
+    echo "# Environment configuration:" >> ${CONF}
+    for elt in COMPONENTS CURDIR MAKEDIR BUILDDIR; do
+	echo "${elt}=${!elt}" >> ${CONF}
+    done
+    printf "\n\n" >> ${CONF}
+
+    echo "# Board configuration:" >> ${CONF}
+    for elt in BOARDNAME ARCH QEMU_ARCH BOARD_BUSYBOX BOARD_QEMU BOARD_LOADER \
+	BOARD_UBOOT TOOLCHAIN_PREFIX; do
+	echo "${elt}=${!elt}" >> ${CONF}
+    done
+
+    printf "\n\n# Components:\n" >> ${CONF}
     for component in ${COMPONENTS}; do
 	COMPONENT_VERSION=${component}_VERSION
 	COMPONENT_PATH=${component}_PATH

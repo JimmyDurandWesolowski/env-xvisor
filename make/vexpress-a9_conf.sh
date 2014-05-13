@@ -1,3 +1,9 @@
+#! /bin/sh
+
+source ${MAKEDIR}/arm_conf.sh
 BOARD_BUSYBOX=1
 BOARD_QEMU=1
-QEMU_BINARY="qemu-system-arm"
+BOARD_LOADER=0
+BOARD_UBOOT=0
+
+BOARD_COMPONENTS="BUILDROOT"

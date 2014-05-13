@@ -1,3 +1,17 @@
+#! /bin/sh
+
+source ${MAKEDIR}/arm_conf.sh
 BOARD_BUSYBOX=1
 BOARD_QEMU=0
-QEMU_BINARY="qemu-system-arm"
+BOARD_LOADER=1
+BOARD_UBOOT=1
+
+BOARD_COMPONENTS="UBOOT LOADER"
+UBOOT_BRANCH=production
+UBOOT_VERSION=imx6
+UBOOT_PATH=u-boot-${UBOOT_VERSION}-${UBOOT_BRANCH}
+UBOOT_REPO=https://github.com/boundarydevices/u-boot-imx6.git
+
+LOADER_VERSION=master
+LOADER_PATH=imx_usb_loader-${LOADER_VERSION}
+LOADER_FILE=imx_usb_loader-${LOADER_VERSION}.zip

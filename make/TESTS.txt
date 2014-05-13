@@ -4,6 +4,8 @@ Configure:
 	Test unknown option
 	Test help
 	Test board list
-	Test correct board configuration
-	Test not board configuration
 	Test without option
+	Test correct board configuration (non verbose)
+	Test not board configuration (non verbose)
+	Test correct board configuration (verbose)
+	Test not board configuration (verbose)

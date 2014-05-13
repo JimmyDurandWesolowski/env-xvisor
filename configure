@@ -29,49 +29,9 @@ BOARD_QEMU=0
 # Verbosity option, that can be modify through the program arguments
 VERBOSE=0
 
-# Component path
-XVISOR_VERSION=0.2.4
-XVISOR_PATH=${CURDIR}/xvisor-${XVISOR_VERSION}
 
-# Since we may manage multi-architecture, the Qemu binary will depend on the
-# selected board.
-QEMU_BINARY=""
-
-
-print() {
-    if [ ${VERBOSE} -eq 0 ]; then
-	return
-    fi
-
-    printf "$*"
-}
-
-usage() {
-    RET=$1
-
-    if [ -z "${RET}" ]; then
-	RET=1
-    fi
-
-    if [ ${RET} -eq 1 ]; then
-	OUTPUT=/dev/stderr
-    else
-	OUTPUT=/dev/stdout
-    fi
-
-    printf "Usage: ${PROGNAME} [OPTION]\n" > ${OUTPUT}
-    printf "Configure the ELA hypervisor build system.\n" > ${OUTPUT}
-    printf "\n" > ${OUTPUT}
-    printf "Options are:\n" > ${OUTPUT}
-    printf "  --board BOARDNAME\t\tBuild the hypervisor and the " > ${OUTPUT}
-    printf "required components for the board BOARDNAME\n" > ${OUTPUT}
-    printf "  -l, --list\t\t\tList the supported boards\n" > ${OUTPUT}
-    printf "  -h, --help\t\t\tDisplay this help\n" > ${OUTPUT}
-    printf "  -v, --verbose\t\t\tIncrease the build system " > ${OUTPUT}
-    printf "verbosity\n" > ${OUTPUT}
-
-    exit ${RET}
-}
+# Tool function used in this script
+source ${MAKEDIR}/common.sh
 
 board_list() {
     RET=$1
@@ -86,55 +46,13 @@ board_list() {
 	OUTPUT=/dev/stdout
     fi
 
-    printf "Available board support:\n"
+    printf "${BOLD}Available board support:${NORMAL}\n"
     printf "  - vexpress-a9:\tARM Versatile Express A9\n"
     printf "\t\t\tThe reference platform to emulate the hypervisor.\n"
     printf "  - nitrogen6x:\t\tBoundary Devices Nitrogen6x platform\n"
     printf "\t\t\tThe real board to run the hypervisor on.\n"
 
     exit ${RET}
-}
-
-option_parse() {
-    while [ $# -gt 0 ]; do
-	case $1 in
-	    (--board)
-		shift
-		BOARDNAME=$0
-		break;;
-
-	    (-l|--list)
-		board_list 0
-		break;;
-
-	    (-h|--help)
-		usage 0
-		break;;
-
-	    (-v|--verbose)
-		VERBOSE=1
-		break;;
-
-	    (*)
-		printf "Unrecognized option \"$1\"\n" >/dev/stderr
-		usage 1
-	esac
-	shift
-    done
-
-    # Check that the board has been
-    if [ -z "${BOARDNAME}" ]; then
-	usage 1
-    fi
-
-    # Check that the board is correct
-    case ${BOARDNAME} in
-	("vexpress-a9"|"nitrogen6x")
-	    break;;
-	(*)
-	    board_list 1
-	    break;;
-    esac
 }
 
 option_board() {
@@ -145,30 +63,110 @@ option_board() {
 }
 
 option_check() {
-    print "BOARD_BUSYBOX=${BOARD_BUSYBOX}\n"
-    print "BOARD_QEMU=${BOARD_QEMU}\n"
-    print "QEMU_BINARY=${QEMU_BINARY}\n"
-    exit 0
+    INSTALL_DEBIAN=""
+    INSTALL_GENTOO="emerge -av --quiet-build"
+    NCURSE_TMP="${BUILDDIR}/ncurse_tmp"
 
+    # Checking that Qemu is installed
     if [ ${BOARD_QEMU} -eq 1 ]; then
-	which ${QEMU_BINARY}
-	echo $?
+	which qemu-system-${QEMU_ARCH} &>/dev/null
+	if [ $? -ne 0 ]; then
+	    INSTALL_DEBIAN="qemu"
+	    INSTALL_GENTOO="QEMU_SOFTMMU_TARGETS=${QEMU_ARCH} ${INSTALL_GENTOO}"
+	    INSTALL_GENTOO="${INSTALL_GENTOO} app-emulation/qemu"
+	fi
+    fi
+
+    # Checking that fakeroot, used by Busybox, is installed
+    if [ ${BOARD_BUSYBOX} -eq 1 ]; then
+	which fakeroot &>/dev/null
+	if [ $? -ne 0 ]; then
+	    INSTALL_DEBIAN="${INSTALL_DEBIAN} fakeroot"
+	    INSTALL_GENTOO="${INSTALL_GENTOO} sys-apps/fakeroot"
+	fi
+    fi
+
+    # Checking that Ncurses is installed
+    cat > ${NCURSE_TMP}.c <<-EOF
+	#include <curses.h>
+
+	int main()
+	{
+	  return 0;
+	}
+	EOF
+    gcc -lncurses ${NCURSE_TMP}.c -o ${NCURSE_TMP} &>/dev/null
+    if [ $? -ne 0 ]; then
+	INSTALL_DEBIAN="${INSTALL_DEBIAN} libncurses5-dev"
+	INSTALL_GENTOO="${INSTALL_GENTOO} \">=sys-libs/ncurses-5\""
+    fi
+    rm -f ${NCURSE_TMP} ${NCURSE_TMP}.c
+
+    # Display a summary if required
+    if [ -n "${INSTALL_DEBIAN}" ]; then
+	printf "${BOLD}Please install the following packages before "
+	printf "continuing:${NORMAL}\n"
+	printf "${BOLD}For Debian/Ubuntu:${NORMAL}\n"
+	printf "  sudo apt-get install ${INSTALL_DEBIAN}\n"
+	printf "${BOLD}For Gentoo:${NORMAL}\n"
+	printf "  sudo ${INSTALL_GENTOO}\n"
+	exit 1
     fi
 }
 
-config_write_common() {
+config_write() {
+    source ${MAKEDIR}/components.sh
+
     mkdir -p $(dirname ${CONF})
-    echo "# Component path definitions" > ${CONF}
-    echo "XVISOR_PATH=${XVISOR_PATH}" > ${CONF}
+    cat > ${CONF} <<-EOF
+	# File server
+	FILE_SERVER=${FILE_SERVER}
+
+
+	# Configuration
+	EOF
+
+    for elt in ARCH QEMU_ARCH BOARD_BUSYBOX BOARD_QEMU BOARD_LOADER \
+	BOARD_UBOOT COMPONENTS TOOLCHAIN_PREFIX; do
+	echo "${elt}=${!elt}" >> ${CONF}
+    done
+    printf "\n\n# Components:\n" >> ${CONF}
+
+    print "${BOLD}Components:${NORMAL} ${COMPONENTS}\n"
+
+    for component in ${COMPONENTS}; do
+	COMPONENT_VERSION=${component}_VERSION
+	COMPONENT_PATH=${component}_PATH
+	COMPONENT_FILE=${component}_FILE
+	COMPONENT_REPO=${component}_REPO
+	COMPONENT_BRANCH=${component}_BRANCH
+
+	echo "${COMPONENT_VERSION}=${!COMPONENT_VERSION}" >> ${CONF}
+	echo "${COMPONENT_PATH}=${!COMPONENT_PATH}" >> ${CONF}
+
+	# If the component is on a git repository, get its path...
+	if [ -n "${!COMPONENT_REPO}" ]; then
+	    echo "${COMPONENT_REPO}=${!COMPONENT_REPO}" >> ${CONF}
+	    # ... and its branch
+	    if [ -n "${!COMPONENT_BRANCH}" ]; then
+		echo "${COMPONENT_BRANCH}=${!COMPONENT_BRANCH}" >> ${CONF}
+	    else
+		echo "${COMPONENT_REPO}=master" >> ${CONF}
+	    fi
+	# Otherwise, it is provided with a archive file
+	else
+	    echo "${COMPONENT_FILE}=${!COMPONENT_FILE}" >> ${CONF}
+	fi
+	echo >> ${CONF}
+    done
 }
 
 # Write the board dependent options
 config_write_board() {
-    echo
+    echo TODO config_write_board
 }
 
 option_parse $*
 option_board
 option_check
-config_write_common
-config_write_board
+config_write

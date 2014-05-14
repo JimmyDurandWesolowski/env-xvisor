@@ -17,6 +17,9 @@ MAKEDIR=${CURDIR}/make
 # (the next variable)
 BUILDDIR=${CURDIR}/build
 
+# downloaded Archive directory
+ARC_DIR=${BUILDDIR}/archives
+
 # The resulting configuration
 CONF=${BUILDDIR}/.env_config
 
@@ -129,7 +132,8 @@ config_write() {
     printf "\n\n" >> ${CONF}
 
     echo "# Environment configuration" >> ${CONF}
-    for elt in COMPONENTS CURDIR MAKEDIR BUILDDIR BUILD_VERBOSE; do
+    echo "COMPONENTS=\"${COMPONENTS}\"" >> ${CONF}
+    for elt in CURDIR MAKEDIR BUILDDIR ARC_DIR BUILD_VERBOSE BUILD_DEBUG; do
 	echo "${elt}=${!elt}" >> ${CONF}
     done
     printf "\n\n" >> ${CONF}

@@ -10,8 +10,14 @@ BOARDNAME=vexpress-a9
 # Directory where the configure script is
 CURDIR=$(realpath $(dirname ${PROGNAME}))
 
-# Script and Make file directory
+# Script directory
+SCRIPTDIR=${CURDIR}/scripts
+
+# Make file directory
 MAKEDIR=${CURDIR}/make
+
+# Configuration file directory
+CONFDIR=${CURDIR}/conf
 
 # Build directory, used by this script to write the resulting configuration
 # (the next variable)
@@ -34,7 +40,7 @@ VERBOSE=0
 
 
 # Tool function used in this script
-source ${MAKEDIR}/common.sh
+source ${SCRIPTDIR}/common.sh
 
 board_list() {
     RET=$1
@@ -59,10 +65,13 @@ board_list() {
 }
 
 option_board() {
-    BOARD_CONF="${MAKEDIR}/${BOARDNAME}_conf.sh"
+    BOARD_CONF="${CONFDIR}/${BOARDNAME}.conf"
 
     print "Sourcing \"${BOARD_CONF}\"\n"
     source ${BOARD_CONF}
+
+    ARCH_CONF="${CONFDIR}/${ARCH}.conf"
+    source ${ARCH_CONF}
 }
 
 option_check() {
@@ -118,12 +127,12 @@ option_check() {
 }
 
 config_write() {
-    source ${MAKEDIR}/components.sh
+    source ${SCRIPTDIR}/components.sh
     print "${BOLD}Components:${NORMAL} ${COMPONENTS}\n"
 
     mkdir -p $(dirname ${CONF})
 
-    echo "# Configuration generated on: $(date)" > ${CONF}
+    echo "# Configuration generated on $(date)" > ${CONF}
     echo "# by ${USER} on ${HOSTNAME}" >> ${CONF}
     printf "\n\n" >> ${CONF}
 
@@ -133,7 +142,8 @@ config_write() {
 
     echo "# Environment configuration" >> ${CONF}
     echo "COMPONENTS=\"${COMPONENTS}\"" >> ${CONF}
-    for elt in CURDIR MAKEDIR BUILDDIR ARC_DIR BUILD_VERBOSE BUILD_DEBUG; do
+    for elt in CURDIR MAKEDIR SCRIPTDIR BUILDDIR ARC_DIR BUILD_VERBOSE \
+	BUILD_DEBUG; do
 	echo "${elt}=${!elt}" >> ${CONF}
     done
     printf "\n\n" >> ${CONF}

@@ -9,3 +9,8 @@ Configure:
 	Test not board configuration (non verbose)
 	Test correct board configuration (verbose)
 	Test not board configuration (verbose)
+
+Makefile:
+	Test fetching interruption
+	Test extraction interruption (zip)
+	Test extraction interruption (tar)

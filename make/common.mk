@@ -30,3 +30,7 @@ define COPY
         $(Q)mkdir -p $(@D)
         $(Q)cp -f $< $@
 endef
+
+
+${TMPDIR}:
+	$(Q)mkdir -p ${TMPDIR}

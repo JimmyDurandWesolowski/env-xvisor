@@ -3,11 +3,11 @@
 COMPONENTS:=$(shell echo $(COMPONENTS))
 
 
-$(ARC_DIR)/%:
+$(ARCDIR)/%: | $(TMPDIR)
 	@echo "(Download) $(@F)"
+	$(Q)wget --quiet $(FILE_SERVER)/$(@F) -O ${TMPDIR}/$(@F)
 	$(Q)mkdir -p $(@D)
-	$(Q)wget $(FILE_SERVER)/$(@F) -O $@
-
+	$(Q)mv ${TMPDIR}/$(@F) $@
 
 #
 # Prepare rule for each component, i.e. the step to get the component sources
@@ -17,30 +17,29 @@ define PREPARE_RULE
   # Check if the component git repository is defined
   ifneq ($($1_REPO),)
 $(BUILDDIR)/$($1_PATH):
-	@echo "(Clone) $$@\n"
-	$(Q)git clone $$($1_REPO) $$@
+	@echo "(Clone) $$@"
+	$(Q)git clone -q $$($1_REPO) $$@
 
   # The component is not fetch with a git repository
   else # $($1_REPO) empty or unset
 
     # Check if the component can be downloaded
     ifneq ($($1_FILE),)
-$(BUILDDIR)/$($1_PATH): $(ARC_DIR)/$($1_FILE)
-	@printf "(Decompress) $$(<F)\n"
-
-      # If the downloaded file is a ZIP archive
+$(BUILDDIR)/$($1_PATH): $(ARCDIR)/$($1_FILE) | ${TMPDIR}
+	@echo "(Decompress) $$(<F)"
+      # Extraction depend on the suffix, and extract in a temporary directory
+      # first, in case of interruption
       ifeq ($(suffix $($1_FILE)),.zip)
         # Extract it quietly, without keeping timestamps
-	$(Q)unzip -qDx $$< -d $$(@D)
-
-      # Otherwise consider it as a TAR archive
+	$(Q)unzip -qDx $$< -d ${TMPDIR}
       else # $1_FILE suffix is not .zip
-	$(Q)tar xf $$< -C $$(@D)
+	$(Q)tar mxf $$< -C ${TMPDIR}
       endif # $1_FILE suffix
+	$(Q)mv ${TMPDIR}/$$(@F) $$@
 
     # Nor $1_FILE nor $1_REPO has been set, we cannot fetch the component
     else # $1_FILE empty or unset
-$(BUILDDIR)/$($1_PATH): $(ARC_DIR)/$($1_FILE)
+$(BUILDDIR)/$($1_PATH): $(ARCDIR)/$($1_FILE)
 	@echo "$1 file or repository has not been set, exiting..."
 	$(Q)exit 1
     endif # $1_FILE
@@ -48,7 +47,7 @@ $(BUILDDIR)/$($1_PATH): $(ARC_DIR)/$($1_FILE)
 endef
 
 $(foreach component,$(COMPONENTS),\
-  $(eval $(component)_prepare: $(BUILDDIR)/$($(component)_PATH)))
+  $(eval $(component)-prepare: $(BUILDDIR)/$($(component)_PATH)))
 
 # Generate the preparation rules for each component, depending on the fetching
 # method (git repository cloning or archive download)

@@ -23,6 +23,9 @@ CONFDIR=${CURDIR}/conf
 # (the next variable)
 BUILDDIR=${CURDIR}/build
 
+# Temporary file directory
+TMPDIR=/tmp/xvisor_env-$(date "+%Y%m%d-%H%M%S")
+
 # Downloaded archive directory
 ARCDIR=${BUILDDIR}/archives
 
@@ -76,12 +79,19 @@ option_board() {
     source ${BOARD_CONF}
     source ${CONFDIR}/${ARCH}.conf
     source ${CONFDIR}/components.conf
+
+    for elt in BUSYBOX UBOOT LOADER; do
+	BOARD_ELT=BOARD_${elt}
+	if [ ${!BOARD_ELT} -eq 1 ]; then
+	    COMPONENTS="${COMPONENTS} ${elt}"
+	fi
+    done
 }
 
 option_check() {
     INSTALL_DEBIAN=""
     INSTALL_GENTOO="emerge -av --quiet-build"
-    NCURSE_TMP="${BUILDDIR}/ncurse_tmp"
+    NCURSE_TMP="${TMPDIR}/ncurse_tmp"
 
     # Checking that Qemu is installed
     if [ ${BOARD_QEMU} -eq 1 ]; then
@@ -112,7 +122,8 @@ option_check() {
 	    GENTOO_PKG=sys-fs/genext2fs
 	    ;;
 	(*)
-	    echo "Unknown suffix \"${ROOTFS_IMG_SUFFIX}\" in the rootfs image name \"${ROOTFS_IMG}\", exiting..."
+	    printf "Unknown suffix \"${ROOTFS_IMG_SUFFIX}\" in the rootfs image "
+	    echo "name \"${ROOTFS_IMG}\", exiting..."
 	    exit 1
     esac
     if [ -n "${TOOL}" ]; then
@@ -124,6 +135,7 @@ option_check() {
     fi
 
     # Checking that Ncurses is installed
+    mkdir -p $(dirname ${NCURSE_TMP})
     cat > ${NCURSE_TMP}.c <<-EOF
 	#include <curses.h>
 
@@ -167,7 +179,7 @@ config_write() {
     echo "# Environment configuration" >> ${CONF}
     echo "COMPONENTS=\"${COMPONENTS}\"" >> ${CONF}
     for elt in CURDIR MAKEDIR SCRIPTDIR BUILDDIR TARGETDIR ARCDIR STAMPDIR\
-	QEMU_IMG BUILD_VERBOSE BUILD_DEBUG; do
+	TMPDIR ROOTFS_IMG QEMU_IMG BUILD_VERBOSE BUILD_DEBUG; do
 	echo "${elt}=${!elt}" >> ${CONF}
     done
     printf "\n\n" >> ${CONF}

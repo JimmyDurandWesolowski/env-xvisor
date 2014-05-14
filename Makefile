@@ -15,7 +15,7 @@ include $(MAKEDIR)/busybox.mk
 
 # Prepare all the components, the prepare rule depend on each component path
 # to be ready
-prepare: $(foreach component,$(COMPONENTS),$(component)_prepare)
+prepare: $(foreach component,$(COMPONENTS),$(component)-prepare)
 
 ifeq ($(BOARD_QEMU),1)
 run:
@@ -26,7 +26,8 @@ run:
 	$(Q)exit 1
 endif # BOARD_QEMU
 
-rootfs: $(ROOTFS_IMG)
+rootfs: BUSYBOX-install
+rootfs-img: $(ROOTFS_IMG)
 
 clean:
 	$(Q)find . -name "*~" -delete
@@ -49,6 +50,7 @@ help:
 	@printf "  compile		- Compile components\n"
 ifeq ($(BOARD_BUSYBOX),1)
 	@printf "  rootfs		- Generate the rootfs\n"
+	@printf "  rootfs-img		- Generate the rootfs\n"
 endif
 ifeq ($(BOARD_QEMU),1)
 	@printf "  run			- Start the board emulation\n"

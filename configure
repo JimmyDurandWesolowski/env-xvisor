@@ -102,6 +102,27 @@ option_check() {
 	fi
     fi
 
+    # Check the tool required to create the rootfs image
+    TOOL=
+    ROOTFS_IMG_SUFFIX=$(echo ${ROOTFS_IMG} | sed -re 's|.*\.(.+)|\1|')
+    case ${ROOTFS_IMG_SUFFIX} in
+	(ext2)
+	    TOOL=genext2fs
+	    DEBIAN_PKG=genext2fs
+	    GENTOO_PKG=sys-fs/genext2fs
+	    ;;
+	(*)
+	    echo "Unknown suffix \"${ROOTFS_IMG_SUFFIX}\" in the rootfs image name \"${ROOTFS_IMG}\", exiting..."
+	    exit 1
+    esac
+    if [ -n "${TOOL}" ]; then
+	which "${TOOL}" &>/dev/null
+	if [ $? -ne 0 ]; then
+	    INSTALL_DEBIAN="${INSTALL_DEBIAN} ${DEBIAN_PKG}"
+	    INSTALL_DEBIAN="${INSTALL_GENTOO} ${GENTOO_PKG}"
+	fi
+    fi
+
     # Checking that Ncurses is installed
     cat > ${NCURSE_TMP}.c <<-EOF
 	#include <curses.h>

@@ -23,8 +23,14 @@ CONFDIR=${CURDIR}/conf
 # (the next variable)
 BUILDDIR=${CURDIR}/build
 
-# downloaded Archive directory
-ARC_DIR=${BUILDDIR}/archives
+# Downloaded archive directory
+ARCDIR=${BUILDDIR}/archives
+
+# Build stamp directory
+STAMPDIR=${BUILDDIR}/stamps
+
+# The target built rootfs
+TARGETDIR=${BUILDDIR}/target
 
 # The resulting configuration
 CONF=${BUILDDIR}/.env_config
@@ -66,12 +72,10 @@ board_list() {
 
 option_board() {
     BOARD_CONF="${CONFDIR}/${BOARDNAME}.conf"
-
     print "Sourcing \"${BOARD_CONF}\"\n"
     source ${BOARD_CONF}
-
-    ARCH_CONF="${CONFDIR}/${ARCH}.conf"
-    source ${ARCH_CONF}
+    source ${CONFDIR}/${ARCH}.conf
+    source ${CONFDIR}/components.conf
 }
 
 option_check() {
@@ -127,7 +131,6 @@ option_check() {
 }
 
 config_write() {
-    source ${SCRIPTDIR}/components.sh
     print "${BOLD}Components:${NORMAL} ${COMPONENTS}\n"
 
     mkdir -p $(dirname ${CONF})
@@ -142,8 +145,8 @@ config_write() {
 
     echo "# Environment configuration" >> ${CONF}
     echo "COMPONENTS=\"${COMPONENTS}\"" >> ${CONF}
-    for elt in CURDIR MAKEDIR SCRIPTDIR BUILDDIR ARC_DIR BUILD_VERBOSE \
-	BUILD_DEBUG; do
+    for elt in CURDIR MAKEDIR SCRIPTDIR BUILDDIR TARGETDIR ARCDIR STAMPDIR\
+	QEMU_IMG BUILD_VERBOSE BUILD_DEBUG; do
 	echo "${elt}=${!elt}" >> ${CONF}
     done
     printf "\n\n" >> ${CONF}
@@ -158,12 +161,14 @@ config_write() {
     for component in ${COMPONENTS}; do
 	COMPONENT_VERSION=${component}_VERSION
 	COMPONENT_PATH=${component}_PATH
+	COMPONENT_CONF=${component}_CONF
 	COMPONENT_FILE=${component}_FILE
 	COMPONENT_REPO=${component}_REPO
 	COMPONENT_BRANCH=${component}_BRANCH
 
 	echo "${COMPONENT_VERSION}=${!COMPONENT_VERSION}" >> ${CONF}
 	echo "${COMPONENT_PATH}=${!COMPONENT_PATH}" >> ${CONF}
+	echo "${COMPONENT_CONF}=${!COMPONENT_CONF}" >> ${CONF}
 
 	# If the component is on a git repository, get its path...
 	if [ -n "${!COMPONENT_REPO}" ]; then

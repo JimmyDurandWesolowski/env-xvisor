@@ -32,5 +32,5 @@ define COPY
 endef
 
 
-${TMPDIR}:
-	$(Q)mkdir -p ${TMPDIR}
+$(TMPDIR) $(STAMPDIR):
+	$(Q)mkdir -p $@

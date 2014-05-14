@@ -179,7 +179,7 @@ config_write() {
     echo "# Environment configuration" >> ${CONF}
     echo "COMPONENTS=\"${COMPONENTS}\"" >> ${CONF}
     for elt in CURDIR MAKEDIR SCRIPTDIR BUILDDIR TARGETDIR ARCDIR STAMPDIR\
-	TMPDIR ROOTFS_IMG QEMU_IMG BUILD_VERBOSE BUILD_DEBUG; do
+	TMPDIR CONFDIR ROOTFS_IMG QEMU_IMG BUILD_VERBOSE BUILD_DEBUG; do
 	echo "${elt}=${!elt}" >> ${CONF}
     done
     printf "\n\n" >> ${CONF}

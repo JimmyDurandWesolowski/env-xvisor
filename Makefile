@@ -63,3 +63,6 @@ endif
 	@printf "code\n"
 	@printf "  [COMPONENT]_configure	- Configure the component\n"
 	@printf "  [COMPONENT]_compile	- Compile the component\n"
+	@printf "\n"
+	@printf "  clean			- remove built file.\n"
+	@printf "  distclean		- remove all non source file.\n"

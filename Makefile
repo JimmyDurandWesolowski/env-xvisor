@@ -9,25 +9,32 @@ include $(CONF)
 include $(MAKEDIR)/common.mk
 include $(MAKEDIR)/components.mk
 include $(MAKEDIR)/busybox.mk
+include $(MAKEDIR)/xvisor.mk
+include $(MAKEDIR)/openocd.mk
+export PATH := $(PATH):$(BUILDDIR)/$(TOOLCHAIN_PATH)/bin:$(HOSTDIR)/bin/
+#export CROSS_COMPILE=$(TOOLCHAIN_PREFIX)
 
-.DEFAULT_GOAL=all
+.DEFAULT_GOAL=xvisor
 
 
 # Prepare all the components, the prepare rule depend on each component path
 # to be ready
 prepare: $(foreach component,$(COMPONENTS),$(component)-prepare)
+compile: xvisor-compile
+rootfs: busybox-install
+rootfs-img: $(BUILDDIR)/$(ROOTFS_IMG)
+xvisor: xvisor-compile
+openocd: openocd-compile
+debug: openocd-run
 
 ifeq ($(BOARD_QEMU),1)
-run:
+run: $(BUILDDIR)/$(ROOTFS_IMG)
 	@echo "$@ for $(BOARD)"
 else # BOARD_QEMU != 1
 run:
 	@echo "This board is not emulated with Qemu"
 	$(Q)exit 1
 endif # BOARD_QEMU
-
-rootfs: BUSYBOX-install
-rootfs-img: $(ROOTFS_IMG)
 
 clean:
 	$(Q)find . -name "*~" -delete

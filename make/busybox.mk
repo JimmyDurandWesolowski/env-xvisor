@@ -1,19 +1,12 @@
-BUSYBOX_DIR=$(BUILDDIR)/$(BUSYBOX_PATH)
-BUSYBOX_BUILD_DIR=$(BUILDDIR)/build_$(BUSYBOX_PATH)
-BUSYBOX_BUILD_CONF=$(BUSYBOX_BUILD_DIR)/.config
+busybox-configure $(BUSYBOX_BUILD_CONF): $(CONFDIR)/$(BUSYBOX_CONF) \
+  $(BUSYBOX_DIR)
+	$(call COPY)
 
-$(BUSYBOX_BUILD_DIR):
-	$(Q)mkdir -p $@
-
-BUSYBOX-configure $(BUSYBOX_BUILD_CONF): $(CONFDIR)/$(BUSYBOX_CONF) \
+busybox-compile: $(TOOLCHAIN_DIR) $(BUSYBOX_BUILD_CONF) $(CONF) \
   | $(BUSYBOX_BUILD_DIR)
-	@echo "(copy) $@"
-	$(Q)cp -f $< $@
-
-BUSYBOX-compile: $(BUSYBOX_BUILD_CONF) | $(BUSYBOX_BUILD_DIR)
 	$(Q)$(MAKE) -C $(BUSYBOX_DIR) O=$(BUSYBOX_BUILD_DIR) all
 
-$(STAMPDIR)/.target: BUSYBOX-compile | $(STAMPDIR)
+$(STAMPDIR)/.target: busybox-compile | $(STAMPDIR)
 	@echo "(make) $@"
 	$(Q)$(MAKE) -C $(BUSYBOX_DIR) O=$(BUSYBOX_BUILD_DIR) \
 	  CONFIG_PREFIX=$(TARGETDIR) install
@@ -21,7 +14,7 @@ $(STAMPDIR)/.target: BUSYBOX-compile | $(STAMPDIR)
 
 BUSYBOX-install: $(STAMPDIR)/.target
 
-
+# $(BUILDDIR)/$(ROOTFS_IMG) for ext2
 $(BUILDDIR)/%.ext2: $(STAMPDIR)/.target $(ROOTFS_EXTRA)
 	@echo "(fakeroot/genext2fs) $@"
 	$(Q)SIZE=$$(du -b --max-depth=0 $(TARGETDIR) | cut -f 1); \
@@ -29,7 +22,7 @@ $(BUILDDIR)/%.ext2: $(STAMPDIR)/.target $(ROOTFS_EXTRA)
 		fakeroot /bin/bash -c "genext2fs -b $${SIZE} -N $${BLK_SZ} -D \
 		  $(CONFDIR)/busybox_dev.txt -d $(TARGETDIR) $@"
 
-busybox-menuconfig:
+busybox-menuconfig: $(BUSYBOX_DIR)
 	@echo "(menuconfig) Busybox"
 	$(Q)$(MAKE) -C $(BUSYBOX_BUILD_DIR) menuconfig
 

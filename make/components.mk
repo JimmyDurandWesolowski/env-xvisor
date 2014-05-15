@@ -5,7 +5,7 @@ COMPONENTS:=$(shell echo $(COMPONENTS))
 
 $(ARCDIR)/%: | $(TMPDIR)
 	@echo "(Download) $(@F)"
-	$(Q)wget --quiet $(FILE_SERVER)/$(@F) -O ${TMPDIR}/$(@F)
+	$(Q)wget --no-verbose $(FILE_SERVER)/$(@F) -O ${TMPDIR}/$(@F)
 	$(Q)mkdir -p $(@D)
 	$(Q)mv ${TMPDIR}/$(@F) $@
 
@@ -47,7 +47,7 @@ $(BUILDDIR)/$($1_PATH): $(ARCDIR)/$($1_FILE)
 endef
 
 $(foreach component,$(COMPONENTS),\
-  $(eval $(component)-prepare: $(BUILDDIR)/$($(component)_PATH)))
+  $(eval $(component)-prepare: $($(component)_DIR)))
 
 # Generate the preparation rules for each component, depending on the fetching
 # method (git repository cloning or archive download)

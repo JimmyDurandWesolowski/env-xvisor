@@ -21,9 +21,13 @@ ifndef BUILD_DEBUG
   BUILD_DEBUG = 0
 endif
 
-# ifneq ($(BUILD_DEBUG),1)
-#   MAKEFLAGS += -j5 --no-print-directory
-# endif
+ifneq ($(BUILD_DEBUG),1)
+  MAKEFLAGS += --no-print-directory
+
+  ifneq ($(PARALLEL_JOBS),)
+    MAKEFLAGS += -j$(PARALLEL_JOBS)
+  endif
+endif
 
 define COPY
         @echo "(copy) $@"

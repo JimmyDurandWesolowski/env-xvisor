@@ -35,6 +35,9 @@ STAMPDIR=${BUILDDIR}/stamps
 # The target built rootfs
 TARGETDIR=${BUILDDIR}/target
 
+# The host build directory
+HOSTDIR=${BUILDDIR}/host
+
 # The resulting configuration
 CONF=${BUILDDIR}/.env_config
 
@@ -46,6 +49,7 @@ BOARD_QEMU=0
 
 # Verbosity option, that can be modify through the program arguments
 VERBOSE=0
+
 
 
 # Tool function used in this script
@@ -80,7 +84,7 @@ option_board() {
     source ${CONFDIR}/${ARCH}.conf
     source ${CONFDIR}/components.conf
 
-    for elt in BUSYBOX UBOOT LOADER; do
+    for elt in BUSYBOX UBOOT LOADER OPENOCD LIBFTDI; do
 	BOARD_ELT=BOARD_${elt}
 	if [ ${!BOARD_ELT} -eq 1 ]; then
 	    COMPONENTS="${COMPONENTS} ${elt}"
@@ -88,7 +92,7 @@ option_board() {
     done
 }
 
-option_check() {
+package_check() {
     INSTALL_DEBIAN=""
     INSTALL_GENTOO="emerge -av --quiet-build"
     NCURSE_TMP="${TMPDIR}/ncurse_tmp"
@@ -109,6 +113,15 @@ option_check() {
 	if [ $? -ne 0 ]; then
 	    INSTALL_DEBIAN="${INSTALL_DEBIAN} fakeroot"
 	    INSTALL_GENTOO="${INSTALL_GENTOO} sys-apps/fakeroot"
+	fi
+    fi
+
+    # Checking that libtool, used by autotools, is installed
+    if [ ${BOARD_OPENOCD} -eq 1 ]; then
+	which libtool &>/dev/null
+	if [ $? -ne 0 ]; then
+	    INSTALL_DEBIAN="${INSTALL_DEBIAN} libtool"
+	    INSTALL_GENTOO="${INSTALL_GENTOO} sys-devel/libtool"
 	fi
     fi
 
@@ -178,8 +191,9 @@ config_write() {
 
     echo "# Environment configuration" >> ${CONF}
     echo "COMPONENTS=\"${COMPONENTS}\"" >> ${CONF}
-    for elt in CURDIR MAKEDIR SCRIPTDIR BUILDDIR TARGETDIR ARCDIR STAMPDIR\
-	TMPDIR CONFDIR ROOTFS_IMG QEMU_IMG BUILD_VERBOSE BUILD_DEBUG; do
+    for elt in CURDIR MAKEDIR SCRIPTDIR BUILDDIR TARGETDIR HOSTDIR ARCDIR \
+	STAMPDIR TMPDIR CONFDIR ROOTFS_IMG QEMU_IMG BUILD_VERBOSE BUILD_DEBUG \
+	PARALLEL_JOBS; do
 	echo "${elt}=${!elt}" >> ${CONF}
     done
     printf "\n\n" >> ${CONF}
@@ -216,11 +230,17 @@ config_write() {
 	else
 	    echo "${COMPONENT_FILE}=${!COMPONENT_FILE}" >> ${CONF}
 	fi
+	echo "${component}_DIR=${BUILDDIR}/${!COMPONENT_PATH}" >> ${CONF}
+	printf "${component}_BUILD_DIR=${BUILDDIR}/build_" >> ${CONF}
+	printf "${!COMPONENT_PATH}\n" >> ${CONF}
+	printf "${component}_BUILD_CONF=${BUILDDIR}/build_" >> ${CONF}
+	printf "${!COMPONENT_PATH}/.config\n" >> ${CONF}
 	echo >> ${CONF}
     done
 }
 
+pre_option_check
 option_parse $*
 option_board
-option_check
+package_check
 config_write

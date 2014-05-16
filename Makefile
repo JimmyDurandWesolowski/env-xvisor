@@ -11,10 +11,12 @@ include $(MAKEDIR)/components.mk
 include $(MAKEDIR)/busybox.mk
 include $(MAKEDIR)/xvisor.mk
 include $(MAKEDIR)/openocd.mk
+include $(MAKEDIR)/qemu.mk
 export PATH := $(PATH):$(BUILDDIR)/$(TOOLCHAIN_PATH)/bin:$(HOSTDIR)/bin/
-#export CROSS_COMPILE=$(TOOLCHAIN_PREFIX)
+export ARCH
+export CROSS_COMPILE=$(TOOLCHAIN_PREFIX)
 
-.DEFAULT_GOAL=xvisor
+.DEFAULT_GOAL=$(BOARD_GOAL)
 
 
 # Prepare all the components, the prepare rule depend on each component path
@@ -26,6 +28,7 @@ rootfs-img: $(BUILDDIR)/$(ROOTFS_IMG)
 xvisor: xvisor-compile
 openocd: openocd-compile
 debug: openocd-run
+qemu-img: $(BUILDDIR)/qemu.img
 
 ifeq ($(BOARD_QEMU),1)
 run: $(BUILDDIR)/$(ROOTFS_IMG)

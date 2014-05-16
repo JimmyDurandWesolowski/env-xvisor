@@ -209,7 +209,7 @@ config_write() {
 
     echo "# Board configuration" >> ${CONF}
     for elt in BOARDNAME ARCH QEMU_ARCH BOARD_BUSYBOX BOARD_QEMU BOARD_LOADER \
-	BOARD_UBOOT TOOLCHAIN_PREFIX; do
+	BOARD_UBOOT BOARD_GOAL TOOLCHAIN_PREFIX ADDR_HYPER ADDR_DISK; do
 	echo "${elt}=${!elt}" >> ${CONF}
     done
 
@@ -246,6 +246,11 @@ config_write() {
 	printf "${!COMPONENT_PATH}/.config\n" >> ${CONF}
 	echo >> ${CONF}
     done
+
+    for elt in MEMIMG XVISOR_BIN XVISOR_IMX DISK_DIR; do
+	echo "${elt}=${!elt}" >> ${CONF}
+    done
+    printf "\n" >> ${CONF}
 }
 
 pre_option_check

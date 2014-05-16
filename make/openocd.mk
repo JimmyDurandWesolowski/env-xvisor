@@ -9,14 +9,14 @@ openocd-configure $(OPENOCD_BUILD_DIR)/Makefile: $(OPENOCD_DIR) \
 	$(Q)cd $(OPENOCD_BUILD_DIR) && \
 	  $(OPENOCD_DIR)/configure --enable-ftdi --prefix=$(HOSTDIR)
 
-openocd-compile: $(OPENOCD_BUILD_DIR)/Makefile
+openocd-compile $(OPENOCD_BUILD_DIR)/src/openocd: $(OPENOCD_BUILD_DIR)/Makefile
 	$(Q)$(MAKE) -C $(OPENOCD_BUILD_DIR) all
 
-openocd-install: openocd-compile
+openocd-install $(HOSTDIR)/bin/openocd: $(OPENOCD_BUILD_DIR)/src/openocd
 	$(Q)$(MAKE) -C $(OPENOCD_BUILD_DIR) install
 
-openocd-run: # openocd-install
-	$(Q)openocd -f $(CONFDIR)/$(OPENOCD_CONF).cfg; echo "" || RET=$$? && \
+openocd-run: $(HOSTDIR)/bin/openocd
+	$(Q)openocd -f $(CONFDIR)/$(OPENOCD_CONF).cfg || RET=$$?; \
 	  if [ $${RET} -eq 1 ]; then \
 	    echo; \
 	    echo "If you have any permission difficulties, copy the file"; \

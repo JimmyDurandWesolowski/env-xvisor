@@ -40,7 +40,7 @@ usage() {
     printf "  -l, --list\t\t\t\tList the supported boards\n" >> ${OUTPUT}
     printf "  -h, --help\t\t\t\tDisplay this help\n" >> ${OUTPUT}
     printf "  -v, --verbose\t\t\t\tIncrease the build system " >> ${OUTPUT}
-    printf "verbosity\n" >> ${OUTPUT}
+    printf "verbosity (implies -s)\n" >> ${OUTPUT}
     printf "  -d, --debug\t\t\t\tBuild system debugging\n" >> ${OUTPUT}
     printf "  -V\t\t\t\t\tIncrease the configuration verbosity\n" >> ${OUTPUT}
     printf "  -j JOB_NB, --jobs JOB_NB\t\tManually set the number of " >> ${OUTPUT}
@@ -97,6 +97,7 @@ option_parse() {
 
 	    (-v|--verbose)
 		BUILD_VERBOSE=1
+		DISABLE_PARALLEL=1
 		;;
 
 	    (-d|--debug)

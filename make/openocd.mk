@@ -15,5 +15,12 @@ openocd-compile: $(OPENOCD_BUILD_DIR)/Makefile
 openocd-install: openocd-compile
 	$(Q)$(MAKE) -C $(OPENOCD_BUILD_DIR) install
 
-openocd-run: openocd-install
-	$(Q)openocd -f $(CONFDIR)/$(OPENOCD_CONF).cfg
+openocd-run: # openocd-install
+	$(Q)openocd -f $(CONFDIR)/$(OPENOCD_CONF).cfg; echo "" || RET=$$? && \
+	  if [ $${RET} -eq 1 ]; then \
+	    echo; \
+	    echo "If you have any permission difficulties, copy the file"; \
+	    echo "  $(wildcard $(CONFDIR)/*usb-jtag-perm.rules)"; \
+	    echo "to your udev rule directory, and restart the udev daemon"; \
+	  fi; \
+	  exit $${RET}

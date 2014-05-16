@@ -86,10 +86,19 @@ option_board() {
 
     for elt in BUSYBOX UBOOT LOADER OPENOCD LIBFTDI; do
 	BOARD_ELT=BOARD_${elt}
+	if [ -z "${!BOARD_ELT}" ]; then
+	    continue
+	fi
+
 	if [ ${!BOARD_ELT} -eq 1 ]; then
 	    COMPONENTS="${COMPONENTS} ${elt}"
 	fi
     done
+
+    if [ ${BOARD_LOADER} -eq 1 -o ${BOARD_OPENOCD} -eq 1 ]; then
+	printf "If you use Kermit, you can find a configuration file example "
+	printf "\"${CONFDIR}/kermrc\".\n"
+    fi
 }
 
 package_check() {

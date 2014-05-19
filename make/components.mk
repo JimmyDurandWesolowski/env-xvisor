@@ -2,7 +2,6 @@
 # by the Makefile
 COMPONENTS:=$(shell echo $(COMPONENTS))
 
-
 $(ARCDIR)/%: | $(TMPDIR)
 	@echo "(Download) $(@F)"
 	$(Q)wget --no-verbose $(FILE_SERVER)/$(@F) -O ${TMPDIR}/$(@F)
@@ -18,7 +17,7 @@ define PREPARE_RULE
   ifneq ($($1_REPO),)
 $(BUILDDIR)/$($1_PATH):
 	@echo "(Clone) $$@"
-	$(Q)git clone -q $$($1_REPO) $$@
+	$(Q)git clone -q $$($1_REPO) -b $$($1_BRANCH) $$@
 
   # The component is not fetch with a git repository
   else # $($1_REPO) empty or unset

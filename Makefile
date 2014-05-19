@@ -5,13 +5,19 @@ ifeq ($(wildcard $(CONF)),)
 $(error Configuration file not found, You must run the "configure" script first)
 endif
 
+.PHONY: components-% xvisor-% busybox-% openocd-% qemu-% uboot-% clean% \
+  distclean%
+
+
 include $(CONF)
 include $(MAKEDIR)/common.mk
 include $(MAKEDIR)/components.mk
-include $(MAKEDIR)/busybox.mk
 include $(MAKEDIR)/xvisor.mk
+include $(MAKEDIR)/busybox.mk
 include $(MAKEDIR)/openocd.mk
 include $(MAKEDIR)/qemu.mk
+include $(MAKEDIR)/uboot.mk
+
 export PATH := $(PATH):$(BUILDDIR)/$(TOOLCHAIN_PATH)/bin:$(HOSTDIR)/bin/
 export ARCH
 export CROSS_COMPILE=$(TOOLCHAIN_PREFIX)

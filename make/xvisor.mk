@@ -2,19 +2,14 @@ $(XVISOR_DIR)/$(MEMIMG): $(XVISOR_DIR)
 OPENCONF_INPUT=$(XVISOR_DIR)/openconf.cfg
 
 
-# $(call COPY)
-# $(Q)$(MAKE) -C $(XVISOR_BUILD_DIR) O=$(XVISOR_DIR) oldconfig
+$(XVISOR_DIR)/arch/$(ARCH)/configs/$(XVISOR_CONF): $(CONFDIR)/$(XVISOR_CONF) \
+  | $(XVISOR_DIR)
+	$(call COPY)
 
-xvisor-configure $(XVISOR_BUILD_CONF): $(CONFDIR)/$(XVISOR_CONF) $(XVISOR_DIR)
+xvisor-configure $(XVISOR_BUILD_CONF): \
+  $(XVISOR_DIR)/arch/$(ARCH)/configs/$(XVISOR_CONF)
 	@echo "(defconfig) xVisor"
-	$(Q)mkdir -p $(XVISOR_BUILD_DIR)/tmpconf $(XVISOR_BUILD_DIR)/tools
-	$(Q)find $(XVISOR_DIR)/tools/openconf -name "*.h" -exec cp {} $(XVISOR_BUILD_DIR)/tmpconf \;
-	$(Q)$(MAKE) -C $(XVISOR_DIR)/tools/openconf openconf_defs.h
-	$(Q)cd $(XVISOR_DIR) && \
-	  find -name "*.cfg" -exec cp --parent {} $(XVISOR_BUILD_DIR) \;
-	$(Q)cd $(XVISOR_BUILD_DIR) && \
-          $(XVISOR_DIR)/tools/openconf/conf -D \
-	  $(CONFDIR)/$(XVISOR_CONF) $(OPENCONF_INPUT)
+	$(Q)$(MAKE) -C $(XVISOR_DIR) O=$(XVISOR_BUILD_DIR) $(XVISOR_CONF)
 
 xvisor-menuconfig: $(XVISOR_DIR)
 	@echo "(menuconfig) Busybox"
@@ -24,14 +19,25 @@ xvisor-dtb: $(XVISOR_BUILD_CONF)
 	@echo "(make) xVisor dtb"
 	$(Q)$(MAKE) -C $(XVISOR_DIR) O=$(XVISOR_BUILD_DIR) all dtbs
 
-xvisor-compile $(XVISOR_BIN): $(XVISOR_DIR) $(XVISOR_BUILD_CONF) $(CONF) \
+$(XVISOR_BIN): $(XVISOR_DIR) $(XVISOR_BUILD_CONF) $(CONF) \
   | $(XVISOR_BUILD_DIR)
 	@echo "(make) xVisor"
 	$(Q)$(MAKE) -C $(XVISOR_DIR) O=$(XVISOR_BUILD_DIR) all
+	$(Q)cp $(XVISOR_BUILD_DIR)/vmm.bin $@
 
+xvisor-compile: $(XVISOR_BIN)
 
-# TODO
-# xvisor-imx $(XVISOR_IMX):
+# Note that the mkimage generate an empty output file in case of failure,
+# thus the 'rm -f' at the end
+$(XVISOR_IMX): $(XVISOR_BIN) $(UBOOT_BUILD_DIR)/$(UBOOT_BOARD_CFG).cfgtmp \
+  $(UBOOT_BUILD_DIR)/$(UBOOT_MKIMAGE)
+	@echo "(generate) xVisor IMX image"
+	$(Q)$(UBOOT_BUILD_DIR)/$(UBOOT_MKIMAGE) \
+          -n $(UBOOT_BUILD_DIR)/$(UBOOT_BOARD_CFG).cfgtmp -T imximage \
+	  -e $(ADDR_HYPER) -d $< $@ || (RET=$$? && rm -f $@ && exit $${RET})
+
+xvisor-imx: $(XVISOR_IMX)
+
 
 # TODO
 # $(BUILDDIR)/$(DISK_IMG): $(DISK_DIR) $(KERN_IMG) $(FW_IMG) $(CMDS_IMG) \

@@ -247,7 +247,8 @@ config_write() {
 	echo >> ${CONF}
     done
 
-    for elt in MEMIMG XVISOR_BIN XVISOR_IMX DISK_DIR; do
+    for elt in MEMIMG XVISOR_BIN XVISOR_IMX DISK_DIR UBOOT_BOARD_CFG \
+	UBOOT_MKIMAGE UBOOT_BOARDNAME; do
 	echo "${elt}=${!elt}" >> ${CONF}
     done
     printf "\n" >> ${CONF}

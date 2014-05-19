@@ -6,7 +6,7 @@ $(error Configuration file not found, You must run the "configure" script first)
 endif
 
 .PHONY: components-% xvisor-% busybox-% openocd-% qemu-% uboot-% clean% \
-  distclean%
+  distclean% help
 
 
 include $(CONF)

@@ -4,7 +4,7 @@ COMPONENTS:=$(shell echo $(COMPONENTS))
 
 $(ARCDIR)/%: | $(TMPDIR)
 	@echo "(Download) $(@F)"
-	$(Q)wget --no-verbose $(FILE_SERVER)/$(@F) -O ${TMPDIR}/$(@F)
+	$(Q)wget --no-verbose $(FILE_SERVER)/$(@F) -O $(TMPDIR)/$(@F)
 	$(Q)mkdir -p $(@D)
 	$(Q)mv ${TMPDIR}/$(@F) $@
 

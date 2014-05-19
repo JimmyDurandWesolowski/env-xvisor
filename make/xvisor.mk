@@ -27,14 +27,13 @@ $(XVISOR_BIN): $(XVISOR_DIR) $(XVISOR_BUILD_CONF) $(CONF) \
 
 xvisor-compile: $(XVISOR_BIN)
 
-# Note that the mkimage generate an empty output file in case of failure,
-# thus the 'rm -f' at the end
 $(XVISOR_IMX): $(XVISOR_BIN) $(UBOOT_BUILD_DIR)/$(UBOOT_BOARD_CFG).cfgtmp \
   $(UBOOT_BUILD_DIR)/$(UBOOT_MKIMAGE)
 	@echo "(generate) xVisor IMX image"
 	$(Q)$(UBOOT_BUILD_DIR)/$(UBOOT_MKIMAGE) \
           -n $(UBOOT_BUILD_DIR)/$(UBOOT_BOARD_CFG).cfgtmp -T imximage \
-	  -e $(ADDR_HYPER) -d $< $@ || (RET=$$? && rm -f $@ && exit $${RET})
+	  -e $(ADDR_HYPER) -d $< $(TMPDIR)/$(@F)
+	$(Q)cp $(TMPDIR)/$(@F) $@
 
 xvisor-imx: $(XVISOR_IMX)
 

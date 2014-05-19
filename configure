@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /usr/bin/env bash
 
 
 # The called program name, i.e. configure with its path
@@ -8,7 +8,12 @@ PROGNAME=$0
 BOARDNAME=vexpress-a9
 
 # Directory where the configure script is
-CURDIR=$(realpath $(dirname ${PROGNAME}))
+which realpath &>/dev/null
+if [ $? -ne 0 ]; then
+  CURDIR=$(dirname ${PROGNAME})
+else
+  CURDIR=$(realpath $(dirname ${PROGNAME}))
+fi
 
 # Script directory
 SCRIPTDIR=${CURDIR}/scripts
@@ -106,11 +111,18 @@ package_check() {
     INSTALL_GENTOO="emerge -av --quiet-build"
     NCURSE_TMP="${TMPDIR}/ncurse_tmp"
 
+    # Check that realpath, used for these scripts is available
+    which realpath &>/dev/null
+    if [ $? -ne 0 ]; then
+	INSTALL_DEBIAN="${INSTALL_DEBIAN} realpath"
+	INSTALL_GENTOO="${INSTALL_GENTOO} app-misc/realpath"
+    fi
+
     # Checking that Qemu is installed
     if [ ${BOARD_QEMU} -eq 1 ]; then
 	which qemu-system-${QEMU_ARCH} &>/dev/null
 	if [ $? -ne 0 ]; then
-	    INSTALL_DEBIAN="qemu"
+	    INSTALL_DEBIAN="${INSTALL_DEBIAN} qemu"
 	    INSTALL_GENTOO="QEMU_SOFTMMU_TARGETS=${QEMU_ARCH} ${INSTALL_GENTOO}"
 	    INSTALL_GENTOO="${INSTALL_GENTOO} app-emulation/qemu"
 	fi
@@ -125,12 +137,18 @@ package_check() {
 	fi
     fi
 
-    # Checking that libtool, used by autotools, is installed
     if [ ${BOARD_OPENOCD} -eq 1 ]; then
+	# Checking that libtool, used by autotools, is installed
 	which libtool &>/dev/null
 	if [ $? -ne 0 ]; then
 	    INSTALL_DEBIAN="${INSTALL_DEBIAN} libtool"
 	    INSTALL_GENTOO="${INSTALL_GENTOO} sys-devel/libtool"
+	fi
+	# Checking that telnet, useful with openocd
+	which telnet &>/dev/null
+	if [ $? -ne 0 ]; then
+	    INSTALL_DEBIAN="${INSTALL_DEBIAN} telnet"
+	    INSTALL_GENTOO="${INSTALL_GENTOO} net-misc/netkit-telnetd"
 	fi
     fi
 

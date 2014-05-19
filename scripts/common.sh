@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /usr/bin/env bash
 
 
 # COMMON TOOLS
@@ -139,10 +139,10 @@ option_parse() {
     # Check that the board is correct
     case ${BOARDNAME} in
 	("vexpress-a9"|"nitrogen6x")
-	    break;;
+	    ;;
 	(*)
 	    board_list 1
-	    break;;
+	    ;;
     esac
 
     if [ -n "${DISABLE_PARALLEL}" ]; then

@@ -15,12 +15,20 @@ openocd-compile $(OPENOCD_BUILD_DIR)/src/openocd: $(OPENOCD_BUILD_DIR)/Makefile
 openocd-install $(HOSTDIR)/bin/openocd: $(OPENOCD_BUILD_DIR)/src/openocd
 	$(Q)$(MAKE) -C $(OPENOCD_BUILD_DIR) install
 
-openocd-run: $(HOSTDIR)/bin/openocd
-	$(Q)openocd -f $(CONFDIR)/$(OPENOCD_CONF).cfg || RET=$$?; \
-	  if [ $${RET} -eq 1 ]; then \
+CONF_RULE=$(wildcard $(CONFDIR)/*usb-jtag-perm.rules)
+INSTALLED_RULE=$(wildcard /etc/udev/rules.d/*usb-jtag-perm.rules)
+
+openocd-run: $(HOSTDIR)/bin/openocd $(TOOLCHAIN_DIR) \
+  | $(CONFDIR)/$(OPENOCD_CONF).cfg $(CONFDIR)/openocd
+	$(Q)openocd -f $(CONFDIR)/$(OPENOCD_CONF).cfg -s $(CONFDIR)/openocd ||\
+          RET=$$?; \
+	  if [ $${RET} -eq 1 -a ! -e $(INSTALLED_RULE) ]; then \
 	    echo; \
 	    echo "If you have any permission difficulties, copy the file"; \
-	    echo "  $(wildcard $(CONFDIR)/*usb-jtag-perm.rules)"; \
+	    echo "  $(CONF_RULE)"; \
 	    echo "to your udev rule directory, and restart the udev daemon"; \
 	  fi; \
 	  exit $${RET}
+
+gdb: | $(TOOLCHAIN_DIR)/bin/$(TOOLCHAIN_PREFIX)gdb
+	$| -ex "target remote localhost:3333"

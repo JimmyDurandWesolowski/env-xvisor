@@ -5,8 +5,9 @@ ifeq ($(wildcard $(CONF)),)
 $(error Configuration file not found, You must run the "configure" script first)
 endif
 
-.PHONY: components-% xvisor-% busybox-% openocd-% qemu-% uboot-% clean% \
-  distclean% help
+.PHONY: components-% xvisor-% busybox-% openocd-% qemu-% uboot-% \
+  prepare compile rootfs rootfs-img xvisor openocd debug qemu-img \
+  clean% distclean% help
 
 
 include $(CONF)
@@ -22,7 +23,7 @@ export PATH := $(PATH):$(BUILDDIR)/$(TOOLCHAIN_PATH)/bin:$(HOSTDIR)/bin/
 export ARCH
 export CROSS_COMPILE=$(TOOLCHAIN_PREFIX)
 
-.DEFAULT_GOAL=$(BOARD_GOAL)
+$(eval .DEFAULT_GOAL=$(BOARD_GOAL))
 
 
 # Prepare all the components, the prepare rule depend on each component path

@@ -106,51 +106,56 @@ option_board() {
     fi
 }
 
-package_check() {
+# Check if a binary exists, and add it to the install list otherwise
+# $1: Test if the binary is necessary (set to 1 to force)
+# $2: The binary to test
+# $3: The Debian package name
+# $4: The Gentoo package name
+# $5: The optional Gentoo environment to install the package
+package_check_binary() {
+    TEST=$1
+    BIN=$2
+    PKG_DEBIAN=$3
+    PKG_GENTOO=$4
+    ENV_GENTOO=$5
+
+    if [ ${TEST} -ne 1 ]; then
+	return
+    fi
+
+    which ${BIN} &>/dev/null
+    if [ $? -ne 0 ]; then
+	INSTALL_DEBIAN="${INSTALL_DEBIAN} ${PKG_DEBIAN}"
+	if [ -n "${ENV_GENTOO}" ]; then
+	    INSTALL_GENTOO="${ENV_GENTOO} ${INSTALL_GENTOO}"
+	fi
+	INSTALL_GENTOO="${INSTALL_GENTOO} ${PKG_GENTOO}"
+    fi
+}
+
+# Check that the required packages, depending on the target, are installed
+packages_check() {
     INSTALL_DEBIAN=""
     INSTALL_GENTOO="emerge -av --quiet-build"
     NCURSE_TMP="${TMPDIR}/ncurse_tmp"
 
     # Check that realpath, used for these scripts is available
-    which realpath &>/dev/null
-    if [ $? -ne 0 ]; then
-	INSTALL_DEBIAN="${INSTALL_DEBIAN} realpath"
-	INSTALL_GENTOO="${INSTALL_GENTOO} app-misc/realpath"
-    fi
+    package_check_binary 1 realpath realpath "realpath" "app-misc/realpath"
 
     # Checking that Qemu is installed
-    if [ ${BOARD_QEMU} -eq 1 ]; then
-	which qemu-system-${QEMU_ARCH} &>/dev/null
-	if [ $? -ne 0 ]; then
-	    INSTALL_DEBIAN="${INSTALL_DEBIAN} qemu"
-	    INSTALL_GENTOO="QEMU_SOFTMMU_TARGETS=${QEMU_ARCH} ${INSTALL_GENTOO}"
-	    INSTALL_GENTOO="${INSTALL_GENTOO} app-emulation/qemu"
-	fi
-    fi
+    package_check_binary ${BOARD_QEMU} qemu-system-${QEMU_ARCH} "qemu" \
+	"app-emulation/qemu" "QEMU_SOFTMMU_TARGETS=${QEMU_ARCH}"
 
     # Checking that fakeroot, used by Busybox, is installed
-    if [ ${BOARD_BUSYBOX} -eq 1 ]; then
-	which fakeroot &>/dev/null
-	if [ $? -ne 0 ]; then
-	    INSTALL_DEBIAN="${INSTALL_DEBIAN} fakeroot"
-	    INSTALL_GENTOO="${INSTALL_GENTOO} sys-apps/fakeroot"
-	fi
-    fi
+    package_check_binary ${BOARD_BUSYBOX} fakeroot "fakeroot" \
+	"sys-apps/fakeroot"
 
-    if [ ${BOARD_OPENOCD} -eq 1 ]; then
-	# Checking that libtool, used by autotools, is installed
-	which libtool &>/dev/null
-	if [ $? -ne 0 ]; then
-	    INSTALL_DEBIAN="${INSTALL_DEBIAN} libtool"
-	    INSTALL_GENTOO="${INSTALL_GENTOO} sys-devel/libtool"
-	fi
-	# Checking that telnet, useful with openocd
-	which telnet &>/dev/null
-	if [ $? -ne 0 ]; then
-	    INSTALL_DEBIAN="${INSTALL_DEBIAN} telnet"
-	    INSTALL_GENTOO="${INSTALL_GENTOO} net-misc/netkit-telnetd"
-	fi
-    fi
+    # Checking that libtool, used by autotools, is installed
+    package_check_binary ${BOARD_OPENOCD} libtool "libtool" "sys-devel/libtool"
+
+    # Checking that telnet, useful with openocd
+    package_check_binary ${BOARD_OPENOCD} telnet "telnet" \
+	"net-misc/netkit-telnetd"
 
     # Check the tool required to create the rootfs image
     TOOL=
@@ -166,13 +171,7 @@ package_check() {
 	    echo "name \"${ROOTFS_IMG}\", exiting..."
 	    exit 1
     esac
-    if [ -n "${TOOL}" ]; then
-	which "${TOOL}" &>/dev/null
-	if [ $? -ne 0 ]; then
-	    INSTALL_DEBIAN="${INSTALL_DEBIAN} ${DEBIAN_PKG}"
-	    INSTALL_DEBIAN="${INSTALL_GENTOO} ${GENTOO_PKG}"
-	fi
-    fi
+    package_check_binary 1 "${TOOL}" "${DEBIAN_PKG}" "${GENTOO_PKG}"
 
     # Checking that Ncurses is installed
     mkdir -p $(dirname ${NCURSE_TMP})
@@ -275,5 +274,5 @@ config_write() {
 pre_option_check
 option_parse $*
 option_board
-package_check
+packages_check
 config_write

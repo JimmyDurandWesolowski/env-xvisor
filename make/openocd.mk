@@ -31,4 +31,7 @@ openocd-run: $(HOSTDIR)/bin/openocd $(TOOLCHAIN_DIR) \
 	  exit $${RET}
 
 gdb: | $(TOOLCHAIN_DIR)/bin/$(TOOLCHAIN_PREFIX)gdb
-	$| -ex "target remote localhost:3333"
+	${Q}$| -ex "target remote localhost:3333"
+
+telnet:
+	${Q}telnet localhost 4444

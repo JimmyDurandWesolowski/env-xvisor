@@ -18,7 +18,8 @@ openocd-install $(HOSTDIR)/bin/openocd: $(OPENOCD_BUILD_DIR)/src/openocd
 CONF_RULE=$(wildcard $(CONFDIR)/*usb-jtag-perm.rules)
 INSTALLED_RULE=$(wildcard /etc/udev/rules.d/*usb-jtag-perm.rules)
 
-openocd-run: $(HOSTDIR)/bin/openocd $(TOOLCHAIN_DIR) \
+openocd-run: $(HOSTDIR)/bin/openocd $(TOOLCHAIN_DIR) $(BUILDDIR)/loop.bin \
+  $(BUILDDIR)/build_xvisor-next-master/vmm.bin \
   | $(CONFDIR)/$(OPENOCD_CONF).cfg $(CONFDIR)/openocd
 	$(Q)openocd -f $(CONFDIR)/$(OPENOCD_CONF).cfg -s $(CONFDIR)/openocd ||\
           RET=$$?; \
@@ -35,3 +36,11 @@ gdb: | $(TOOLCHAIN_DIR)/bin/$(TOOLCHAIN_PREFIX)gdb
 
 telnet:
 	${Q}telnet localhost 4444
+
+$(BUILDDIR)/loop:
+	$(Q)printf ".text\n.globl _start\n_start:\n\t\
+	  mov r0, pc\n\tadd r0, #-8\n\tmov pc, r0\n" | \
+	  $(TOOLCHAIN_PREFIX)gcc -nostdlib -o $@ -x assembler -
+
+$(BUILDDIR)/loop.bin: $(BUILDDIR)/loop
+	$(Q)$(TOOLCHAIN_PREFIX)objcopy -O binary $< $@

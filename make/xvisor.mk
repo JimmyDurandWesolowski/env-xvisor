@@ -6,7 +6,7 @@ $(XVISOR_DIR)/arch/$(ARCH)/configs/$(XVISOR_CONF): $(CONFDIR)/$(XVISOR_CONF) \
   | $(XVISOR_DIR)
 	$(call COPY)
 
-xvisor-configure $(XVISOR_BUILD_CONF): \
+xvisor-configure $(XVISOR_BUILD_CONF) $(XVISOR_BUILD_DIR): \
   $(XVISOR_DIR)/arch/$(ARCH)/configs/$(XVISOR_CONF)
 	@echo "(defconfig) xVisor"
 	$(Q)$(MAKE) -C $(XVISOR_DIR) O=$(XVISOR_BUILD_DIR) $(XVISOR_CONF)

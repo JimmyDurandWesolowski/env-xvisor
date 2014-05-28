@@ -11,14 +11,11 @@ xvisor-configure $(XVISOR_BUILD_CONF): \
 	@echo "(defconfig) xVisor"
 	$(Q)$(MAKE) -C $(XVISOR_DIR) O=$(XVISOR_BUILD_DIR) $(XVISOR_CONF)
 
-xvisor-menuconfig: $(XVISOR_DIR)
-	@echo "(menuconfig) Busybox"
-	$(Q)$(MAKE) -C $(XVISOR_DIR) O=$(XVISOR_BUILD_DIR) menuconfig
+xvisor-dtbs xvisor-menuconfig xvisor-vars: $(XVISOR_DIR)
+	@echo "($(subst xvisor-,,$@)) Xvisor"
+	$(Q)$(MAKE) -C $(XVISOR_DIR) O=$(XVISOR_BUILD_DIR) $(subst xvisor-,,$@)
 
-xvisor-dtb: $(XVISOR_BUILD_CONF)
-	@echo "(make) xVisor dtb"
-	$(Q)$(MAKE) -C $(XVISOR_DIR) O=$(XVISOR_BUILD_DIR) all dtbs
-
+.PHONY: $(XVISOR_BIN)
 $(XVISOR_BIN): $(XVISOR_DIR) $(XVISOR_BUILD_CONF) $(CONF) \
   | $(XVISOR_BUILD_DIR)
 	@echo "(make) xVisor"

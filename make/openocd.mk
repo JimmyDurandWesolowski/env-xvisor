@@ -31,8 +31,18 @@ openocd-run: $(HOSTDIR)/bin/openocd $(TOOLCHAIN_DIR) $(BUILDDIR)/loop.bin \
 	  fi; \
 	  exit $${RET}
 
-gdb: | $(TOOLCHAIN_DIR)/bin/$(TOOLCHAIN_PREFIX)gdb
-	${Q}$| -ex "target remote localhost:3333"
+GDB_CONF=$(TMPDIR)/gdb.conf
+
+.PHONY: $(GDB_CONF)
+
+$(GDB_CONF): | $(XVISOR_BUILD_DIR)/vmm_tmp.elf
+	$(Q)printf "target remote localhost:3333\nfile $|\n" > $@
+
+gdb: $(GDB_CONF) | $(TOOLCHAIN_DIR)/bin/$(TOOLCHAIN_PREFIX)gdb
+	$(Q)$| --command=$<
+
+cgdb: $(GDB_CONF) | $(TOOLCHAIN_DIR)/bin/$(TOOLCHAIN_PREFIX)gdb
+	$(Q)$@ -d $| -- --command=$<
 
 telnet:
 	${Q}telnet localhost 4444

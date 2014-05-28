@@ -226,9 +226,11 @@ config_write() {
 
     echo "# Board configuration" >> ${CONF}
     for elt in BOARDNAME ARCH QEMU_ARCH BOARD_BUSYBOX BOARD_QEMU BOARD_LOADER \
-	BOARD_UBOOT BOARD_GOAL TOOLCHAIN_PREFIX ADDR_HYPER ADDR_DISK; do
+	BOARD_UBOOT TOOLCHAIN_PREFIX ADDR_HYPER ADDR_DISK; do
 	echo "${elt}=${!elt}" >> ${CONF}
     done
+
+    echo ".DEFAULT_GOAL=${DEFAULT_GOAL}" >> ${CONF}
 
     printf "\n\n# Components\n" >> ${CONF}
     for component in ${COMPONENTS}; do

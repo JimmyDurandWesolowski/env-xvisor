@@ -23,8 +23,6 @@ export PATH := $(PATH):$(BUILDDIR)/$(TOOLCHAIN_PATH)/bin:$(HOSTDIR)/bin/
 export ARCH
 export CROSS_COMPILE=$(TOOLCHAIN_PREFIX)
 
-$(eval .DEFAULT_GOAL=$(BOARD_GOAL))
-
 
 # Prepare all the components, the prepare rule depend on each component path
 # to be ready

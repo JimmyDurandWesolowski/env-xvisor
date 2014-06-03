@@ -35,8 +35,11 @@ GDB_CONF=$(TMPDIR)/gdb.conf
 
 .PHONY: $(GDB_CONF)
 
-$(GDB_CONF): | $(XVISOR_BUILD_DIR)/vmm_tmp.elf
-	$(Q)printf "target remote localhost:3333\nfile $|\n" > $@
+# FIXME: Avoid hard coded values
+$(GDB_CONF): $(CURDIR)/Makefile | $(XVISOR_BUILD_DIR)/vmm_tmp.elf
+	$(Q)echo "target remote localhost:3333" > $@
+	$(Q)echo "set arm force-mode arm" >> $@
+	$(Q)echo "file $|" >> $@
 
 gdb: $(GDB_CONF) | $(TOOLCHAIN_DIR)/bin/$(TOOLCHAIN_PREFIX)gdb
 	$(Q)$| --command=$<

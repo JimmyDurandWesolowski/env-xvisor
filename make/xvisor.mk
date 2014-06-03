@@ -1,25 +1,27 @@
 $(XVISOR_DIR)/$(MEMIMG): $(XVISOR_DIR)
-OPENCONF_INPUT=$(XVISOR_DIR)/openconf.cfg
 
 
 $(XVISOR_DIR)/arch/$(ARCH)/configs/$(XVISOR_CONF): $(CONFDIR)/$(XVISOR_CONF) \
   | $(XVISOR_DIR)
 	$(call COPY)
 
-xvisor-configure $(XVISOR_BUILD_CONF) $(XVISOR_BUILD_DIR): \
+$(XVISOR_BUILD_DIR)/tmpconf: $(XVISOR_BUILD_DIR)
+
+xvisor-configure $(XVISOR_BUILD_CONF) $(XVISOR_BUILD_DIR)/tmpconf: \
   $(XVISOR_DIR)/arch/$(ARCH)/configs/$(XVISOR_CONF)
 	@echo "(defconfig) xVisor"
 	$(Q)$(MAKE) -C $(XVISOR_DIR) O=$(XVISOR_BUILD_DIR) $(XVISOR_CONF)
 
-xvisor-dtbs xvisor-menuconfig: $(XVISOR_DIR)
+xvisor-dtbs xvisor-menuconfig xvisor-vars: $(XVISOR_DIR) \
+  $(XVISOR_DIR)/arch/$(ARCH)/configs/$(XVISOR_CONF)
 	@echo "($(subst xvisor-,,$@)) Xvisor"
 	$(Q)$(MAKE) -C $(XVISOR_DIR) O=$(XVISOR_BUILD_DIR) $(subst xvisor-,,$@)
 
 xvisor-dtbs: $(TOOLCHAIN_DIR)
 
 .PHONY: $(XVISOR_BIN)
-$(XVISOR_BIN): $(XVISOR_DIR) $(XVISOR_BUILD_CONF) $(CONF) ${TOOLCHAIN_DIR} \
-  | $(XVISOR_BUILD_DIR)
+$(XVISOR_BIN): $(XVISOR_DIR) $(XVISOR_BUILD_CONF) $(CONF) \
+  $(XVISOR_BUILD_DIR)/tmpconf | $(XVISOR_BUILD_DIR)
 	@echo "(make) xVisor"
 	$(Q)$(MAKE) -C $(XVISOR_DIR) O=$(XVISOR_BUILD_DIR) all
 	$(Q)cp $(XVISOR_BUILD_DIR)/vmm.bin $@

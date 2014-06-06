@@ -17,11 +17,14 @@ openocd-install $(HOSTDIR)/bin/openocd: $(OPENOCD_BUILD_DIR)/src/openocd
 
 CONF_RULE=$(wildcard $(CONFDIR)/*usb-jtag-perm.rules)
 INSTALLED_RULE=$(wildcard /etc/udev/rules.d/*usb-jtag-perm.rules)
-
-openocd-run: $(HOSTDIR)/bin/openocd $(TOOLCHAIN_DIR) $(BUILDDIR)/loop.bin \
+OPENOCD_DEPS=$(HOSTDIR)/bin/openocd \
   $(BUILDDIR)/build_xvisor-next-master/vmm.bin \
   | $(CONFDIR)/$(OPENOCD_CONF).cfg $(CONFDIR)/openocd
-	$(Q)openocd -f $(CONFDIR)/$(OPENOCD_CONF).cfg -s $(CONFDIR)/openocd ||\
+
+
+define OPENOCD_LAUNCH
+	$(Q)openocd -f $(CONFDIR)/$(OPENOCD_CONF).cfg -s $(CONFDIR)/openocd \
+	  -c "$1" ||\
           RET=$$?; \
 	  if [ $${RET} -eq 1 -a ! -e $(INSTALLED_RULE) ]; then \
 	    echo; \
@@ -30,6 +33,16 @@ openocd-run: $(HOSTDIR)/bin/openocd $(TOOLCHAIN_DIR) $(BUILDDIR)/loop.bin \
 	    echo "to your udev rule directory, and restart the udev daemon"; \
 	  fi; \
 	  exit $${RET}
+endef
+
+openocd-init: $(OPENOCD_DEPS)
+	$(call OPENOCD_LAUNCH,reset init)
+
+openocd-debug: $(OPENOCD_DEPS)
+	$(call OPENOCD_LAUNCH,reset init; xvisor_init)
+
+openocd-run: $(OPENOCD_DEPS)
+	$(call OPENOCD_LAUNCH,reset init; xvisor_launch)
 
 GDB_CONF=$(TMPDIR)/gdb.conf
 
@@ -49,11 +62,3 @@ cgdb: $(GDB_CONF) | $(TOOLCHAIN_DIR)/bin/$(TOOLCHAIN_PREFIX)gdb
 
 telnet:
 	${Q}telnet localhost 4444
-
-$(BUILDDIR)/loop:
-	$(Q)printf ".text\n.globl _start\n_start:\n\t\
-	  mov r0, pc\n\tadd r0, #-8\n\tmov pc, r0\n" | \
-	  $(TOOLCHAIN_PREFIX)gcc -nostdlib -o $@ -x assembler -
-
-$(BUILDDIR)/loop.bin: $(BUILDDIR)/loop
-	$(Q)$(TOOLCHAIN_PREFIX)objcopy -O binary $< $@

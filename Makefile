@@ -31,17 +31,16 @@ compile: xvisor-compile
 rootfs: busybox-install
 rootfs-img: $(BUILDDIR)/$(ROOTFS_IMG)
 xvisor: xvisor-compile
-openocd: openocd-compile
-debug: openocd-run
 qemu-img: $(BUILDDIR)/qemu.img
 
 ifeq ($(BOARD_QEMU),1)
 run: $(BUILDDIR)/$(ROOTFS_IMG)
 	@echo "$@ for $(BOARD)"
 else # BOARD_QEMU != 1
-run:
-	@echo "This board is not emulated with Qemu"
-	$(Q)exit 1
+run: openocd-run
+debug: openocd-debug
+openocd: openocd-compile
+init: openocd-init
 endif # BOARD_QEMU
 
 clean:

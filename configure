@@ -4,9 +4,6 @@
 # The called program name, i.e. configure with its path
 PROGNAME=$0
 
-# Default board name:
-BOARDNAME=vexpress-a9
-
 # Directory where the configure script is
 which realpath &>/dev/null
 if [ $? -ne 0 ]; then

@@ -1,16 +1,18 @@
 $(XVISOR_DIR)/$(MEMIMG): $(XVISOR_DIR)
 
+$(XVISOR_BUILD_DIR):
+	$(Q)mkdir -p $@
 
 $(XVISOR_DIR)/arch/$(ARCH)/configs/$(XVISOR_CONF): $(CONFDIR)/$(XVISOR_CONF) \
   | $(XVISOR_DIR)
 	$(call COPY)
 
-$(XVISOR_BUILD_DIR)/tmpconf: | $(XVISOR_BUILD_DIR)
-
-xvisor-configure $(XVISOR_BUILD_CONF) $(XVISOR_BUILD_DIR)/tmpconf: \
-  $(XVISOR_DIR)/arch/$(ARCH)/configs/$(XVISOR_CONF)
+$(XVISOR_BUILD_DIR)/tmpconf: $(XVISOR_DIR)/arch/$(ARCH)/configs/$(XVISOR_CONF)\
+  $(TOOLCHAIN_DIR) | $(XVISOR_BUILD_DIR)
 	@echo "(defconfig) xVisor"
 	$(Q)$(MAKE) -C $(XVISOR_DIR) O=$(XVISOR_BUILD_DIR) $(XVISOR_CONF)
+
+xvisor-configure $(XVISOR_BUILD_DIR)/.config: $(XVISOR_BUILD_DIR)/tmpconf
 
 $(XVISOR_BUILD_DIR)/tools/dtc/dtc: $(XVISOR_DIR)
 	$(Q)mkdir -p $(@D)

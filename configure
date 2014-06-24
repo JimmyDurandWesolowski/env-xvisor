@@ -208,10 +208,6 @@ config_write() {
     echo "# by ${USER} on ${HOSTNAME}" >> ${CONF}
     printf "\n\n" >> ${CONF}
 
-    echo "# File server" >> ${CONF}
-    echo "FILE_SERVER=${FILE_SERVER}" >> ${CONF}
-    printf "\n\n" >> ${CONF}
-
     echo "# Environment configuration" >> ${CONF}
     echo "COMPONENTS=\"${COMPONENTS}\"" >> ${CONF}
     for elt in CURDIR MAKEDIR SCRIPTDIR BUILDDIR TARGETDIR HOSTDIR ARCDIR \
@@ -237,6 +233,7 @@ config_write() {
 	COMPONENT_FILE=${component}_FILE
 	COMPONENT_REPO=${component}_REPO
 	COMPONENT_BRANCH=${component}_BRANCH
+	COMPONENT_SERVER=${component}_SERVER
 
 	echo "${COMPONENT_VERSION}=${!COMPONENT_VERSION}" >> ${CONF}
 	echo "${COMPONENT_PATH}=${!COMPONENT_PATH}" >> ${CONF}
@@ -251,8 +248,9 @@ config_write() {
 	    else
 		echo "${COMPONENT_REPO}=master" >> ${CONF}
 	    fi
-	# Otherwise, it is provided with a archive file
+	# Otherwise, it is provided with a archive server and file
 	else
+	    echo "${COMPONENT_SERVER}=${!COMPONENT_SERVER}" >> ${CONF}
 	    echo "${COMPONENT_FILE}=${!COMPONENT_FILE}" >> ${CONF}
 	fi
 	echo "${component}_DIR=${BUILDDIR}/${!COMPONENT_PATH}" >> ${CONF}
@@ -263,8 +261,8 @@ config_write() {
 	echo >> ${CONF}
     done
 
-    for elt in MEMIMG XVISOR_BIN XVISOR_IMX DISK_DIR UBOOT_BOARD_CFG \
-	UBOOT_MKIMAGE UBOOT_BOARDNAME; do
+    for elt in MEMIMG XVISOR_BIN XVISOR_IMX DISK_DIR DISK_IMG UBOOT_BOARD_CFG \
+	UBOOT_BOARDNAME; do
 	echo "${elt}=${!elt}" >> ${CONF}
     done
     printf "\n" >> ${CONF}

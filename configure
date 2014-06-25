@@ -140,7 +140,7 @@ packages_check() {
     package_check_binary 1 realpath realpath "realpath" "app-misc/realpath"
 
     # Checking that Qemu is installed
-    package_check_binary ${BOARD_QEMU} qemu-system-${QEMU_ARCH} "qemu" \
+    package_check_binary ${BOARD_QEMU} qemu-system-${QEMU_ARCH} "qemu-system" \
 	"\">=app-emulation/qemu-1.6.1\"" \
 	"QEMU_SOFTMMU_TARGETS=${QEMU_ARCH} USE=fdt"
 

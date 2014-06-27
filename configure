@@ -141,7 +141,8 @@ packages_check() {
 
     # Checking that Qemu is installed
     package_check_binary ${BOARD_QEMU} qemu-system-${QEMU_ARCH} "qemu" \
-	"app-emulation/qemu" "QEMU_SOFTMMU_TARGETS=${QEMU_ARCH}"
+	"\">=app-emulation/qemu-1.6.1\"" \
+	"QEMU_SOFTMMU_TARGETS=${QEMU_ARCH} USE=fdt"
 
     # Checking that fakeroot, used by Busybox, is installed
     package_check_binary ${BOARD_BUSYBOX} fakeroot "fakeroot" \
@@ -215,15 +216,28 @@ config_write() {
 	PARALLEL_JOBS; do
 	echo "${elt}=${!elt}" >> ${CONF}
     done
+
+    echo ".DEFAULT_GOAL=${DEFAULT_GOAL}" >> ${CONF}
     printf "\n\n" >> ${CONF}
 
     echo "# Board configuration" >> ${CONF}
-    for elt in BOARDNAME ARCH QEMU_ARCH BOARD_BUSYBOX BOARD_QEMU BOARD_LOADER \
-	BOARD_UBOOT TOOLCHAIN_PREFIX ADDR_HYPER ADDR_DISK; do
+    for elt in BOARDNAME ARCH ARCHSIZE QEMU_ARCH XVISOR_ARCH BOARD_BUSYBOX \
+	BOARD_QEMU BOARD_LOADER BOARD_UBOOT TOOLCHAIN_PREFIX; do
 	echo "${elt}=${!elt}" >> ${CONF}
     done
+    printf "\n\n" >> ${CONF}
 
-    echo ".DEFAULT_GOAL=${DEFAULT_GOAL}" >> ${CONF}
+    echo "# Memory mapping" >> ${CONF}
+    echo "# Physical memory mapping" >> ${CONF}
+    for elt in ADDR_HYPER ADDR_DISK; do
+	echo "${elt}=${!elt}" >> ${CONF}
+    done
+    echo >> ${CONF}
+    echo "# Hypervised memory mapping" >> ${CONF}
+    for elt in ADDRH_KERN ADDRH_RFS ADDRH_FLASH_FW ADDRH_FLASH_CMD \
+	ADDRH_FLASH_KERN ADDRH_FLASH_RFS; do
+	echo "${elt}=${!elt}" >> ${CONF}
+    done
 
     printf "\n\n# Components\n" >> ${CONF}
     for component in ${COMPONENTS}; do
@@ -261,8 +275,9 @@ config_write() {
 	echo >> ${CONF}
     done
 
-    for elt in MEMIMG XVISOR_BIN XVISOR_IMX DISK_DIR DISK_IMG UBOOT_BOARD_CFG \
-	UBOOT_BOARDNAME; do
+    for elt in MEMIMG XVISOR_BIN XVISOR_IMX KERN_IMG DISK_DIR DISK_IMG \
+	DISK_ARCH DISK_BOARD UBOOT_BOARD_CFG UBOOT_BOARDNAME \
+	XVISOR_ELF2C XVISOR_CPATCH XVISOR_FW_IMG BUSYBOX_XVISOR_DEV DTB; do
 	echo "${elt}=${!elt}" >> ${CONF}
     done
     printf "\n" >> ${CONF}

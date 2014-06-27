@@ -30,8 +30,6 @@ usage() {
 
     printf "Usage: ${PROGNAME} [OPTION]\n" > ${OUTPUT}
     printf "Configure the ELA hypervisor build system.\n" >> ${OUTPUT}
-    printf "If no board is selected, the Versatile Express A9 will be "
-    printf "set.\n" >> ${OUTPUT}
     printf "\n" >> ${OUTPUT}
     printf "Options are:\n" >> ${OUTPUT}
     printf "  -b BOARDNAME,--board BOARDNAME\tBuild the " >> ${OUTPUT}

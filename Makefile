@@ -18,6 +18,7 @@ include $(MAKEDIR)/busybox.mk
 include $(MAKEDIR)/openocd.mk
 include $(MAKEDIR)/qemu.mk
 include $(MAKEDIR)/uboot.mk
+include $(MAKEDIR)/kernel.mk
 
 export PATH := $(PATH):$(BUILDDIR)/$(TOOLCHAIN_PATH)/bin:$(HOSTDIR)/bin/
 export ARCH
@@ -34,13 +35,14 @@ xvisor: xvisor-compile
 qemu-img: $(BUILDDIR)/qemu.img
 
 ifeq ($(BOARD_QEMU),1)
-run: $(BUILDDIR)/$(ROOTFS_IMG)
-	@echo "$@ for $(BOARD)"
+  run: $(BUILDDIR)/$(QEMU_IMG) xvisor-dtbs
+	@echo "$@ for $(BOARDNAME)"
+	$(call QEMU,-display none -serial stdio,$<)
 else # BOARD_QEMU != 1
-run: openocd-run
-debug: openocd-debug
-openocd: openocd-compile
-init: openocd-init
+  run: openocd-run
+  debug: openocd-debug
+  openocd: openocd-compile
+  init: openocd-init
 endif # BOARD_QEMU
 
 clean:

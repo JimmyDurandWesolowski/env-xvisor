@@ -38,3 +38,11 @@ endef
 
 $(TMPDIR) $(STAMPDIR):
 	$(Q)mkdir -p $@
+
+define FILE_SIZE
+	printf "0x%X\n" $(shell stat -c "%s" $1)
+endef
+
+define DIR_SIZE
+	$(shell du -b --max-depth=0 $1 | cut -f 1)
+endef

@@ -1,0 +1,27 @@
+BOARDNAME_CONF=$(shell echo $(BOARDNAME) | tr '-' '_')
+XVISOR_LINUX_CONF_DIR=$(XVISOR_DIR)/tests/$(XVISOR_ARCH)/$(BOARDNAME)/linux
+XVISOR_LINUX_CONF_NAME=$(LINUX_PATH)_$(BOARDNAME_CONF)_defconfig
+XVISOR_LINUX_CONF=$(XVISOR_LINUX_CONF_DIR)/$(XVISOR_LINUX_CONF_NAME)
+
+$(XVISOR_LINUX_CONF): $(XVISOR_DIR)
+
+$(LINUX_BUILD_DIR):
+	$(Q)mkdir -p $@
+
+$(LINUX_BUILD_CONF): $(XVISOR_LINUX_CONF) | $(LINUX_BUILD_DIR)
+	@echo "(defconfig) Linux"
+	$(Q)cp $< $@
+	$(Q)$(MAKE) -C $(LINUX_DIR) O=$(LINUX_BUILD_DIR) oldconfig
+
+$(LINUX_BUILD_DIR)/vmlinux: $(LINUX_BUILD_CONF) | $(LINUX_DIR)
+	@echo "(make) Linux"
+	$(Q)$(MAKE) -C $(LINUX_DIR) O=$(LINUX_BUILD_DIR) vmlinux
+
+$(DISK_DIR)/$(DISK_BOARD)/$(KERN_IMG): $(LINUX_BUILD_DIR)/vmlinux \
+  $(XVISOR_DIR)/$(XVISOR_ELF2C) $(XVISOR_BUILD_DIR)/$(XVISOR_CPATCH) \
+  | $(DISK_DIR)/$(DISK_BOARD) $(DISK_BOARD)
+	@echo "(patch) Linux"
+	$(Q)$(XVISOR_DIR)/$(XVISOR_ELF2C) -f $< | \
+	  $(XVISOR_BUILD_DIR)/$(XVISOR_CPATCH) $< 0
+	$(Q)$(MAKE) -C $(LINUX_DIR) O=$(LINUX_BUILD_DIR) Image
+	$(Q)cp $(LINUX_BUILD_DIR)/arch/$(ARCH)/boot/Image $@

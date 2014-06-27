@@ -21,12 +21,16 @@ $(XVISOR_BUILD_CONF): $(XVISOR_DIR)/arch/$(ARCH)/configs/$(XVISOR_CONF) \
 xvisor-configure: $(XVISOR_BUILD_CONF)
 
 xvisor-dtbs xvisor-menuconfig xvisor-vars: $(XVISOR_DIR) \
-  $(XVISOR_DIR)/arch/$(ARCH)/configs/$(XVISOR_CONF) \
-  $(XVISOR_BUILD_DIR)/tools/dtc/dtc
+  $(XVISOR_BUILD_DIR)/tools/dtc/dtc $(XVISOR_BUILD_CONF)
 	@echo "($(subst xvisor-,,$@)) Xvisor"
 	$(Q)$(MAKE) -C $(XVISOR_DIR) O=$(XVISOR_BUILD_DIR) $(subst xvisor-,,$@)
 
 xvisor-dtbs: $(TOOLCHAIN_DIR)
+
+$(BUILDDIR)/$(BOARDNAME).dtb: xvisor-dtbs
+	$(Q)ln -sf $$(find $(XVISOR_BUILD_DIR)/arch/$(ARCH)/board -name $(DTB))\
+	  $@
+
 
 .PHONY: $(XVISOR_BIN)
 $(XVISOR_BIN): $(XVISOR_BUILD_CONF) $(CONF) $(XVISOR_BUILD_DIR)/tools/dtc/dtc \

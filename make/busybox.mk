@@ -21,6 +21,8 @@ $(STAMPDIR)/.target: $(STAMPDIR)/.target_compile
 
 BUSYBOX-install: $(STAMPDIR)/.target
 
+$(XVISOR_DIR)/$(BUSYBOX_XVISOR_DEV): $(XVISOR_DIR)
+
 # $(BUILDDIR)/$(ROOTFS_IMG) for ext2
 $(BUILDDIR)/%.ext2: $(STAMPDIR)/.target $(ROOTFS_EXTRA) \
   $(XVISOR_DIR)/$(BUSYBOX_XVISOR_DEV)

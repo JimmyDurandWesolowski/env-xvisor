@@ -8,18 +8,18 @@ $(XVISOR_LINUX_CONF): $(XVISOR_DIR)
 $(LINUX_BUILD_DIR):
 	$(Q)mkdir -p $@
 
-$(LINUX_BUILD_CONF): $(XVISOR_LINUX_CONF) | $(LINUX_BUILD_DIR)
+$(LINUX_BUILD_CONF): $(XVISOR_LINUX_CONF) | $(LINUX_BUILD_DIR) $(LINUX_DIR)
 	@echo "(defconfig) Linux"
 	$(Q)cp $< $@
 	$(Q)$(MAKE) -C $(LINUX_DIR) O=$(LINUX_BUILD_DIR) oldconfig
 
-$(LINUX_BUILD_DIR)/vmlinux: $(LINUX_BUILD_CONF) | $(LINUX_DIR)
+$(LINUX_BUILD_DIR)/vmlinux: $(LINUX_BUILD_CONF) | $(LINUX_DIR) $(TOOLCHAIN)
 	@echo "(make) Linux"
 	$(Q)$(MAKE) -C $(LINUX_DIR) O=$(LINUX_BUILD_DIR) vmlinux
 
 $(DISK_DIR)/$(DISK_BOARD)/$(KERN_IMG): $(LINUX_BUILD_DIR)/vmlinux \
   $(XVISOR_DIR)/$(XVISOR_ELF2C) $(XVISOR_BUILD_DIR)/$(XVISOR_CPATCH) \
-  | $(DISK_DIR)/$(DISK_BOARD) $(DISK_BOARD)
+  | $(DISK_DIR)/$(DISK_BOARD)
 	@echo "(patch) Linux"
 	$(Q)$(XVISOR_DIR)/$(XVISOR_ELF2C) -f $< | \
 	  $(XVISOR_BUILD_DIR)/$(XVISOR_CPATCH) $< 0

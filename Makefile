@@ -35,9 +35,7 @@ xvisor: xvisor-compile
 qemu-img: $(BUILDDIR)/qemu.img
 
 ifeq ($(BOARD_QEMU),1)
-  run: $(BUILDDIR)/$(QEMU_IMG) xvisor-dtbs
-	@echo "$@ for $(BOARDNAME)"
-	$(call QEMU,-display none -serial stdio,$<)
+  run: qemu-run
 else # BOARD_QEMU != 1
   run: openocd-run
   debug: openocd-debug

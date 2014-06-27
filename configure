@@ -221,7 +221,7 @@ config_write() {
     printf "\n\n" >> ${CONF}
 
     echo "# Board configuration" >> ${CONF}
-    for elt in BOARDNAME ARCH ARCHSIZE QEMU_ARCH XVISOR_ARCH BOARD_BUSYBOX \
+    for elt in BOARDNAME ARCH QEMU_ARCH XVISOR_ARCH BOARD_BUSYBOX \
 	BOARD_QEMU BOARD_LOADER BOARD_UBOOT TOOLCHAIN_PREFIX; do
 	echo "${elt}=${!elt}" >> ${CONF}
     done

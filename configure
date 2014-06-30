@@ -260,7 +260,7 @@ config_write() {
 	    if [ -n "${!COMPONENT_BRANCH}" ]; then
 		echo "${COMPONENT_BRANCH}=${!COMPONENT_BRANCH}" >> ${CONF}
 	    else
-		echo "${COMPONENT_REPO}=master" >> ${CONF}
+		echo "${COMPONENT_BRANCH}=master" >> ${CONF}
 	    fi
 	# Otherwise, it is provided with a archive server and file
 	else

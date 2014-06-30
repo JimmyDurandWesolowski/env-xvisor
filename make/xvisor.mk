@@ -33,8 +33,8 @@ $(BUILDDIR)/$(BOARDNAME).dtb: xvisor-dtbs
 
 
 .PHONY: $(XVISOR_BIN)
-$(XVISOR_BIN): $(XVISOR_BUILD_CONF) $(CONF) $(XVISOR_BUILD_DIR)/tools/dtc/dtc \
-  | $(XVISOR_DIR) $(XVISOR_BUILD_DIR)/tmpconf
+$(XVISOR_BIN) $(XVISOR_BUILD_DIR)/vmm.elf: $(XVISOR_BUILD_CONF) $(CONF) \
+  $(XVISOR_BUILD_DIR)/tools/dtc/dtc | $(XVISOR_DIR) $(XVISOR_BUILD_DIR)/tmpconf
 	@echo "(make) xVisor"
 	$(Q)$(MAKE) -C $(XVISOR_DIR) O=$(XVISOR_BUILD_DIR) all
 	$(Q)cp $(XVISOR_BUILD_DIR)/vmm.bin $@

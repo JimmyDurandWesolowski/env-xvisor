@@ -229,7 +229,7 @@ config_write() {
 
     echo "# Memory mapping" >> ${CONF}
     echo "# Physical memory mapping" >> ${CONF}
-    for elt in ADDR_HYPER ADDR_DISK; do
+    for elt in RAM_BASE ADDR_HYPER ADDR_DISK; do
 	echo "${elt}=${!elt}" >> ${CONF}
     done
     echo >> ${CONF}

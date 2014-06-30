@@ -193,7 +193,7 @@ packages_check() {
 	printf "${BOLD}Please install the following packages before "
 	printf "continuing:${NORMAL}\n"
 	printf "${BOLD}For Debian/Ubuntu:${NORMAL}\n"
-	printf "  sudo apt-get install ${INSTALL_DEBIAN}\n"
+	printf "  sudo apt-get install${INSTALL_DEBIAN}\n"
 	printf "${BOLD}For Gentoo:${NORMAL}\n"
 	printf "  sudo ${INSTALL_GENTOO}\n"
 	exit 1
@@ -276,7 +276,7 @@ config_write() {
     done
 
     for elt in MEMIMG XVISOR_BIN XVISOR_IMX KERN_IMG DISK_DIR DISK_IMG \
-	DISK_ARCH DISK_BOARD UBOOT_BOARD_CFG UBOOT_BOARDNAME \
+	DISK_ARCH DISK_BOARD UBOOT_BOARD_CFG UBOOT_BOARDNAME UBOOT_MKIMAGE \
 	XVISOR_ELF2C XVISOR_CPATCH XVISOR_FW_IMG BUSYBOX_XVISOR_DEV DTB; do
 	echo "${elt}=${!elt}" >> ${CONF}
     done

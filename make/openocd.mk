@@ -17,8 +17,7 @@ openocd-install $(HOSTDIR)/bin/openocd: $(OPENOCD_BUILD_DIR)/src/openocd
 
 CONF_RULE=$(wildcard $(CONFDIR)/*usb-jtag-perm.rules)
 INSTALLED_RULE=$(wildcard /etc/udev/rules.d/*usb-jtag-perm.rules)
-OPENOCD_DEPS=$(HOSTDIR)/bin/openocd \
-  $(BUILDDIR)/build_xvisor-next-master/vmm.bin \
+OPENOCD_DEPS=$(HOSTDIR)/bin/openocd $(XVISOR_BIN) \
   | $(CONFDIR)/$(OPENOCD_CONF).cfg $(CONFDIR)/openocd
 
 

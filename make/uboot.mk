@@ -6,7 +6,7 @@ ifneq ($(BOARD_UBOOT),)
   $(UBOOT_BUILD_DIR)/$(UBOOT_BOARD_CFG).cfgtmp: \
     $(UBOOT_DIR)/$(UBOOT_BOARD_CFG) | $(TOOLCHAIN_DIR)
 	@echo "(defconfig) U-Boot"
-	$(Q)$(MAKE) -C $(UBOOT_DIR) O=$(UBOOT_BUILD_DIR)
+	$(Q)$(MAKE) -C $(UBOOT_DIR) O=$(UBOOT_BUILD_DIR) $(UBOOT_BOARDNAME)_config
 
   $(UBOOT_BUILD_DIR)/include/config.h: $(UBOOT_DIR) | $(TOOLCHAIN_DIR)
 	$(Q)$(MAKE) -C $(UBOOT_DIR) O=$(UBOOT_BUILD_DIR) $(UBOOT_BOARDNAME)_config
@@ -14,5 +14,5 @@ ifneq ($(BOARD_UBOOT),)
   uboot-configure: $(UBOOT_BUILD_DIR)/include/config.h
 
   mkimage $(UBOOT_BUILD_DIR)/$(UBOOT_MKIMAGE): $(UBOOT_BUILD_DIR)/include/config.h
-	$(Q)$(MAKE) -C $(UBOOT_DIR) O=$(UBOOT_BUILD_DIR) tools
+	$(Q)$(MAKE) -C $(UBOOT_DIR) O=$(UBOOT_BUILD_DIR) all tools
 endif

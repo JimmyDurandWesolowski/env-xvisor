@@ -1,9 +1,10 @@
 #! /bin/bash
 
 
-BIN=$1
-DTB=$2
-OUT=$3
+ELF=$1
+BIN=$2
+DTB=$3
+OUT=$4
 
 
 INSTR="mcr	15, 0, r0, cr1, cr0, {0}"
@@ -23,7 +24,7 @@ function check_env() {
 }
 
 function check_args() {
-    for var in BIN DTB; do
+    for var in ELF BIN DTB; do
 	if [ ! -e "${!var}" ]; then
 	    echo "$0: Error: \"${!var}\" does not exists, exiting"
 	    exit 1
@@ -42,10 +43,10 @@ function addrbase_get() {
     BOL="[ ]*[0-9]+: "
     ADDR="([0-9a-f]+)"
     PROP="[ ]+.*NOTYPE[ ]+GLOBAL[ ]+DEFAULT.*[ ]+"
-    START_ADDR=$(${TOOLCHAIN_PREFIX}readelf -s ${BIN} | \
+    START_ADDR=$(${TOOLCHAIN_PREFIX}readelf -s ${ELF} | \
 	sed -rne "s/^${BOL}${ADDR}${PROP}${START_SECTION}$/\1/p")
     if [ -z "${START_ADDR}" ]; then
-	echo "\"${START_SECTION}\" not found in ${BIN}, exiting"
+	echo "\"${START_SECTION}\" not found in ${ELF}, exiting"
 	exit 1
     fi
     START_ADDR=0x${START_ADDR}
@@ -54,7 +55,7 @@ function addrbase_get() {
 function mmuset_get() {
     OFFSET_MAX=$((START_ADDR + 0x1000))
     MMU_OFFSET=0x$(${TOOLCHAIN_PREFIX}objdump -d --stop-address=${OFFSET_MAX} \
-	${BIN} | grep "${INSTR}" | cut -d : -f 1)
+	${ELF} | grep "${INSTR}" | cut -d : -f 1)
     MMU_OFFSET=$((MMU_OFFSET + 4))
     MMU_PHYS_OFF=$((MMU_OFFSET - START_ADDR + BASE_ADDR))
 }

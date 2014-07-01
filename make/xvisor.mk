@@ -28,16 +28,20 @@ xvisor-dtbs xvisor-menuconfig xvisor-vars: $(XVISOR_DIR) \
 xvisor-dtbs: $(TOOLCHAIN_DIR)
 
 $(BUILDDIR)/$(BOARDNAME).dtb: xvisor-dtbs
-	$(Q)ln -sf $$(find $(XVISOR_BUILD_DIR)/arch/$(ARCH)/board -name $(DTB))\
-	  $@
-
+	@echo "(link) $(BOARDNAME).dtb"
+	$(Q)SRC=$$(find $(XVISOR_BUILD_DIR)/arch/$(ARCH)/board -name $(DTB)); \
+	  [ -z "$${SRC}" ] \
+	    && (echo "Could not find \"$(DTB)\", exiting"; exit 1) \
+	    || ln -sf $${SRC} $@
 
 .PHONY: $(XVISOR_BIN)
-$(XVISOR_BIN) $(XVISOR_BUILD_DIR)/vmm.elf: $(XVISOR_BUILD_CONF) $(CONF) \
+$(XVISOR_BIN): $(XVISOR_BUILD_CONF) $(CONF) \
   $(XVISOR_BUILD_DIR)/tools/dtc/dtc | $(XVISOR_DIR) $(XVISOR_BUILD_DIR)/tmpconf
 	@echo "(make) xVisor"
 	$(Q)$(MAKE) -C $(XVISOR_DIR) O=$(XVISOR_BUILD_DIR) all
-	$(Q)cp $(XVISOR_BUILD_DIR)/vmm.bin $@
+	$(Q)ln -sf $(XVISOR_BUILD_DIR)/vmm.bin $@
+
+$(XVISOR_BUILD_DIR)/vmm.elf: $(XVISOR_BIN)
 
 xvisor-compile: $(XVISOR_BIN)
 

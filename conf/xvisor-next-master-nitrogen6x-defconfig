@@ -2,7 +2,7 @@
 # Automatically generated make config: don't edit
 # Project: Xvisor (eXtensible Versatile hypervISOR)
 # Version: 0.2.4
-# Thu Jun  5 13:44:30 2014
+# Mon Jun 23 11:11:31 2014
 #
 CONFIG_ARCH_ARM=y
 # CONFIG_ARCH_x86 is not set
@@ -70,6 +70,10 @@ CONFIG_ARM_SMP_IPI=y
 # CONFIG_OMAP is not set
 # CONFIG_SAMSUNG_MCT is not set
 # CONFIG_SAMSUNG_MCT_LOCAL_TIMERS is not set
+CONFIG_SABRELITE_CONFIG=y
+CONFIG_IMX_CPU=y
+CONFIG_IMX6Q_CLK=y
+CONFIG_IMX6Q_PM=y
 
 #
 # Hypervisor Options
@@ -119,7 +123,9 @@ CONFIG_LOADBAL_CRUDE=y
 #
 # Device Support
 #
-# CONFIG_BLOCK is not set
+CONFIG_BLOCK=y
+CONFIG_BLOCKPART=y
+CONFIG_BLOCKPART_DOS=y
 # CONFIG_NET is not set
 CONFIG_NET_MBUF_POOL_SIZE=2048
 CONFIG_NET_MBUF_EXT_POOL_SIZE_KB=256
@@ -161,6 +167,8 @@ CONFIG_CMD_MODULE=y
 #
 # Device Driver Commands
 #
+CONFIG_CMD_BLOCKDEV=y
+CONFIG_CMD_RBD=y
 
 #
 # Networking Commands
@@ -181,6 +189,13 @@ CONFIG_MTERM_HISTORY_SIZE=10
 #
 # Library Options
 #
+HAS_IOMEM=y
+GENERIC_IO=y
+
+#
+# Virtual FileSystem Options
+#
+# CONFIG_VFS is not set
 
 #
 # Device Drivers
@@ -199,10 +214,11 @@ CONFIG_ARM_GIC=y
 # Clocksource Drivers
 #
 # CONFIG_ARM_TIMER_SP804 is not set
-# CONFIG_ARM_TWD is not set
+CONFIG_ARM_TWD=y
 CONFIG_MXC_EPIT=y
 # CONFIG_BCM2835_TIMER is not set
 # CONFIG_SUN4I_TIMER is not set
+CONFIG_MMIO=y
 
 #
 # Serial Port Drivers
@@ -213,11 +229,31 @@ CONFIG_SERIAL=y
 # CONFIG_SERIAL_PL01X is not set
 # CONFIG_SERIAL_SAMSUNG is not set
 CONFIG_SERIAL_IMX=y
+CONFIG_UART_IMX_USE_TXINTR=y
 
 #
 # RTC Drivers
 #
 # CONFIG_RTC is not set
+
+#
+# Block Drivers
+#
+CONFIG_BLOCK_RBD=y
+
+#
+# MMC/SD/SDIO drivers
+#
+# CONFIG_MMC is not set
+
+#
+# MTD drivers
+#
+CONFIG_MTD=y
+
+#
+# TO BE DONE
+#
 
 #
 # USB drivers
@@ -262,6 +298,11 @@ CONFIG_COMMON_CLK=y
 #
 # CONFIG_REALVIEW_CONFIG is not set
 # CONFIG_VEXPRESS_CONFIG is not set
+
+#
+# IDE Driver
+#
+# CONFIG_IDE is not set
 
 #
 # Device Emulators

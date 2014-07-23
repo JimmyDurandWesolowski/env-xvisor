@@ -29,10 +29,12 @@ xvisor-dtbs: $(TOOLCHAIN_DIR)
 
 $(BUILDDIR)/$(BOARDNAME).dtb: xvisor-dtbs
 	@echo "(link) $(BOARDNAME).dtb"
-	$(Q)SRC=$$(find $(XVISOR_BUILD_DIR)/arch/$(ARCH)/board -name $(DTB)); \
-	  [ -z "$${SRC}" ] \
-	    && (echo "Could not find \"$(DTB)\", exiting"; exit 1) \
-	    || ln -sf $${SRC} $@
+	$(Q)SRC=$$(find $(XVISOR_BUILD_DIR)/arch/$(ARCH)/board -type d \
+	           -name $(DTB_DIR)); \
+	  [ -z "$${SRC}/$(DTB)" ] \
+	    && (echo "Could not find \"$(DTB_DIR)/$(DTB)\" DTB directory, " \
+	             "exiting"; exit 1) \
+	    || ln -sf $${SRC}/$(DTB) $@
 
 .PHONY: $(XVISOR_BIN)
 $(XVISOR_BIN): $(XVISOR_BUILD_CONF) $(CONF) \

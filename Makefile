@@ -20,10 +20,9 @@ include $(MAKEDIR)/qemu.mk
 include $(MAKEDIR)/uboot.mk
 include $(MAKEDIR)/kernel.mk
 
-export PATH := $(PATH):$(BUILDDIR)/$(TOOLCHAIN_PATH)/bin:$(HOSTDIR)/bin/
+export PATH := $(TOOLCHAIN_DIR)/bin:$(HOSTDIR)/bin/:$(PATH)
 export ARCH
 export CROSS_COMPILE=$(TOOLCHAIN_PREFIX)
-
 
 # Prepare all the components, the prepare rule depend on each component path
 # to be ready

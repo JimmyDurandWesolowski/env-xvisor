@@ -29,7 +29,7 @@ openocd-install $(HOSTDIR)/bin/openocd: $(OPENOCD_BUILD_DIR)/src/openocd
 
 CONF_RULE=$(wildcard $(CONFDIR)/*usb-jtag-perm.rules)
 INSTALLED_RULE=$(wildcard /etc/udev/rules.d/*usb-jtag-perm.rules)
-OPENOCD_DEPS=$(HOSTDIR)/bin/openocd $(XVISOR_BIN) \
+OPENOCD_DEPS=$(HOSTDIR)/bin/openocd $(XVISOR_BIN) $(BUILDDIR)/$(BOARDNAME).dtb\
   $(BUILDDIR)/generated_$(OPENOCD_CONF) | $(CONFDIR)/$(OPENOCD_CONF) \
   $(CONFDIR)/openocd
 
@@ -62,7 +62,7 @@ GDB_CONF=$(TMPDIR)/gdb.conf
 .PHONY: $(GDB_CONF)
 
 # FIXME: Avoid hard coded values
-$(GDB_CONF): $(CURDIR)/Makefile | $(XVISOR_BUILD_DIR)/vmm_tmp.elf
+$(GDB_CONF): $(CURDIR)/Makefile | $(XVISOR_BUILD_DIR)/vmm.elf
 	$(Q)echo "target remote localhost:3333" > $@
 	$(Q)echo "set arm force-mode arm" >> $@
 	$(Q)echo "file $|" >> $@

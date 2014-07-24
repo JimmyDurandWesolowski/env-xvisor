@@ -1,3 +1,8 @@
+define cmd_xbuild
+	$(Q)$(MAKE) -j$(PARALLEL_JOBS) -C $(XVISOR_DIR)/$2 \
+	  VERBOSE=$(BUILD_VERBOSE) O=$(XVISOR_BUILD_DIR)/$3 $1
+endef
+
 $(XVISOR_DIR)/$(MEMIMG): $(XVISOR_DIR)
 
 $(XVISOR_BUILD_DIR):
@@ -9,21 +14,21 @@ $(XVISOR_DIR)/arch/$(ARCH)/configs/$(XVISOR_CONF): $(CONFDIR)/$(XVISOR_CONF) \
 
 $(XVISOR_BUILD_DIR)/tools/dtc/dtc: | $(XVISOR_DIR)
 	$(Q)mkdir -p $(@D)
-	$(Q)$(MAKE) -C $(XVISOR_DIR)/tools/dtc O=$(@D)
+	$(call cmd_xbuild,,tools/dtc,tools/dtc)
 
 $(XVISOR_BUILD_DIR)/tmpconf: $(XVISOR_BUILD_DIR)/tools/dtc/dtc
 
 $(XVISOR_BUILD_CONF): $(XVISOR_DIR)/arch/$(ARCH)/configs/$(XVISOR_CONF) \
   $(TOOLCHAIN_DIR) | $(XVISOR_BUILD_DIR)/tmpconf
 	@echo "(defconfig) xVisor"
-	$(Q)$(MAKE) -C $(XVISOR_DIR) O=$(XVISOR_BUILD_DIR) $(XVISOR_CONF)
+	$(call cmd_xbuild,$(XVISOR_CONF))
 
 xvisor-configure: $(XVISOR_BUILD_CONF)
 
 xvisor-dtbs xvisor-menuconfig xvisor-vars: $(XVISOR_DIR) \
   $(XVISOR_BUILD_DIR)/tools/dtc/dtc $(XVISOR_BUILD_CONF)
 	@echo "($(subst xvisor-,,$@)) Xvisor"
-	$(Q)$(MAKE) -C $(XVISOR_DIR) O=$(XVISOR_BUILD_DIR) $(subst xvisor-,,$@)
+	$(call cmd_xbuild,$(subst xvisor-,,$@))
 
 xvisor-dtbs: $(TOOLCHAIN_DIR)
 
@@ -40,7 +45,7 @@ $(BUILDDIR)/$(BOARDNAME).dtb: xvisor-dtbs
 $(XVISOR_BIN): $(XVISOR_BUILD_CONF) $(CONF) \
   $(XVISOR_BUILD_DIR)/tools/dtc/dtc | $(XVISOR_DIR) $(XVISOR_BUILD_DIR)/tmpconf
 	@echo "(make) xVisor"
-	$(Q)$(MAKE) -C $(XVISOR_DIR) O=$(XVISOR_BUILD_DIR) all
+	$(call cmd_xbuild)
 	$(Q)ln -sf $(XVISOR_BUILD_DIR)/vmm.bin $@
 
 $(XVISOR_BUILD_DIR)/vmm.elf: $(XVISOR_BIN)
@@ -60,7 +65,7 @@ xvisor-imx: $(XVISOR_IMX)
 $(XVISOR_DIR)/$(XVISOR_ELF2C): $(XVISOR_DIR)
 
 $(XVISOR_BUILD_DIR)/$(XVISOR_CPATCH): $(XVISOR_DIR)
-	$(Q)$(MAKE) -C $(XVISOR_DIR)/tools/cpatch O=$(@D)
+	$(call cmd_xbuild,tools/cpatch,$(dir $(XVISOR_CPATCH)))
 
 DISKA = $(DISK_DIR)/$(DISK_ARCH)
 DISKB = $(DISK_DIR)/$(DISK_BOARD)
@@ -77,7 +82,7 @@ FIRMWARE = $(FIRMWARE_DIR)/firmware.bin.patched
 $(FIRMWARE): $(XVISOR_BUILD_CONF) | $(XVISOR_BUILD_DIR)/tmpconf
 	@echo "(make) Xvisor firmware"
 	$(Q)$(MAKE) -C $(XVISOR_DIR)/tests/$(XVISOR_ARCH)/$(BOARDNAME)/basic \
-	  O=$(XVISOR_BUILD_DIR)
+	  VB=$(BUILD_VERBOSE) O=$(XVISOR_BUILD_DIR)
 
 $(DISKB)/$(XVISOR_FW_IMG): $(FIRMWARE)
 	$(call COPY)

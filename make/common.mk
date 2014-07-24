@@ -1,9 +1,8 @@
-ifneq (V,)
-  BUILD_VERBOSE = $(V)
-  # Ensure compatibility with 
-  VB=$(V)
-  undefine V
-endif
+ifdef V
+  ifneq (V,)
+    BUILD_VERBOSE = 1
+  endif # V != ''
+endif # V
 
 ifndef BUILD_VERBOSE
   BUILD_VERBOSE = 0

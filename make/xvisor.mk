@@ -76,6 +76,10 @@ $(DISKA) $(DISKB):
 $(DISKA)/$(ROOTFS_IMG): $(BUILDDIR)/$(ROOTFS_IMG)
 	$(call COPY)
 
+$(DISKA)/$(DTB_IN_IMG).dtb: $(XVISOR_DIR)/tests/$(XVISOR_ARCH)/$(BOARDNAME)/$(DTB_IN_IMG).dts
+	@echo "(dtc) $(DTB_IN_IMG)"
+	$(XVISOR_BUILD_DIR)/tools/dtc/dtc -I dts -O dtb -o $@ $<
+
 FIRMWARE_DIR = $(XVISOR_BUILD_DIR)/tests/$(XVISOR_ARCH)/$(BOARDNAME)/basic
 FIRMWARE = $(FIRMWARE_DIR)/firmware.bin.patched
 
@@ -89,10 +93,10 @@ $(DISKB)/$(XVISOR_FW_IMG): $(FIRMWARE)
 
 $(DISKB)/nor_flash.list: $(CONF)
 	@echo "(generating) nor_flash.list"
-	$(Q)echo "$(ADDRH_FLASH_FW) $(DISK_BOARD)/$(XVISOR_FW_IMG)" > $@
-	$(Q)echo "$(ADDRH_FLASH_CMD) $(DISK_BOARD)/cmdlist" >> $@
-	$(Q)echo "$(ADDRH_FLASH_KERN) $(DISK_BOARD)/$(KERN_IMG)" >> $@
-	$(Q)echo "$(ADDRH_FLASH_RFS) $(DISK_ARCH)/$(ROOTFS_IMG)" >> $@
+	$(Q)echo "$(ADDRH_FLASH_FW) /$(DISK_BOARD)/$(XVISOR_FW_IMG)" > $@
+	$(Q)echo "$(ADDRH_FLASH_CMD) /$(DISK_BOARD)/cmdlist" >> $@
+	$(Q)echo "$(ADDRH_FLASH_KERN) /$(DISK_BOARD)/$(KERN_IMG)" >> $@
+	$(Q)echo "$(ADDRH_FLASH_RFS) /$(DISK_ARCH)/$(ROOTFS_IMG)" >> $@
 
 $(DISKB)/cmdlist: $(CONF) $(DISKB)/$(KERN_IMG) $(DISKA)/$(ROOTFS_IMG)
 	@echo "(generating) cmdlist"
@@ -104,7 +108,8 @@ $(DISKB)/cmdlist: $(CONF) $(DISKB)/$(KERN_IMG) $(DISKA)/$(ROOTFS_IMG)
 	$(Q)$(call FILE_SIZE,$(DISKA)/$(ROOTFS_IMG)) >> $@
 
 $(DISK_IMG): $(DISKB)/$(KERN_IMG) $(DISKB)/$(XVISOR_FW_IMG) \
-  $(DISKB)/nor_flash.list $(DISKB)/cmdlist $(DISKA)/$(ROOTFS_IMG)
+  $(DISKB)/nor_flash.list $(DISKB)/cmdlist $(DISKA)/$(ROOTFS_IMG) \
+  $(DISKA)/$(DTB_IN_IMG).dtb
 	@echo "(genext2fs) $@"
 	$(Q)SIZE=$$(du -b --max-depth=0 $(DISK_DIR) | cut -f 1); \
 	 	BLK_SZ=1024; SIZE=$$(( $${SIZE} / $${BLK_SZ} * 5 / 4 )); \

@@ -79,6 +79,22 @@ board_list() {
     exit ${RET}
 }
 
+option_board_validate() {
+    # Check that the board has been
+    if [ -z "${BOARDNAME}" ]; then
+	usage 1
+    fi
+
+    # Check that the board is correct
+    case ${BOARDNAME} in
+	("vexpress-a9"|"nitrogen6x")
+	    ;;
+	(*)
+	    board_list 1
+	    ;;
+    esac
+}
+
 option_board() {
     BOARD_CONF="${CONFDIR}/${BOARDNAME}.conf"
     print "Sourcing \"${BOARD_CONF}\"\n"
@@ -338,6 +354,7 @@ config_write() {
 
 pre_option_check
 option_parse $*
+option_board_validate
 option_board
 packages_check
 config_write

@@ -129,20 +129,6 @@ option_parse() {
 	shift
     done
 
-    # Check that the board has been
-    if [ -z "${BOARDNAME}" ]; then
-	usage 1
-    fi
-
-    # Check that the board is correct
-    case ${BOARDNAME} in
-	("vexpress-a9"|"nitrogen6x")
-	    ;;
-	(*)
-	    board_list 1
-	    ;;
-    esac
-
     if [ -n "${DISABLE_PARALLEL}" ]; then
 	if [ ${DISABLE_PARALLEL} -eq 1 ]; then
 	    PARALLEL_JOBS=

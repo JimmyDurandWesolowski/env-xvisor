@@ -1,5 +1,6 @@
+# cmd_xbuild target relative-srcdir relative-outdir
 define cmd_xbuild
-	$(Q)$(MAKE) -j$(PARALLEL_JOBS) -C $(XVISOR_DIR)/$2 \
+	$(Q)$(MAKE) MAKEFLAGS= -j$(PARALLEL_JOBS) -C $(XVISOR_DIR)/$2 \
 	  VERBOSE=$(BUILD_VERBOSE) O=$(XVISOR_BUILD_DIR)/$3 $1
 endef
 
@@ -65,7 +66,7 @@ xvisor-imx: $(XVISOR_IMX)
 $(XVISOR_DIR)/$(XVISOR_ELF2C): $(XVISOR_DIR)
 
 $(XVISOR_BUILD_DIR)/$(XVISOR_CPATCH): $(XVISOR_DIR)
-	$(call cmd_xbuild,tools/cpatch,$(dir $(XVISOR_CPATCH)))
+	$(call cmd_xbuild,,tools/cpatch,$(dir $(XVISOR_CPATCH)))
 
 DISKA = $(DISK_DIR)/$(DISK_ARCH)
 DISKB = $(DISK_DIR)/$(DISK_BOARD)
@@ -76,7 +77,7 @@ $(DISKA) $(DISKB):
 $(DISKA)/$(ROOTFS_IMG): $(BUILDDIR)/$(ROOTFS_IMG)
 	$(call COPY)
 
-$(DISKA)/$(DTB_IN_IMG).dtb: $(XVISOR_DIR)/tests/$(XVISOR_ARCH)/$(BOARDNAME)/$(DTB_IN_IMG).dts
+$(DISKA)/$(DTB_IN_IMG).dtb: $(XVISOR_DIR)/tests/$(XVISOR_ARCH)/$(BOARDNAME)/$(DTB_IN_IMG).dts $(XVISOR_BUILD_DIR)/tools/dtc/dtc
 	@echo "(dtc) $(DTB_IN_IMG)"
 	$(XVISOR_BUILD_DIR)/tools/dtc/dtc -I dts -O dtb -o $@ $<
 

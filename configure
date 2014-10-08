@@ -75,6 +75,8 @@ board_list() {
     printf "\t\t\tThe reference platform to emulate the hypervisor.\n"
     printf "  - nitrogen6x:\t\tBoundary Devices Nitrogen6x platform\n"
     printf "\t\t\tThe real board to run the hypervisor on.\n"
+    printf "  - realview-pb-a8:\t\tRealview Platform Base Board\n"
+    printf "\t\t\tAnother reference platform to emulate the hypervisor.\n"
 
     exit ${RET}
 }
@@ -87,7 +89,7 @@ option_board_validate() {
 
     # Check that the board is correct
     case ${BOARDNAME} in
-	("vexpress-a9"|"nitrogen6x")
+	("vexpress-a9"|"nitrogen6x"|"realview-pb-a8")
 	    ;;
 	(*)
 	    board_list 1
@@ -346,7 +348,7 @@ config_write() {
     for elt in MEMIMG XVISOR_BIN XVISOR_IMX KERN_IMG DISK_DIR DISK_IMG \
 	DISK_ARCH DISK_BOARD UBOOT_BOARD_CFG UBOOT_BOARDNAME UBOOT_MKIMAGE \
 	XVISOR_ELF2C XVISOR_CPATCH XVISOR_FW_IMG BUSYBOX_XVISOR_DEV DTB \
-	DTB_DIR DTB_IN_IMG; do
+	DTB_DIR DTB_IN_IMG BOARDNAME_CONF; do
 	echo "${elt}=${!elt}" >> ${CONF}
     done
     printf "\n" >> ${CONF}

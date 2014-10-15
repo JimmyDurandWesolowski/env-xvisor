@@ -52,7 +52,10 @@ BOARD_QEMU=0
 # Verbosity option, that can be modify through the program arguments
 VERBOSE=0
 
-
+if [ -e "local.conf" ]; then
+    printf "You have a local.conf file so we source it, but use it at your own risk !!\n"
+    source local.conf
+fi
 
 # Tool function used in this script
 source ${SCRIPTDIR}/common.sh
@@ -318,10 +321,15 @@ config_write() {
 	COMPONENT_REPO=${component}_REPO
 	COMPONENT_BRANCH=${component}_BRANCH
 	COMPONENT_SERVER=${component}_SERVER
+	COMPONENT_LOCAL=${component}_LOCAL
 
 	echo "${COMPONENT_VERSION}=${!COMPONENT_VERSION}" >> ${CONF}
 	echo "${COMPONENT_PATH}=${!COMPONENT_PATH}" >> ${CONF}
 	echo "${COMPONENT_CONF}=${!COMPONENT_CONF}" >> ${CONF}
+
+	if [ -n "${!COMPONENT_LOCAL}" ]; then
+	    echo "${COMPONENT_LOCAL}=${!COMPONENT_LOCAL}" >> ${CONF}
+	fi
 
 	# If the component is on a git repository, get its path...
 	if [ -n "${!COMPONENT_REPO}" ]; then

@@ -7,6 +7,13 @@ COMPONENTS:=$(shell echo $(COMPONENTS))
 # $1: The component name (TOOLCHAIN, LINUX, ...)
 #
 define PREPARE_RULE
+ ifneq ($($1_LOCAL),)
+$(BUILDDIR)/$($1_PATH): $($1_LOCAL)
+	@echo "(Link) $$@"
+	$(Q)ln -s $$^ $$@
+
+ else #  $($1_LOCAL) empty or unset
+
   # This rule only exists for archived components (i.e. the kernel)
   ifeq ($($1_REPO),)
     # The component server and file must be set
@@ -56,6 +63,7 @@ $(BUILDDIR)/$($1_PATH):
 	$(Q)exit 1
     endif # $1_SERVER
   endif # $1_REPO
+ endif # $1_LOCAL
 endef
 
 $(foreach component,$(COMPONENTS),\

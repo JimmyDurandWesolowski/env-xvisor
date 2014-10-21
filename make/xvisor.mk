@@ -1,6 +1,6 @@
 # cmd_xbuild target relative-srcdir relative-outdir
 define cmd_xbuild
-	$(Q)$(MAKE) MAKEFLAGS= -j$(PARALLEL_JOBS) -C $(XVISOR_DIR)/$2 \
+	$(Q) MAKEFLAGS= $(MAKE) -j$(PARALLEL_JOBS) -C $(XVISOR_DIR)/$2 \
 	  VERBOSE=$(BUILD_VERBOSE) O=$(XVISOR_BUILD_DIR)/$3 $1
 endef
 
@@ -13,7 +13,10 @@ $(XVISOR_DIR)/arch/$(ARCH)/configs/$(XVISOR_CONF): $(CONFDIR)/$(XVISOR_CONF) \
   | $(XVISOR_DIR)
 	$(call COPY)
 
-$(XVISOR_BUILD_DIR)/tools/dtc/dtc: | $(XVISOR_DIR)
+# remove the V= variable before calling xvisor makefile
+$(XVISOR_BUILD_DIR)%: MAKEOVERRIDES := $(filter-out V=%,$(MAKEOVERRIDES))
+
+$(XVISOR_BUILD_DIR)/tools/dtc/dtc: | $(XVISOR_DIR) $(XVISOR_BUILD_DIR)
 	$(Q)mkdir -p $(@D)
 	$(call cmd_xbuild,,tools/dtc,tools/dtc)
 
@@ -65,7 +68,8 @@ xvisor-imx: $(XVISOR_IMX)
 
 $(XVISOR_DIR)/$(XVISOR_ELF2C): $(XVISOR_DIR)
 
-$(XVISOR_BUILD_DIR)/$(XVISOR_CPATCH): $(XVISOR_DIR)
+$(XVISOR_BUILD_DIR)/$(XVISOR_CPATCH): | $(XVISOR_DIR) $(XVISOR_BUILD_DIR)
+	$(Q)mkdir -p $(@D)
 	$(call cmd_xbuild,,tools/cpatch,$(dir $(XVISOR_CPATCH)))
 
 DISKA = $(DISK_DIR)/$(DISK_ARCH)
@@ -74,10 +78,10 @@ DISKB = $(DISK_DIR)/$(DISK_BOARD)
 $(DISKA) $(DISKB):
 	$(Q)mkdir -p $@
 
-$(DISKA)/$(ROOTFS_IMG): $(BUILDDIR)/$(ROOTFS_IMG)
+$(DISKA)/$(ROOTFS_IMG): $(BUILDDIR)/$(ROOTFS_IMG) | $(DISKA)
 	$(call COPY)
 
-$(DISKA)/$(DTB_IN_IMG).dtb: $(XVISOR_DIR)/tests/$(XVISOR_ARCH)/$(BOARDNAME)/$(DTB_IN_IMG).dts $(XVISOR_BUILD_DIR)/tools/dtc/dtc
+$(DISKA)/$(DTB_IN_IMG).dtb: $(XVISOR_DIR)/tests/$(XVISOR_ARCH)/$(BOARDNAME)/$(DTB_IN_IMG).dts $(XVISOR_BUILD_DIR)/tools/dtc/dtc | $(DISKA)
 	@echo "(dtc) $(DTB_IN_IMG)"
 	$(XVISOR_BUILD_DIR)/tools/dtc/dtc -I dts -O dtb -o $@ $<
 
@@ -89,10 +93,10 @@ $(FIRMWARE): $(XVISOR_BUILD_CONF) | $(XVISOR_BUILD_DIR)/tmpconf
 	$(Q)$(MAKE) -C $(XVISOR_DIR)/tests/$(XVISOR_ARCH)/$(BOARDNAME)/basic \
 	  VB=$(BUILD_VERBOSE) O=$(XVISOR_BUILD_DIR)
 
-$(DISKB)/$(XVISOR_FW_IMG): $(FIRMWARE)
+$(DISKB)/$(XVISOR_FW_IMG): $(FIRMWARE) | $(DISKB)
 	$(call COPY)
 
-$(DISKB)/nor_flash.list: $(CONF)
+$(DISKB)/nor_flash.list: $(CONF) | $(DISKB)
 	@echo "(generating) nor_flash.list"
 	$(Q)echo "$(ADDRH_FLASH_FW) /$(DISK_BOARD)/$(XVISOR_FW_IMG)" > $@
 	$(Q)echo "$(ADDRH_FLASH_CMD) /$(DISK_BOARD)/cmdlist" >> $@

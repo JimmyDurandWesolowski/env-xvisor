@@ -66,7 +66,7 @@ $(GDB_CONF): $(CURDIR)/Makefile | $(XVISOR_BUILD_DIR)/vmm.elf
 	$(Q)echo "target remote localhost:3333" > $@
 	$(Q)echo "set arm force-mode arm" >> $@
 	$(Q)[ -e "$(CURDIR)/gdb_extra.conf" ] && \
-	  cat "$(CURDIR)/gdb_extra.conf" >> $@
+	  cat "$(CURDIR)/gdb_extra.conf" >> $@ || true
 	$(Q)echo "file $|" >> $@
 
 gdb: $(GDB_CONF) | $(TOOLCHAIN_DIR)/bin/$(TOOLCHAIN_PREFIX)gdb

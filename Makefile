@@ -7,7 +7,7 @@ endif
 
 .PHONY: components-% xvisor-% busybox-% openocd-% qemu-% uboot-% \
   prepare compile rootfs rootfs-img xvisor openocd debug qemu-img \
-  clean% distclean% help
+  test clean% distclean% help
 
 
 include $(CONF)
@@ -42,6 +42,11 @@ else # BOARD_QEMU != 1
   init: openocd-init
 endif # BOARD_QEMU
 
+test: $(.DEFAULT_GOAL)
+ifneq ($(TEST_NAME),)
+	$(Q)$(TESTDIR)/$(TEST_NAME) $(BUILDDIR)/$(TEST_NAME).log
+endif
+
 clean:
 	$(Q)find . -name "*~" -delete
 
@@ -70,6 +75,9 @@ ifeq ($(BOARD_QEMU),1)
 endif
 ifeq ($(BOARD_LOADER),1)
 	@printf "  load			- Load xVisor on the board\n"
+endif
+ifneq ($(TEST_NAME),)
+	@printf "  test			- Run automatic test\n"
 endif
 	@printf "\n"
 	@printf "  [COMPONENT]_prepare	- Get the component COMPONENT source "

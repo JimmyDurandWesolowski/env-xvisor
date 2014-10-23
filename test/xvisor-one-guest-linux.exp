@@ -1,0 +1,46 @@
+#!/usr/bin/expect -f
+#starts xvisor kick linux guest, run "benchmarks", exit to xvisor and break
+
+set timeout 30
+
+#Assign a variable to the log file
+
+log_file [lindex $argv 0]
+
+#Start the guest VM
+
+spawn make run
+
+#Got to xvisor
+
+expect "XVisor# "
+
+send "guest kick guest0\r"
+expect "guest0: Kicked"
+
+expect "XVisor# "
+send "vserial bind guest0/uart0\r"
+
+expect "basic# "
+
+send "autoexec\r"
+expect "Jumping into linux ..."
+
+expect "Please press Enter to activate this console."
+
+send "\r"
+
+expect "# "
+send "ls\r"
+expect "# "
+send "ls\r"
+expect "# "
+
+# ESC x q
+send "\033xq"
+
+expect "XVisor# "
+#Ctrl-C
+send "\003"
+
+expect "qemu: terminating on signal 2"

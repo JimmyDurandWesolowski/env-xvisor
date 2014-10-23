@@ -307,8 +307,8 @@ config_write() {
     done
     echo >> ${CONF}
     echo "# Hypervised memory mapping" >> ${CONF}
-    for elt in ADDRH_KERN ADDRH_RFS ADDRH_FLASH_FW ADDRH_FLASH_CMD \
-	ADDRH_FLASH_KERN ADDRH_FLASH_RFS; do
+    for elt in ADDRH_KERN ADDRH_KERN_DT ADDRH_RFS ADDRH_FLASH_FW ADDRH_FLASH_CMD\
+	ADDRH_FLASH_KERN ADDRH_FLASH_KERN_DT ADDRH_FLASH_RFS; do
 	echo "${elt}=${!elt}" >> ${CONF}
     done
 
@@ -356,7 +356,7 @@ config_write() {
     for elt in MEMIMG XVISOR_BIN XVISOR_IMX KERN_IMG DISK_DIR DISK_IMG \
 	DISK_ARCH DISK_BOARD UBOOT_BOARD_CFG UBOOT_BOARDNAME UBOOT_MKIMAGE \
 	XVISOR_ELF2C XVISOR_CPATCH XVISOR_FW_IMG BUSYBOX_XVISOR_DEV DTB \
-	DTB_DIR DTB_IN_IMG BOARDNAME_CONF; do
+	DTB_DIR USE_KERN_DT KERN_DT DTB_IN_IMG BOARDNAME_CONF; do
 	[ -n "${!elt}" ] && echo "${elt}=${!elt}" >> ${CONF}
     done
     printf "\n" >> ${CONF}

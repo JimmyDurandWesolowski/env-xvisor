@@ -101,20 +101,37 @@ $(DISKB)/nor_flash.list: $(CONF) | $(DISKB)
 	$(Q)echo "$(ADDRH_FLASH_FW) /$(DISK_BOARD)/$(XVISOR_FW_IMG)" > $@
 	$(Q)echo "$(ADDRH_FLASH_CMD) /$(DISK_BOARD)/cmdlist" >> $@
 	$(Q)echo "$(ADDRH_FLASH_KERN) /$(DISK_BOARD)/$(KERN_IMG)" >> $@
+ifeq ($(USE_KERN_DT),1)
+	$(Q)echo "$(ADDRH_FLASH_KERN_DT) /$(DISK_BOARD)/$(KERN_DT).dtb" >> $@
+endif
 	$(Q)echo "$(ADDRH_FLASH_RFS) /$(DISK_ARCH)/$(ROOTFS_IMG)" >> $@
 
 $(DISKB)/cmdlist: $(CONF) $(DISKB)/$(KERN_IMG) $(DISKA)/$(ROOTFS_IMG)
 	@echo "(generating) cmdlist"
 	$(Q)printf "copy $(ADDRH_KERN) $(ADDRH_FLASH_KERN) " > $@
 	$(Q)$(call FILE_SIZE,$(DISKB)/$(KERN_IMG)) >> $@
+ifeq ($(USE_KERN_DT),1)
+	$(Q)printf "copy $(ADDRH_KERN_DT) $(ADDRH_FLASH_KERN_DT) " >> $@
+	$(Q)$(call FILE_SIZE,$(DISKB)/$(KERN_DT).dtb) >> $@
+endif
 	$(Q)printf "copy $(ADDRH_RFS) $(ADDRH_FLASH_RFS) " >> $@
 	$(Q)$(call FILE_SIZE,$(DISKA)/$(ROOTFS_IMG)) >> $@
+ifeq ($(USE_KERN_DT),1)
+	$(Q)printf "start_linux_fdt $(ADDRH_KERN) $(ADDRH_KERN_DT) $(ADDRH_RFS) " >> $@
+	$(Q)$(call FILE_SIZE,$(DISKA)/$(ROOTFS_IMG)) >> $@
+else
 	$(Q)printf "start_linux $(ADDRH_KERN) $(ADDRH_RFS) " >> $@
 	$(Q)$(call FILE_SIZE,$(DISKA)/$(ROOTFS_IMG)) >> $@
+endif
+
+ifeq ($(USE_KERN_DT),1)
+  DISKB_KERN_DTB = $(DISKB)/$(KERN_DT).dtb
+endif
+
 
 $(DISK_IMG): $(DISKB)/$(KERN_IMG) $(DISKB)/$(XVISOR_FW_IMG) \
   $(DISKB)/nor_flash.list $(DISKB)/cmdlist $(DISKA)/$(ROOTFS_IMG) \
-  $(DISKA)/$(DTB_IN_IMG).dtb
+  $(DISKA)/$(DTB_IN_IMG).dtb $(DISKB_KERN_DTB)
 	@echo "(genext2fs) $@"
 	$(Q)SIZE=$$(du -b --max-depth=0 $(DISK_DIR) | cut -f 1); \
 	 	BLK_SZ=1024; SIZE=$$(( $${SIZE} / $${BLK_SZ} * 5 / 4 )); \

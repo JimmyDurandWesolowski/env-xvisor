@@ -136,3 +136,9 @@ $(DISK_IMG): $(DISKB)/$(KERN_IMG) $(DISKB)/$(XVISOR_FW_IMG) \
 	$(Q)SIZE=$$(du -b --max-depth=0 $(DISK_DIR) | cut -f 1); \
 	 	BLK_SZ=1024; SIZE=$$(( $${SIZE} / $${BLK_SZ} * 5 / 4 )); \
 	 	genext2fs -b $${SIZE} -N $${BLK_SZ} -d $(DISK_DIR) $@
+
+
+xvisor-dump: $(XVISOR_BUILD_DIR)/vmm.elf
+	@echo "(disassemble) $<"
+	$(Q)$(TOOLCHAIN_PREFIX)objdump -dS $< > $(BUILDDIR)/xvisor.dis
+

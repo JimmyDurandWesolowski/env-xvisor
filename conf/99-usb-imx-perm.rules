@@ -1,0 +1,4 @@
+# Change the permissions for the JTAG USB device
+#   idVendor           0x15a2 Freescale Semiconductor, Inc.
+#   idProduct          0x0054 i.MX6Q SystemOnChip in RecoveryMode
+ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="15a2", ATTR{idProduct}=="0054", MODE="0666"

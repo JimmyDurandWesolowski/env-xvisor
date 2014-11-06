@@ -19,6 +19,7 @@ include $(MAKEDIR)/openocd.mk
 include $(MAKEDIR)/qemu.mk
 include $(MAKEDIR)/uboot.mk
 include $(MAKEDIR)/kernel.mk
+include $(MAKEDIR)/loader.mk
 
 export PATH := $(TOOLCHAIN_DIR)/bin:$(HOSTDIR)/bin/:$(PATH)
 export ARCH

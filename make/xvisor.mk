@@ -66,6 +66,17 @@ $(XVISOR_IMX): $(XVISOR_BIN) $(UBOOT_BUILD_DIR)/$(UBOOT_BOARD_CFG).cfgtmp \
 
 xvisor-imx: $(XVISOR_IMX)
 
+$(XVISOR_UIMAGE): $(XVISOR_BIN) $(UBOOT_BUILD_DIR)/$(UBOOT_MKIMAGE)
+	@echo "(generate) xVisor u-Boot image"
+	$(Q)$(UBOOT_BUILD_DIR)/$(UBOOT_MKIMAGE) \
+          -A $(ARCH) -O linux -C none -T kernel \
+	  -a $(ADDR_HYPER) -e $(ADDR_HYPER) \
+	  -n 'xVisor' -d $< $(TMPDIR)/$(@F)
+	$(Q)cp $(TMPDIR)/$(@F) $@
+
+xvisor-uimage: $(XVISOR_UIMAGE) $(BUILDDIR)/$(BOARDNAME).dtb
+
+
 $(XVISOR_DIR)/$(XVISOR_ELF2C): $(XVISOR_DIR)
 
 $(XVISOR_BUILD_DIR)/$(XVISOR_CPATCH): | $(XVISOR_DIR) $(XVISOR_BUILD_DIR)

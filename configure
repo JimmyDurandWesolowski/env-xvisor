@@ -228,7 +228,7 @@ packages_check() {
 	"sys-apps/fakeroot"
 
     # Checking that libtool, used by autotools, is installed
-    package_check_binary ${BOARD_OPENOCD} libtool "libtool" "sys-devel/libtool"
+    package_check_binary ${BOARD_OPENOCD} libtool "libtool-bin" "sys-devel/libtool"
 
     # Checking that telnet, useful with openocd
     package_check_binary ${BOARD_OPENOCD} telnet "telnet" \

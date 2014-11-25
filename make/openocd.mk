@@ -39,7 +39,7 @@ define OPENOCD_LAUNCH
           -f $(CONFDIR)/$(OPENOCD_CONF) -s $(CONFDIR)/openocd \
 	  -c "$1" ||\
           RET=$$?; \
-	  if [ $${RET} -eq 1 -a ! -e $(INSTALLED_RULE) ]; then \
+	  if [ $${RET} -eq 1 -a ! -e \"$(INSTALLED_RULE)\" ]; then \
 	    echo; \
 	    echo "If you have any permission difficulties, copy the file"; \
 	    echo "  $(CONF_RULE)"; \

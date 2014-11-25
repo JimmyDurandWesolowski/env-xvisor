@@ -270,6 +270,11 @@ packages_check() {
     fi
     rm -f ${NCURSE_TMP} ${NCURSE_TMP}.c
 
+    if ! pkg-config --exists libusb-1.0; then
+	INSTALL_DEBIAN="${INSTALL_DEBIAN} libusb-1.0-0-dev"
+	INSTALL_GENTOO="${INSTALL_GENTOO} \"dev-libs/libusb\""
+    fi
+
     # Display a summary if required
     if [ -n "${INSTALL_DEBIAN}" ]; then
 	printf "${BOLD}Please install the following packages before "

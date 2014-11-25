@@ -43,6 +43,9 @@ TARGETDIR=${BUILDDIR}/target
 # The host build directory
 HOSTDIR=${BUILDDIR}/host
 
+# The host build directory
+TFTPDIR=/srv/tftp
+
 # The resulting configuration
 CONF=${BUILDDIR}/.env_config
 
@@ -292,7 +295,7 @@ config_write() {
     echo "COMPONENTS=\"${COMPONENTS}\"" >> ${CONF}
     for elt in CURDIR MAKEDIR SCRIPTDIR BUILDDIR TARGETDIR HOSTDIR ARCDIR \
 	STAMPDIR TMPDIR CONFDIR ROOTFS_IMG QEMU_IMG BUILD_VERBOSE BUILD_DEBUG \
-	PARALLEL_JOBS TESTDIR; do
+	PARALLEL_JOBS TESTDIR TFTPDIR; do
 	echo "${elt}=${!elt}" >> ${CONF}
     done
 

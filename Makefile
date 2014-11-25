@@ -20,6 +20,7 @@ include $(MAKEDIR)/qemu.mk
 include $(MAKEDIR)/uboot.mk
 include $(MAKEDIR)/kernel.mk
 include $(MAKEDIR)/loader.mk
+include $(MAKEDIR)/tftp.mk
 
 export PATH := $(TOOLCHAIN_DIR)/bin:$(HOSTDIR)/bin/:$(PATH)
 export ARCH
@@ -41,6 +42,7 @@ else # BOARD_QEMU != 1
   debug: openocd-debug
   openocd: openocd-compile
   init: openocd-init
+  tftp: xvisor-tftp
 endif # BOARD_QEMU
 
 test: $(.DEFAULT_GOAL)

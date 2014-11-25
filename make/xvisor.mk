@@ -153,3 +153,9 @@ xvisor-dump: $(XVISOR_BUILD_DIR)/vmm.elf
 	@echo "(disassemble) $<"
 	$(Q)$(TOOLCHAIN_PREFIX)objdump -dS $< > $(BUILDDIR)/vmm.dis
 
+
+xvisor-rm:
+	@echo remove xvisor except config.
+	@echo then use: make xvisor-menuconfig
+	$(Q) rm -rf $(XVISOR_BUILD_DIR)/*
+	$(Q) rm -f $(XVISOR_BUILD_DIR)/.deps

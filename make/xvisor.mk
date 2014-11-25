@@ -151,5 +151,5 @@ $(DISK_IMG): $(DISKB)/$(KERN_IMG) $(DISKB)/$(XVISOR_FW_IMG) \
 
 xvisor-dump: $(XVISOR_BUILD_DIR)/vmm.elf
 	@echo "(disassemble) $<"
-	$(Q)$(TOOLCHAIN_PREFIX)objdump -dS $< > $(BUILDDIR)/xvisor.dis
+	$(Q)$(TOOLCHAIN_PREFIX)objdump -dS $< > $(BUILDDIR)/vmm.dis
 

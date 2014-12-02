@@ -61,7 +61,7 @@ function mmuset_get() {
 }
 
 function addrdtb_get() {
-	DTB_BASE=$((RAM_BASE + 0x4000))
+	DTB_BASE=$((RAM_BASE + 0x0))
 }
 
 function hexify() {

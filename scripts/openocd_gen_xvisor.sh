@@ -105,7 +105,7 @@ proc xvisor_init {} {
     xvisor_load
 
     # Wait for MMU init
-    bp ${MMU_PHYS_OFF} 32 hw
+    bp ${MMU_PHYS_OFF} 4 hw
     # Start Xvisor
     resume ${BASE_ADDR}
     # Wait for the breakpoint

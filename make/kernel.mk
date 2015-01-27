@@ -8,7 +8,7 @@ $(XVISOR_LINUX_CONF): $(XVISOR_DIR)
 $(LINUX_BUILD_DIR):
 	$(Q)mkdir -p $@
 
-$(LINUX_BUILD_CONF): $(XVISOR_LINUX_CONF) | $(LINUX_BUILD_DIR) $(LINUX_DIR)
+$(LINUX_BUILD_CONF): $(XVISOR_LINUX_CONF) | $(LINUX_BUILD_DIR) $(LINUX_DIR) TOOLCHAIN-prepare
 	@echo "(defconfig) Linux"
 	$(Q)cp $< $@
 	$(Q)$(MAKE) -C $(LINUX_DIR) O=$(LINUX_BUILD_DIR) oldconfig

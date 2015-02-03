@@ -36,8 +36,8 @@ xvisor-dtbs xvisor-menuconfig xvisor-vars: $(XVISOR_DIR) \
 
 xvisor-dtbs: $(TOOLCHAIN_DIR)
 
-$(BUILDDIR)/$(BOARDNAME).dtb: xvisor-dtbs
-	@echo "(link) $(BOARDNAME).dtb"
+$(BUILDDIR)/$(XVISOR_BOARDNAME).dtb: xvisor-dtbs
+	@echo "(link) $(XVISOR_BOARDNAME).dtb"
 	$(Q)SRC=$$(find $(XVISOR_BUILD_DIR)/arch/$(ARCH)/board -type d \
 	           -name $(DTB_DIR)); \
 	  [ -z "$${SRC}/$(DTB)" ] \
@@ -74,7 +74,7 @@ $(XVISOR_UIMAGE): $(XVISOR_BIN) $(UBOOT_BUILD_DIR)/$(UBOOT_MKIMAGE)
 	  -n 'xVisor' -d $< $(TMPDIR)/$(@F)
 	$(Q)cp $(TMPDIR)/$(@F) $@
 
-xvisor-uimage: $(XVISOR_UIMAGE) $(BUILDDIR)/$(BOARDNAME).dtb
+xvisor-uimage: $(XVISOR_UIMAGE) $(BUILDDIR)/$(XVISOR_BOARDNAME).dtb
 
 
 $(XVISOR_DIR)/$(XVISOR_ELF2C): $(XVISOR_DIR)
@@ -92,17 +92,17 @@ $(DISKA) $(DISKB):
 $(DISKA)/$(ROOTFS_IMG): $(BUILDDIR)/$(ROOTFS_IMG) | $(DISKA)
 	$(call COPY)
 
-$(DISKA)/$(DTB_IN_IMG).dtb: $(XVISOR_DIR)/tests/$(XVISOR_ARCH)/$(BOARDNAME)/$(DTB_IN_IMG).dts $(XVISOR_BUILD_DIR)/tools/dtc/dtc | $(DISKA)
+$(DISKA)/$(DTB_IN_IMG).dtb: $(XVISOR_DIR)/tests/$(XVISOR_ARCH)/$(XVISOR_BOARDNAME)/$(DTB_IN_IMG).dts $(XVISOR_BUILD_DIR)/tools/dtc/dtc | $(DISKA)
 	@echo "(dtc) $(DTB_IN_IMG)"
 	$(XVISOR_BUILD_DIR)/tools/dtc/dtc -I dts -O dtb -o $@ $<
 
-FIRMWARE_DIR = $(XVISOR_BUILD_DIR)/tests/$(XVISOR_ARCH)/$(BOARDNAME)/basic
+FIRMWARE_DIR = $(XVISOR_BUILD_DIR)/tests/$(XVISOR_ARCH)/$(XVISOR_BOARDNAME)/basic
 FIRMWARE = $(FIRMWARE_DIR)/firmware.bin.patched
 
-$(FIRMWARE): $(XVISOR_BUILD_CONF) | $(XVISOR_BUILD_DIR)/tmpconf
-	@echo "(make) Xvisor firmware"
-	$(Q)$(MAKE) -C $(XVISOR_DIR)/tests/$(XVISOR_ARCH)/$(BOARDNAME)/basic \
-	  VB=$(BUILD_VERBOSE) O=$(XVISOR_BUILD_DIR)
+xvisor-firmware $(FIRMWARE): $(XVISOR_BUILD_CONF) | \
+  $(XVISOR_BUILD_DIR)/tmpconf $(XVISOR_BUILD_DIR)/$(XVISOR_CPATCH)
+	@echo "(make) Xvisor $(XVISOR_BOARDNAME) firmware"
+	$(call cmd_xbuild,,tests/$(XVISOR_ARCH)/$(XVISOR_BOARDNAME)/basic)
 
 $(DISKB)/$(XVISOR_FW_IMG): $(FIRMWARE) | $(DISKB)
 	$(call COPY)

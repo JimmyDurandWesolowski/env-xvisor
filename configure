@@ -82,8 +82,10 @@ board_list() {
     printf "${BOLD}Available board support:${NORMAL}\n"
     printf "  - vexpress-a9:\tARM Versatile Express A9\n"
     printf "\t\t\tThe reference platform to emulate the hypervisor.\n"
-    printf "  - nitrogen6x:\t\tBoundary Devices Nitrogen6x platform\n"
+    printf "  - sabrelite:\t\tARM Sabrelite platform\n"
     printf "\t\t\tThe real board to run the hypervisor on.\n"
+    printf "  - nitrogen6x:\t\tBoundary Devices Nitrogen6x platform\n"
+    printf "\t\t\tSimilar to Sabrelite.\n"
     printf "  - realview-pb-a8:\t\tRealview Platform Base Board\n"
     printf "\t\t\tAnother reference platform to emulate the hypervisor.\n"
 
@@ -98,7 +100,11 @@ option_board_validate() {
 
     # Check that the board is correct
     case ${BOARDNAME} in
-	("vexpress-a9"|"nitrogen6x"|"realview-pb-a8")
+	("nitrogen6x")
+	    XVISOR_BOARDNAME=sabrelite
+	    ;;
+	("vexpress-a9"|"sabrelite"|"realview-pb-a8")
+	    XVISOR_BOARDNAME=$(BOARDNAME)
 	    ;;
 	(*)
 	    board_list 1
@@ -367,7 +373,8 @@ config_write() {
 	echo >> ${CONF}
     done
 
-    for elt in MEMIMG XVISOR_BIN XVISOR_IMX KERN_IMG DISK_DIR DISK_IMG \
+    for elt in XVISOR_BOARDNAME MEMIMG XVISOR_BIN XVISOR_IMX \
+	KERN_IMG DISK_DIR DISK_IMG \
 	DISK_ARCH DISK_BOARD UBOOT_BOARD_CFG UBOOT_BOARDNAME UBOOT_MKIMAGE \
 	XVISOR_ELF2C XVISOR_CPATCH XVISOR_FW_IMG BUSYBOX_XVISOR_DEV DTB \
 	DTB_DIR USE_KERN_DT KERN_DT DTB_IN_IMG BOARDNAME_CONF TEST_NAME \

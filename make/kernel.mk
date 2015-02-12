@@ -21,7 +21,7 @@ $(DISK_DIR)/$(DISK_BOARD)/$(KERN_IMG): $(LINUX_BUILD_DIR)/vmlinux \
   $(XVISOR_DIR)/$(XVISOR_ELF2C) $(XVISOR_BUILD_DIR)/$(XVISOR_CPATCH) \
   | $(DISK_DIR)/$(DISK_BOARD)
 	@echo "(patch) Linux"
-	$(Q)mv $< $<.bak
+	$(Q)cp $< $<.bak
 	$(Q)$(XVISOR_DIR)/$(XVISOR_ELF2C) -f $< | \
 	  $(XVISOR_BUILD_DIR)/$(XVISOR_CPATCH) $< 0
 	$(Q)$(MAKE) -C $(LINUX_DIR) O=$(LINUX_BUILD_DIR) Image

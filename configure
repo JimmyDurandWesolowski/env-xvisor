@@ -104,7 +104,7 @@ option_board_validate() {
 	    XVISOR_BOARDNAME=sabrelite
 	    ;;
 	("vexpress-a9"|"sabrelite"|"realview-pb-a8")
-	    XVISOR_BOARDNAME=$(BOARDNAME)
+	    XVISOR_BOARDNAME=${BOARDNAME}
 	    ;;
 	(*)
 	    board_list 1

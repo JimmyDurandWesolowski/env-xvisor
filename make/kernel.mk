@@ -40,7 +40,7 @@ $(DISK_DIR)/$(DISK_BOARD)/$(KERN_DT).dtb: $(LINUX_DIR)/arch/$(ARCH)/boot/dts/$(K
 
 linux-configure: $(LINUX_BUILD_CONF)
 
-linux-oldconfig linux-menuconfig linux-dtbs: | $(LINUX_BUILD_DIR) $(LINUX_DIR) TOOLCHAIN-prepare
+linux-oldconfig linux-menuconfig linux-savedefconfig linux-dtbs: | $(LINUX_BUILD_DIR) $(LINUX_DIR) TOOLCHAIN-prepare
 	@echo "($(subst linux-,,$@)) Linux"
 	$(Q)$(MAKE) -C $(LINUX_DIR) O=$(LINUX_BUILD_DIR) $(subst linux-,,$@)
 

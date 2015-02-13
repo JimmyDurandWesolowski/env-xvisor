@@ -31,18 +31,24 @@ expect "Jumping into linux ..."
 
 expect "Please press Enter to activate this console."
 
-send "\r"
+#send "\r"
 
-expect "# "
-send "ls\r"
-expect "# "
-send "ls\r"
-expect "# "
+#expect "# "
+#send "ls\r"
+#expect "# "
+#send "ls\r"
+#expect "# "
 
 # ESC x q
 send "\033xq"
 
 expect "XVisor# "
+
+send "vscreen hard_bind guest0\r"
+expect "Frame buffer    : fb0"
+
+sleep 10
+
 #Ctrl-C
 send "\003"
 

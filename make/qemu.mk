@@ -1,3 +1,4 @@
+ifeq ($(BOARD_QEMU),1)
 define QEMU
 	qemu-system-$(ARCH) -M $(BOARDNAME) -m 256M $1 \
 	  -kernel $(BUILDDIR)/$(QEMU_IMG) -dtb $(BUILDDIR)/$(BOARDNAME).dtb
@@ -28,3 +29,4 @@ qemu-guest-run: $(LINUX_BUILD_DIR)/arch/$(ARCH)/boot/zImage $(DISKB_KERN_DTB) $(
 	  -serial stdio \
 	  $(QEMU_DISPLAY) \
 	  $(QEMU_MONITOR)
+endif

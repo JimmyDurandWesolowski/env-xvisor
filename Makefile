@@ -43,6 +43,7 @@ else # BOARD_QEMU != 1
   openocd: openocd-compile
   init: openocd-init
   tftp: xvisor-tftp
+  img: $(DISK_IMG)
 endif # BOARD_QEMU
 
 test: $(.DEFAULT_GOAL)

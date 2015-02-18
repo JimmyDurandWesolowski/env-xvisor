@@ -92,17 +92,17 @@ $(DISKA) $(DISKB):
 $(DISKA)/$(ROOTFS_IMG): $(BUILDDIR)/$(ROOTFS_IMG) | $(DISKA)
 	$(call COPY)
 
-$(DISKA)/$(DTB_IN_IMG).dtb: $(XVISOR_DIR)/tests/$(XVISOR_ARCH)/$(XVISOR_BOARDNAME)/$(DTB_IN_IMG).dts $(XVISOR_BUILD_DIR)/tools/dtc/dtc | $(DISKA)
+$(DISKA)/$(DTB_IN_IMG).dtb: $(XVISOR_DIR)/tests/$(XVISOR_ARCH)/$(GUEST_BOARDNAME)/$(DTB_IN_IMG).dts $(XVISOR_BUILD_DIR)/tools/dtc/dtc | $(DISKA)
 	@echo "(dtc) $(DTB_IN_IMG)"
 	$(XVISOR_BUILD_DIR)/tools/dtc/dtc -I dts -O dtb -o $@ $<
 
-FIRMWARE_DIR = $(XVISOR_BUILD_DIR)/tests/$(XVISOR_ARCH)/$(XVISOR_BOARDNAME)/basic
+FIRMWARE_DIR = $(XVISOR_BUILD_DIR)/tests/$(XVISOR_ARCH)/$(GUEST_BOARDNAME)/basic
 FIRMWARE = $(FIRMWARE_DIR)/firmware.bin.patched
 
 xvisor-firmware $(FIRMWARE): $(XVISOR_BUILD_CONF) | \
   $(XVISOR_BUILD_DIR)/tmpconf $(XVISOR_BUILD_DIR)/$(XVISOR_CPATCH)
-	@echo "(make) Xvisor $(XVISOR_BOARDNAME) firmware"
-	$(call cmd_xbuild,,tests/$(XVISOR_ARCH)/$(XVISOR_BOARDNAME)/basic)
+	@echo "(make) Xvisor $(GUEST_BOARDNAME) firmware"
+	$(call cmd_xbuild,,tests/$(XVISOR_ARCH)/$(GUEST_BOARDNAME)/basic)
 
 $(DISKB)/$(XVISOR_FW_IMG): $(FIRMWARE) | $(DISKB)
 	$(call COPY)

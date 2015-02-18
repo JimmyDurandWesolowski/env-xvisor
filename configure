@@ -104,9 +104,11 @@ option_board_validate() {
     case ${BOARDNAME} in
 	("nitrogen6x")
 	    XVISOR_BOARDNAME=sabrelite
+	    GUEST_BOARDNAME=sabrelite
 	    ;;
 	("vexpress-a9"|"sabrelite"|"realview-pb-a8"|"realview-eb-mpcore")
 	    XVISOR_BOARDNAME=${BOARDNAME}
+	    GUEST_BOARDNAME=${BOARDNAME}
 	    ;;
 	(*)
 	    board_list 1
@@ -375,7 +377,7 @@ config_write() {
 	echo >> ${CONF}
     done
 
-    for elt in XVISOR_BOARDNAME MEMIMG XVISOR_BIN XVISOR_IMX \
+    for elt in XVISOR_BOARDNAME GUEST_BOARDNAME MEMIMG XVISOR_BIN XVISOR_IMX \
 	KERN_IMG DISK_DIR DISK_IMG \
 	DISK_ARCH DISK_BOARD UBOOT_BOARD_CFG UBOOT_BOARDNAME UBOOT_MKIMAGE \
 	XVISOR_ELF2C XVISOR_CPATCH XVISOR_FW_IMG BUSYBOX_XVISOR_DEV DTB \

@@ -90,6 +90,8 @@ board_list() {
     printf "\t\t\tAnother reference platform to emulate the hypervisor.\n"
     printf "  - realview-eb-mpcore:\tRealview Platform Base Board\n"
     printf "\t\t\tAnother reference platform to emulate the hypervisor.\n"
+    printf "  - bcm2835-raspi:\t\tThe Famous Raspberry PI B(+) platform\n"
+    printf "\t\t\tCan run realview-eb-mpcore guests.\n"
 
     exit ${RET}
 }
@@ -105,6 +107,10 @@ option_board_validate() {
 	("nitrogen6x")
 	    XVISOR_BOARDNAME=sabrelite
 	    GUEST_BOARDNAME=sabrelite
+	    ;;
+	("bcm2835-raspi")
+	    XVISOR_BOARDNAME=bcm2835-raspi
+	    GUEST_BOARDNAME=realview-eb-mpcore
 	    ;;
 	("vexpress-a9"|"sabrelite"|"realview-pb-a8"|"realview-eb-mpcore")
 	    XVISOR_BOARDNAME=${BOARDNAME}

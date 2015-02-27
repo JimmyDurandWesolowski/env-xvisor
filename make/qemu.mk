@@ -6,10 +6,11 @@ endef
 
 QEMU_DISPLAY?=-display none
 QEMU_MONITOR?=-monitor telnet:127.0.0.1:1234,server,nowait
+QEMU_EXTRA?=
 
 qemu-run: $(BUILDDIR)/$(QEMU_IMG) $(BUILDDIR)/$(BOARDNAME).dtb
 	@echo "$@ for $(BOARDNAME)"
-	$(call QEMU,$(QEMU_DISPLAY) -serial stdio $(QEMU_MONITOR),$<)
+	$(call QEMU,$(QEMU_DISPLAY) -serial stdio $(QEMU_MONITOR) $(QEMU_EXTRA),$<)
 
 $(BUILDDIR)/$(QEMU_IMG): $(XVISOR_DIR)/$(MEMIMG) $(XVISOR_BIN) $(DISK_IMG)
 	@echo "(memimg) $(QEMU_IMG)"
@@ -28,5 +29,6 @@ qemu-guest-run: $(LINUX_BUILD_DIR)/arch/$(ARCH)/boot/zImage $(DISKB_KERN_DTB) $(
 	  -append "root=/dev/ram rw earlyprintk console=ttyAMA0" \
 	  -serial stdio \
 	  $(QEMU_DISPLAY) \
-	  $(QEMU_MONITOR)
+	  $(QEMU_MONITOR) \
+	  $(QEMU_EXTRA)
 endif

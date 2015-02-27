@@ -21,7 +21,7 @@ ifeq ($(USE_KERN_DT),1)
 endif
 
 qemu-guest-run: $(LINUX_BUILD_DIR)/arch/$(ARCH)/boot/zImage $(DISKB_KERN_DTB) $(BUILDDIR)/$(ROOTFS_IMG)
-	/home/julienvdg/prog/build_qemu/arm-softmmu/qemu-system-$(ARCH) -M $(BOARDNAME) -m 256M $1 \
+	qemu-system-$(ARCH) -M $(BOARDNAME) -m 256M $1 \
 	  -kernel $(LINUX_BUILD_DIR)/arch/$(ARCH)/boot/zImage \
 	  $(QEMU_KERN_DTB) \
 	  -initrd $(BUILDDIR)/$(ROOTFS_IMG) \

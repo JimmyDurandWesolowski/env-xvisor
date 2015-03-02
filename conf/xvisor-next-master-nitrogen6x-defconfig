@@ -2,7 +2,7 @@
 # Automatically generated make config: don't edit
 # Project: Xvisor (eXtensible Versatile hypervISOR)
 # Version: 0.2.5
-# Mon Feb  2 19:40:57 2015
+# Mon Mar  2 10:04:42 2015
 #
 CONFIG_ARCH_ARM=y
 # CONFIG_ARCH_x86 is not set
@@ -206,10 +206,12 @@ CONFIG_CMD_MODULE=y
 CONFIG_CMD_VSERIAL=y
 CONFIG_CMD_VDISPLAY=y
 CONFIG_CMD_VINPUT=y
+CONFIG_CMD_VSCREEN=y
 
 #
 # Device Driver Commands
 #
+CONFIG_CMD_INPUT=y
 CONFIG_CMD_FB=y
 CONFIG_CMD_FB_LOGO=y
 CONFIG_CMD_FB_LOGO_XVISOR=y
@@ -219,6 +221,7 @@ CONFIG_CMD_FB_BACKLIGHT=y
 CONFIG_CMD_BLOCKDEV=y
 CONFIG_CMD_RBD=y
 CONFIG_CMD_FLASH=y
+CONFIG_CMD_I2C=y
 
 #
 # Networking Commands
@@ -240,6 +243,12 @@ CONFIG_MTERM_HISTORY_SIZE=10
 #
 # Library Options
 #
+CONFIG_VSCREEN=y
+
+#
+# Virtual Terminal Emulator Options
+#
+# CONFIG_VTEMU is not set
 
 #
 # Virtual FileSystem Options
@@ -356,7 +365,14 @@ CONFIG_MMC_SDHCI_ESDHC_IMX=y
 #
 # Input Device Support
 #
-# CONFIG_INPUT is not set
+CONFIG_INPUT=y
+
+#
+# Input Device Drivers
+#
+# CONFIG_INPUT_KEYBOARD is not set
+# CONFIG_INPUT_MOUSEDEV is not set
+# CONFIG_INPUT_TOUCHSCREEN is not set
 
 #
 # Hardware I/O ports
@@ -454,6 +470,16 @@ CONFIG_SPI_IMX=y
 # I2C support
 #
 CONFIG_I2C=y
+CONFIG_I2C_BOARDINFO=y
+
+#
+# I2C Hardware Bus support
+#
+
+#
+# I2C system bus drivers (mostly embedded / system-on-chip)
+#
+# CONFIG_I2C_IMX is not set
 
 #
 # PWM Drivers

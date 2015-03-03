@@ -140,7 +140,9 @@ else
 	$(Q)$(call FILE_SIZE,$(DISKA)/$(ROOTFS_IMG)) >> $@
 endif
 
-$(DISK_IMG): $(DISKB)/$(KERN_IMG) $(DISKB)/$(XVISOR_FW_IMG) \
+$(DISK_IMG): $(STAMPDIR)/.disk_populate
+
+$(STAMPDIR)/.disk_populate: $(DISKB)/$(KERN_IMG) $(DISKB)/$(XVISOR_FW_IMG) \
   $(DISKB)/nor_flash.list $(DISKB)/cmdlist $(DISKA)/$(ROOTFS_IMG) \
   $(DISKA)/$(DTB_IN_IMG).dtb $(DISKB_KERN_DTB)
 	@echo "(genext2fs) $@"

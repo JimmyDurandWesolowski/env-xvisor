@@ -5,6 +5,11 @@ busybox-configure $(BUSYBOX_BUILD_CONF): $(CONFDIR)/$(BUSYBOX_CONF) \
   $(BUSYBOX_DIR)
 	$(call COPY)
 
+busybox-menuconfig: $(TOOLCHAIN_DIR) $(BUSYBOX_DIR) $(BUSYBOX_BUILD_DIR)
+	$(Q)$(MAKE) -C $(BUSYBOX_DIR) O=$(BUSYBOX_BUILD_DIR) menuconfig
+	rm $(STAMPDIR)/.target_compile
+	rm $(STAMPDIR)/.target
+
 $(STAMPDIR)/.target_compile: $(TOOLCHAIN_DIR) $(BUSYBOX_BUILD_CONF) $(CONF) \
   | $(BUSYBOX_BUILD_DIR) $(STAMPDIR)
 	@echo "(make) busybox"

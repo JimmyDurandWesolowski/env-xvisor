@@ -6,6 +6,7 @@ busybox-configure $(BUSYBOX_BUILD_CONF): $(CONFDIR)/$(BUSYBOX_CONF) \
 	$(call COPY)
 
 busybox-menuconfig: $(TOOLCHAIN_DIR) $(BUSYBOX_DIR) $(BUSYBOX_BUILD_DIR)
+	@echo "(menuconfig) Busybox"
 	$(Q)$(MAKE) -C $(BUSYBOX_DIR) O=$(BUSYBOX_BUILD_DIR) menuconfig
 	rm $(STAMPDIR)/.target_compile
 	rm $(STAMPDIR)/.target
@@ -36,8 +37,4 @@ $(BUILDDIR)/%.ext2: $(STAMPDIR)/.target $(ROOTFS_EXTRA) \
 		BLK_SZ=1024; SIZE=$$(( $${SIZE} / $${BLK_SZ} + 1024 )); \
 		fakeroot /bin/bash -c "genext2fs -b $${SIZE} -N $${BLK_SZ} -D \
 		  $(XVISOR_DIR)/$(BUSYBOX_XVISOR_DEV) -d $(TARGETDIR) $@"
-
-busybox-menuconfig: $(BUSYBOX_DIR)
-	@echo "(menuconfig) Busybox"
-	$(Q)$(MAKE) -C $(BUSYBOX_BUILD_DIR) menuconfig
 

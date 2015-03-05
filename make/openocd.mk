@@ -48,6 +48,9 @@ define OPENOCD_LAUNCH
 	  exit $${RET}
 endef
 
+openocd-attach: $(OPENOCD_DEPS)
+	$(call OPENOCD_LAUNCH,poll)
+
 openocd-init: $(OPENOCD_DEPS)
 	$(call OPENOCD_LAUNCH,reset init)
 

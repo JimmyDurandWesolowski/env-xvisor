@@ -2,7 +2,7 @@
 # Automatically generated make config: don't edit
 # Project: Xvisor (eXtensible Versatile hypervISOR)
 # Version: 0.2.5
-# Mon Mar  2 10:04:42 2015
+# Thu Mar  5 09:38:09 2015
 #
 CONFIG_ARCH_ARM=y
 # CONFIG_ARCH_x86 is not set
@@ -248,7 +248,17 @@ CONFIG_VSCREEN=y
 #
 # Virtual Terminal Emulator Options
 #
-# CONFIG_VTEMU is not set
+CONFIG_VTEMU=y
+CONFIG_VTEMU_FONT_8x8=y
+CONFIG_VTEMU_FONT_8x16=y
+CONFIG_VTEMU_FONT_6x11=y
+CONFIG_VTEMU_FONT_7x14=y
+CONFIG_VTEMU_FONT_10x18=y
+CONFIG_VTEMU_FONT_SUN8x16=y
+CONFIG_VTEMU_FONT_SUN12x22=y
+CONFIG_VTEMU_FONT_ACORN_8x8=y
+CONFIG_VTEMU_FONT_PEARL_8x8=y
+CONFIG_VTEMU_FONT_MINI_8x8=y
 
 #
 # Virtual FileSystem Options
@@ -370,14 +380,21 @@ CONFIG_INPUT=y
 #
 # Input Device Drivers
 #
-# CONFIG_INPUT_KEYBOARD is not set
-# CONFIG_INPUT_MOUSEDEV is not set
-# CONFIG_INPUT_TOUCHSCREEN is not set
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+# CONFIG_KEYBOARD_ATKBD_HP_KEYCODES is not set
+CONFIG_INPUT_MOUSEDEV=y
+# CONFIG_MOUSE_PS2 is not set
+CONFIG_INPUT_TOUCHSCREEN=y
+CONFIG_TOUCHSCREEN_EGALAX=y
 
 #
 # Hardware I/O ports
 #
-# CONFIG_SERIO is not set
+CONFIG_SERIO=y
+# CONFIG_SERIO_AMBAKMI is not set
+CONFIG_SERIO_LIBPS2=y
+# CONFIG_SERIO_I8042 is not set
 
 #
 # Graphics Drivers
@@ -479,7 +496,7 @@ CONFIG_I2C_BOARDINFO=y
 #
 # I2C system bus drivers (mostly embedded / system-on-chip)
 #
-# CONFIG_I2C_IMX is not set
+CONFIG_I2C_IMX=y
 
 #
 # PWM Drivers
@@ -592,7 +609,9 @@ CONFIG_EMU_RTC_PL031=y
 #
 # GPIO Emulators
 #
-# CONFIG_EMU_GPIO is not set
+CONFIG_EMU_GPIO=y
+# CONFIG_EMU_GPIO_PL061 is not set
+CONFIG_EMU_GPIO_PL061_DUMMY=y
 # CONFIG_EMU_PCI is not set
 
 #

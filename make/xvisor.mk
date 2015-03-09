@@ -141,14 +141,15 @@ else
 endif
 
 $(DISK_IMG): $(STAMPDIR)/.disk_populate
-
-$(STAMPDIR)/.disk_populate: $(DISKB)/$(KERN_IMG) $(DISKB)/$(XVISOR_FW_IMG) \
-  $(DISKB)/nor_flash.list $(DISKB)/cmdlist $(DISKA)/$(ROOTFS_IMG) \
-  $(DISKA)/$(DTB_IN_IMG).dtb $(DISKB_KERN_DTB)
 	@echo "(genext2fs) $@"
 	$(Q)SIZE=$$(du -b --max-depth=0 $(DISK_DIR) | cut -f 1); \
 	 	BLK_SZ=1024; SIZE=$$(( $${SIZE} / $${BLK_SZ} * 5 / 4 )); \
 	 	genext2fs -b $${SIZE} -N $${BLK_SZ} -d $(DISK_DIR) $@
+
+$(STAMPDIR)/.disk_populate: $(DISKB)/$(KERN_IMG) $(DISKB)/$(XVISOR_FW_IMG) \
+  $(DISKB)/nor_flash.list $(DISKB)/cmdlist $(DISKA)/$(ROOTFS_IMG) \
+  $(DISKA)/$(DTB_IN_IMG).dtb $(DISKB_KERN_DTB) $(STAMPDIR)
+	$(Q)touch $@
 
 
 xvisor-dump: $(XVISOR_BUILD_DIR)/vmm.elf

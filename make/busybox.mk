@@ -11,6 +11,7 @@ busybox-menuconfig: $(TOOLCHAIN_DIR) $(BUSYBOX_DIR) $(BUSYBOX_BUILD_DIR)
 	rm $(STAMPDIR)/.target_compile
 	rm $(STAMPDIR)/.target
 
+ifeq ($(ROOTFS_LOCAL),)
 $(STAMPDIR)/.target_compile: $(TOOLCHAIN_DIR) $(BUSYBOX_BUILD_CONF) $(CONF) \
   | $(BUSYBOX_BUILD_DIR) $(STAMPDIR)
 	@echo "(make) busybox"
@@ -26,9 +27,11 @@ $(STAMPDIR)/.target: $(STAMPDIR)/.target_compile
 	$(Q)touch $@
 
 BUSYBOX-install: $(STAMPDIR)/.target
+endif
 
 $(XVISOR_DIR)/$(BUSYBOX_XVISOR_DEV): $(XVISOR_DIR)
 
+ifeq ($(ROOTFS_LOCAL),)
 # $(BUILDDIR)/$(ROOTFS_IMG) for ext2
 $(BUILDDIR)/%.ext2: $(STAMPDIR)/.target $(ROOTFS_EXTRA) \
   $(XVISOR_DIR)/$(BUSYBOX_XVISOR_DEV)
@@ -37,4 +40,8 @@ $(BUILDDIR)/%.ext2: $(STAMPDIR)/.target $(ROOTFS_EXTRA) \
 		BLK_SZ=1024; SIZE=$$(( $${SIZE} / $${BLK_SZ} + 1024 )); \
 		fakeroot /bin/bash -c "genext2fs -b $${SIZE} -N $${BLK_SZ} -D \
 		  $(XVISOR_DIR)/$(BUSYBOX_XVISOR_DEV) -d $(TARGETDIR) $@"
+else
+$(BUILDDIR)/%.ext2: $(ROOTFS_LOCAL)
+	cp $(ROOTFS_LOCAL) $@
+endif
 

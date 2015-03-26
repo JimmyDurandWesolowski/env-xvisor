@@ -1,0 +1,11 @@
+                   TODO list
+
+
+BUILD SYSTEM
+. Configure
+  - Rename configured variables to get a specific prefix, and save all of them.
+    The list can be retrieved with set -o posix; set
+
+OPENOCD
+. ARM A9 support
+  - Add and check the OpenOCD cache invalidation patch for the A9 core.

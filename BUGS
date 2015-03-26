@@ -1,0 +1,58 @@
+		KNOWN BUGS
+
+
+
+No	Author		Update		Priority	Critical level
+#1	Jimmy DW	2015/03/26	Medium		High
+At cold boot, the SD card is often not working. More investigations soon.
+
+#2 	Jimmy DW	2015/03/26	High		High
+Using the touchscreen sometimes freeze the system.
+
+#3 	Jimmy DW	2015/03/26	High		High
+Touchscreen I2C frames are sometimes shifted.
+
+#4	Jimmy DW	2015/03/26	Low		Low
+Virtio devices are not working
+
+#5	Jimmy DW	2015/03/26	Low		Low
+Remove hack with GPIO alias
+
+#6	Jimmy DW	2015/03/26	Low		Low
+Remove hack with bus=0 on ECSPI
+
+#7	Jimmy DW	2015/03/26	Very low	Low
+Verify SPI for the new IRQ mapping:
+xvisor-next-master/drivers/spi/spi.c:
+  In function 'of_register_spi_devices':
+  xvisor-next-master/drivers/spi/spi.c:987:3: warning: implicit declaration of
+  function 'vmm_host_extirq_parse_map' [-Wimplicit-function-declaration]
+
+#8	Jimmy DW	2015/03/26	Very low	Low
+There is sometimes data abort exception at the end of the guest kernel
+execution:
+[guest0/uart0] [    2.553409] clcd-pl11x: probe of 10020000.clcd failed with
+error -22
+[guest0/uart0] [    2.590857] VD10: at 1000 mV
+[guest0/uart0] [    2.622496] VD10_S2: at 1000 mV
+[guest0/uart0] [    2.650917] VD10_S3: at 1000 mV
+[guest0/uart0] [    2.679339] VCC1V8: at 1800 mV
+[guest0/uart0] [    2.707605] DDR2VTT: at 900 mV
+[guest0/uart0] [    2.735933] VCC3V3: at 3300 mV
+[guest0/uart0] [    2.764261] VIO: at 3300 mV
+[guest0/uart0] do_prefetch_abort: cannot find reserved page
+do_prefetch_abort: ifsr = 0x00000005, ifar = 0xe59ff018
+0xFF003834 do_prefetch_abort+0x290/0x308
+0xFF0005D8 _prefetch_abort+0x78/0xc0
+0xFF028430 devemu_doread+0x1c0/0x304
+0xFF02864C vmm_devemu_emulate_read+0xd8/0x130
+0xFF00A864 cpu_vcpu_mem_read+0xec/0x2f4
+0xFF00E9E4 emulate_arm_inst+0x3c0/0x1da0
+0xFF007BF8 cpu_vcpu_cp15_perm_fault+0xd0/0x1a4
+0xFF003B04 do_data_abort+0x258/0x320
+0xFF000698 _data_abort+0x78/0xc0
+
+#9	Jimmy DW	2015/03/26	Medium	High
+A lock occurs in the vmm_timer.c timer_clockchip_event_handler function, locked
+on the spin_lock.
+Can be linked to bug #2

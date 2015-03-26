@@ -4,6 +4,11 @@ define cmd_xbuild
 	  VERBOSE=$(BUILD_VERBOSE) O=$(XVISOR_BUILD_DIR)/$3 $1
 endef
 
+ifeq ($(DTBS_IN_IMG),)
+DTBS_IN_IMG=$(foreach dtb,$(DTB_IN_IMG),$(DISKA)/$(dtb).dtb)
+endif
+
+
 $(XVISOR_DIR)/$(MEMIMG): $(XVISOR_DIR)
 
 $(XVISOR_BUILD_DIR):
@@ -92,8 +97,9 @@ $(DISKA) $(DISKB):
 $(DISKA)/$(ROOTFS_IMG): $(BUILDDIR)/$(ROOTFS_IMG) | $(DISKA)
 	$(call COPY)
 
-$(DISKA)/$(DTB_IN_IMG).dtb: $(XVISOR_DIR)/tests/$(XVISOR_ARCH)/$(GUEST_BOARDNAME)/$(DTB_IN_IMG).dts $(XVISOR_BUILD_DIR)/tools/dtc/dtc | $(DISKA)
-	@echo "(dtc) $(DTB_IN_IMG)"
+$(DISKA)/%.dtb: $(XVISOR_DIR)/tests/$(XVISOR_ARCH)/$(GUEST_BOARDNAME)/%.dts \
+  | $(DISKA)
+	@echo "(dtc) $<"
 	$(XVISOR_BUILD_DIR)/tools/dtc/dtc -I dts -O dtb -o $@ $<
 
 FIRMWARE_DIR = $(XVISOR_BUILD_DIR)/tests/$(XVISOR_ARCH)/$(GUEST_BOARDNAME)/basic
@@ -107,8 +113,12 @@ xvisor-firmware $(FIRMWARE): $(XVISOR_BUILD_CONF) | \
 $(DISKB)/$(XVISOR_FW_IMG): $(FIRMWARE) | $(DISKB)
 	$(call COPY)
 
+$(DISKB)/nor_flash_fw.list: $(CONF) | $(DISKB)
+	@echo "(generating) $(@D)"
+	$(Q)echo "$(ADDRH_FLASH_FW) /$(DISK_BOARD)/$(XVISOR_FW_IMG)" > $@
+
 $(DISKB)/nor_flash.list: $(CONF) | $(DISKB)
-	@echo "(generating) nor_flash.list"
+	@echo "(generating) $(@D)"
 	$(Q)echo "$(ADDRH_FLASH_FW) /$(DISK_BOARD)/$(XVISOR_FW_IMG)" > $@
 	$(Q)echo "$(ADDRH_FLASH_CMD) /$(DISK_BOARD)/cmdlist" >> $@
 	$(Q)echo "$(ADDRH_FLASH_KERN) /$(DISK_BOARD)/$(KERN_IMG)" >> $@
@@ -116,7 +126,6 @@ ifeq ($(USE_KERN_DT),1)
 	$(Q)echo "$(ADDRH_FLASH_KERN_DT) /$(DISK_BOARD)/$(KERN_DT).dtb" >> $@
 endif
 	$(Q)echo "$(ADDRH_FLASH_RFS) /$(DISK_ARCH)/$(ROOTFS_IMG)" >> $@
-
 
 ifeq ($(USE_KERN_DT),1)
   DISKB_KERN_DTB = $(DISKB)/$(KERN_DT).dtb
@@ -143,8 +152,8 @@ endif
 $(DISK_IMG): $(STAMPDIR)/.disk_populate
 
 $(STAMPDIR)/.disk_populate: $(DISKB)/$(KERN_IMG) $(DISKB)/$(XVISOR_FW_IMG) \
-  $(DISKB)/nor_flash.list $(DISKB)/cmdlist $(DISKA)/$(ROOTFS_IMG) \
-  $(DISKA)/$(DTB_IN_IMG).dtb $(DISKB_KERN_DTB)
+  $(DISKB)/nor_flash.list $(DISKB)/nor_flash_fw.list $(DISKB)/cmdlist \
+  $(DISKA)/$(ROOTFS_IMG) $(DTBS_IN_IMG) $(DISKB_KERN_DTB)
 	@echo "(genext2fs) $@"
 	$(Q)SIZE=$$(du -b --max-depth=0 $(DISK_DIR) | cut -f 1); \
 	 	BLK_SZ=1024; SIZE=$$(( $${SIZE} / $${BLK_SZ} * 5 / 4 )); \

@@ -29,7 +29,7 @@ $(XVISOR_BUILD_CONF): $(XVISOR_DIR)/arch/$(ARCH)/configs/$(XVISOR_CONF) \
 
 xvisor-configure: $(XVISOR_BUILD_CONF)
 
-xvisor-dtbs xvisor-menuconfig xvisor-vars: $(XVISOR_DIR) \
+xvisor-dtbs xvisor-modules xvisor-menuconfig xvisor-vars: $(XVISOR_DIR) \
   $(XVISOR_BUILD_DIR)/tools/dtc/dtc $(XVISOR_BUILD_CONF)
 	@echo "($(subst xvisor-,,$@)) Xvisor"
 	$(call cmd_xbuild,$(subst xvisor-,,$@))

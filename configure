@@ -292,6 +292,9 @@ packages_check() {
     esac
     package_check_binary 1 "${TOOL}" "${DEBIAN_PKG}" "${GENTOO_PKG}"
 
+    # Check we can compile (not needed on Gentoo, of course)
+    package_check_binary 1 "gcc" "build-essential" ""
+
     # Checking that Ncurses is installed
     mkdir -p $(dirname ${NCURSE_TMP})
     cat > ${NCURSE_TMP}.c <<-EOF
@@ -308,6 +311,9 @@ packages_check() {
 	INSTALL_GENTOO="${INSTALL_GENTOO} \">=sys-libs/ncurses-5\""
     fi
     rm -f ${NCURSE_TMP} ${NCURSE_TMP}.c
+
+    # Check we have pkg-config (not needed on Gentoo)
+    package_check_binary 1 "pkg-config" "pkg-config" ""
 
     if ! pkg-config --exists libusb-1.0; then
 	INSTALL_DEBIAN="${INSTALL_DEBIAN} libusb-1.0-0-dev"

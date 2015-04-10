@@ -248,11 +248,32 @@ package_check_binary_version() {
     done
 }
 
+# Check that the Debian/Ubuntu package is installed
+# Fills the INSTALL_DEBIAN string
+# $1: Name of the package
+package_debian_installed() {
+    PKG=$1
+
+    dpkg -s ${PKG} &>/dev/null
+    if [ $? -ne 0 ]; then
+	INSTALL_DEBIAN="${INSTALL_DEBIAN} ${PKG}"
+    fi
+}
+
 # Check that the required packages, depending on the target, are installed
 packages_check() {
     INSTALL_DEBIAN=""
     INSTALL_GENTOO="emerge -av --quiet-build"
     NCURSE_TMP="${TMPDIR}/ncurse_tmp"
+    ISSUE_FILE=/etc/issue
+
+    if [ -f "${ISSUE_FILE}" ]; then
+    	DISTRO=$(head -n1 "${ISSUE_FILE}" | sed -nre 's/([a-zA-Z]+).*/\1/p')
+        [ -z "${DISTRO}" ] && DISTRO=Gentoo
+    else
+        echo "Unknown GNU/Linux distribution"
+        exit 1
+    fi
 
     # Check that realpath, used for these scripts is available
     package_check_binary 1 realpath realpath "realpath" "app-misc/realpath"
@@ -320,16 +341,32 @@ packages_check() {
 	INSTALL_GENTOO="${INSTALL_GENTOO} \"dev-libs/libusb\""
     fi
 
-    # Display a summary if required
-    if [ -n "${INSTALL_DEBIAN}" ]; then
-	printf "${BOLD}Please install the following packages before "
-	printf "continuing:${NORMAL}\n"
-	printf "${BOLD}For Debian/Ubuntu:${NORMAL}\n"
-	printf "  sudo apt-get install${INSTALL_DEBIAN}\n"
-	printf "${BOLD}For Gentoo:${NORMAL}\n"
-	printf "  sudo ${INSTALL_GENTOO}\n"
-	exit 1
-    fi
+    case "${DISTRO}" in
+    Gentoo)
+        if [ -n "${INSTALL_DEBIAN}" ]; then
+            printf "${BOLD}Please install the following packages before "
+            printf "continuing:${NORMAL}\n"
+            printf "  sudo ${INSTALL_GENTOO}\n"
+	    exit 1
+        fi
+        ;;
+    Ubuntu|Debian)
+        if [ "x86_64" = "$(uname -m)" ]; then
+            package_debian_installed gcc-multilib
+	    package_debian_installed binutils-multiarch
+	fi
+        if [ -n "${INSTALL_DEBIAN}" ]; then
+            printf "${BOLD}Please install the following packages before "
+            printf "continuing:${NORMAL}\n"
+            printf "  sudo apt-get install ${INSTALL_DEBIAN}\n"
+	    exit 1
+        fi
+        ;;
+    *)
+        echo "Unknown GNU/Linux distribution"
+        exit 1
+	;;
+    esac
 }
 
 config_write() {

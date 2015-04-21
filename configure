@@ -343,7 +343,7 @@ packages_check() {
 
     case "${DISTRO}" in
     Gentoo)
-        if [ -n "${INSTALL_DEBIAN}" ]; then
+        if [ -n "${INSTALL_GENTOO}" ]; then
             printf "${BOLD}Please install the following packages before "
             printf "continuing:${NORMAL}\n"
             printf "  sudo ${INSTALL_GENTOO}\n"
@@ -351,10 +351,10 @@ packages_check() {
         fi
         ;;
     Ubuntu|Debian)
-        if [ "x86_64" = "$(uname -m)" ]; then
-            package_debian_installed gcc-multilib
-	    package_debian_installed binutils-multiarch
-	fi
+        #if [ "x86_64" = "$(uname -m)" ]; then
+        #    package_debian_installed gcc-multilib
+	#    package_debian_installed binutils-multiarch
+	#fi
         if [ -n "${INSTALL_DEBIAN}" ]; then
             printf "${BOLD}Please install the following packages before "
             printf "continuing:${NORMAL}\n"

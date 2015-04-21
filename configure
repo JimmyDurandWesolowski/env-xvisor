@@ -175,10 +175,10 @@ package_install() {
     ENV_GENTOO=$3
 
     INSTALL_DEBIAN="${INSTALL_DEBIAN} ${PKG_DEBIAN}"
-    if [ -n "${ENV_GENTOO}" ]; then
-	INSTALL_GENTOO="${ENV_GENTOO} ${INSTALL_GENTOO}"
-    fi
     INSTALL_GENTOO="${INSTALL_GENTOO} ${PKG_GENTOO}"
+    if [ -n "${ENV_GENTOO}" ]; then
+	INSTALL_GENTOO_ENV=" ${ENV_GENTOO}"
+    fi
 }
 
 # Check if a binary exists, and add it to the install list otherwise
@@ -263,7 +263,8 @@ package_debian_installed() {
 # Check that the required packages, depending on the target, are installed
 packages_check() {
     INSTALL_DEBIAN=""
-    INSTALL_GENTOO="emerge -av --quiet-build"
+    INSTALL_GENTOO=""
+    INSTALL_GENTOO_ENV=""
     NCURSE_TMP="${TMPDIR}/ncurse_tmp"
     ISSUE_FILE=/etc/issue
 
@@ -346,7 +347,8 @@ packages_check() {
         if [ -n "${INSTALL_GENTOO}" ]; then
             printf "${BOLD}Please install the following packages before "
             printf "continuing:${NORMAL}\n"
-            printf "  sudo ${INSTALL_GENTOO}\n"
+            printf "  sudo ${INSTALL_GENTOO_ENV} emerge -av --quiet-build "
+	    printf "${INSTALL_GENTOO}\n"
 	    exit 1
         fi
         ;;

@@ -128,8 +128,8 @@ option_board_validate() {
     # Check that the board is correct
     case ${BOARDNAME} in
 	("nitrogen6x")
-	    XVISOR_BOARDNAME=sabrelite
-	    GUEST_BOARDNAME=sabrelite
+	    XVISOR_BOARDNAME=sabrelite-a9
+	    GUEST_BOARDNAME=sabrelite-a9
 	    ;;
 	("bcm2835-raspi")
 	    XVISOR_BOARDNAME=bcm2835-raspi

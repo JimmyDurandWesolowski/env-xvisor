@@ -23,7 +23,7 @@
 
 
 # BOARDNAME: nitrogen6x || sabrelite
-ifeq ($(XVISOR_BOARDNAME),sabrelite)
+ifeq ($(XVISOR_BOARDNAME),sabrelite-a9)
 disk: disk-xvisor disk-guests
 
 # boundary u-boot script

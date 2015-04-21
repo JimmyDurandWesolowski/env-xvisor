@@ -22,13 +22,34 @@
 # @file scripts/continuous_integration.sh
 #
 
+BOARDNAME=$1
 
-#Configure env-xvisor for nitrogen6x
-    cd .. && ./configure -n
+cd $(dirname $0)/..
+rm -rf build
+
+# default to nitrogen6x (for now)
+if [ -z "${BOARDNAME}" ]; then
+  ./configure -l
+  echo
+  BOARDNAME=nitrogen6x
+  echo "No target board defined, using ${BOARDNAME}."
+fi
+
+#Configure env-xvisor for ${BOARDNAME}
+./configure -b ${BOARDNAME}
 
 #Build env
-    make
+echo "Build env"
+make
 
 #Tests
-    make test xvisor-uimage
-
+echo "Tests"
+case ${BOARDNAME} in
+  ("nitrogen6x"|"sabrelite")
+    make xvisor-uimage
+    make disk-guests
+    ;;
+  (*)
+    make test
+    ;;
+esac

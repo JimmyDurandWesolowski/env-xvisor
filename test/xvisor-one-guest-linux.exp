@@ -32,7 +32,7 @@ log_file [lindex $argv 0]
 
 #Start the guest VM
 global cmd_pid
-set cmd_pid [spawn make run QEMU_DISPLAY= ];
+set cmd_pid [spawn make run ];
 
 #clean on exit
 trap {send_error "Test Aborting...\r\n"; exec kill $cmd_pid; exit 1 } { SIGINT }

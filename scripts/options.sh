@@ -19,12 +19,10 @@
 # along with this Xvisor Build Environment. If not, see
 # <http://www.gnu.org/licenses/>.
 #
-# @file scripts/common.sh
+# @file scripts/options.sh
 #
 
 
-
-# COMMON TOOLS
 
 # Terminal escape sequences
 NORMAL="\033[0m"
@@ -158,3 +156,54 @@ option_parse() {
 	fi
     fi
 }
+
+option_board_validate() {
+    # Check that the board has been
+    if [ -z "${BOARDNAME}" ]; then
+	usage 1
+    fi
+
+    # Check that the board is correct
+    case ${BOARDNAME} in
+	("nitrogen6x")
+	    XVISOR_BOARDNAME=sabrelite-a9
+	    GUEST_BOARDNAME=sabrelite-a9
+	    ;;
+	("bcm2835-raspi")
+	    XVISOR_BOARDNAME=bcm2835-raspi
+	    GUEST_BOARDNAME=realview-eb-mpcore
+	    ;;
+	("vexpress-a9"|"sabrelite"|"realview-pb-a8"|"realview-eb-mpcore")
+	    XVISOR_BOARDNAME=${BOARDNAME}
+	    GUEST_BOARDNAME=${BOARDNAME}
+	    ;;
+	(*)
+	    board_list 1
+	    ;;
+    esac
+}
+
+option_board() {
+    BOARD_CONF="${CONFDIR}/${BOARDNAME}.conf"
+    print "Sourcing \"${BOARD_CONF}\"\n"
+    source ${BOARD_CONF}
+    source ${CONFDIR}/${ARCH}.conf
+    source ${CONFDIR}/components.conf
+
+    for elt in BUSYBOX UBOOT LOADER OPENOCD LIBFTDI; do
+	BOARD_ELT=BOARD_${elt}
+	if [ -z "${!BOARD_ELT}" ]; then
+	    continue
+	fi
+
+	if [ ${!BOARD_ELT} -eq 1 ]; then
+	    COMPONENTS="${COMPONENTS} ${elt}"
+	fi
+    done
+
+    if [ ${BOARD_LOADER} -eq 1 -o ${BOARD_OPENOCD} -eq 1 ]; then
+	printf "If you use Kermit, you can find a configuration file example "
+	printf "\"${CONFDIR}/kermrc\".\n"
+    fi
+}
+

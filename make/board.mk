@@ -22,8 +22,7 @@
 #
 
 
-# BOARDNAME: nitrogen6x || sabrelite
-ifeq ($(XVISOR_BOARDNAME),sabrelite-a9)
+ifeq ($(DTB_BOARDNAME),sabrelite-a9)
 disk: disk-xvisor disk-guests
 
 # boundary u-boot script
@@ -38,7 +37,7 @@ $(DISK_DIR)/6x_bootscript: $(XVISOR_DIR)/docs/arm/sabrelite-bootscript $(UBOOT_B
 $(DISK_DIR)/$(notdir $(XVISOR_UIMAGE)): $(XVISOR_UIMAGE)
 	$(call COPY)
 
-$(DISK_DIR)/vmm-imx6q-$(BOARDNAME).dtb: $(BUILDDIR)/$(XVISOR_BOARDNAME).dtb
+$(DISK_DIR)/vmm-imx6q-$(BOARDNAME).dtb: $(BUILDDIR)/$(DTB_BOARDNAME).dtb
 	$(call COPY)
 
 disk-xvisor: $(DISK_DIR)/$(notdir $(XVISOR_UIMAGE)) $(DISK_DIR)/vmm-imx6q-$(BOARDNAME).dtb $(DISK_DIR)/6x_bootscript

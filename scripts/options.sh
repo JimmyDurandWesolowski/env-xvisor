@@ -62,12 +62,15 @@ usage() {
     printf "verbosity (implies -s)\n" >> ${OUTPUT}
     printf "  -d, --debug\t\t\t\tBuild system debugging\n" >> ${OUTPUT}
     printf "  -V\t\t\t\t\tIncrease the configuration verbosity\n" >> ${OUTPUT}
-    printf "  -j JOB_NB, --jobs JOB_NB\t\tManually set the number of " >> ${OUTPUT}
+    printf "  -j JOB_NB, --jobs JOB_NB\t\tManually set the number of " >> \
+	   ${OUTPUT}
     printf "Makefile parallel jobs to JOB_NB (default " >> ${OUTPUT}
     printf "${PARALLEL_JOBS})\n" >> ${OUTPUT}
     printf "  -s, --single-job\t\t\tAvoid using Makefile " >> ${OUTPUT}
     printf "parallel jobs\n" >> ${OUTPUT}
     printf "  -n\t\t\t\t\tEquivalent to \"--board nitrogen6x\"\n" >> ${OUTPUT}
+    printf "  -m\t\t\t\t\tEquivalent to \"--board nitrogen6_max\"\n" >> \
+	   ${OUTPUT}
 
     exit ${RET}
 }
@@ -141,6 +144,10 @@ option_parse() {
 		BOARDNAME=nitrogen6x
 		;;
 
+	    (-m)
+		BOARDNAME=nitrogen6_max
+		;;
+
 	    (*)
 		printf "Unrecognized option \"$1\"\n" >/dev/stderr
 		# Usage will exit
@@ -165,17 +172,20 @@ option_board_validate() {
 
     # Check that the board is correct
     case ${BOARDNAME} in
-	("nitrogen6x")
-	    XVISOR_BOARDNAME=sabrelite-a9
+	("nitrogen6x"|"nitrogen6_max")
+	    DTB_BOARDNAME=sabrelite-a9
 	    GUEST_BOARDNAME=sabrelite-a9
+	    XVISOR_CFG_BOARDNAME=nitrogen6x
 	    ;;
 	("bcm2835-raspi")
-	    XVISOR_BOARDNAME=bcm2835-raspi
+	    DTB_BOARDNAME=bcm2835-raspi
 	    GUEST_BOARDNAME=realview-eb-mpcore
+	    XVISOR_CFG_BOARDNAME=${BOARDNAME}
 	    ;;
 	("vexpress-a9"|"sabrelite"|"realview-pb-a8"|"realview-eb-mpcore")
-	    XVISOR_BOARDNAME=${BOARDNAME}
+	    DTB_BOARDNAME=${BOARDNAME}
 	    GUEST_BOARDNAME=${BOARDNAME}
+	    XVISOR_CFG_BOARDNAME=${BOARDNAME}
 	    ;;
 	(*)
 	    board_list 1

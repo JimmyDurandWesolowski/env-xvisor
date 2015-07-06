@@ -111,6 +111,8 @@ board_list() {
     printf "\t\t\tThe real board to run the hypervisor on.\n"
     printf "  - nitrogen6x:\t\tBoundary Devices Nitrogen6x platform\n"
     printf "\t\t\tSimilar to Sabrelite.\n"
+    printf "  - nitrogen6_max:\tBoundary Devices Nitrogen6 Max platform\n"
+    printf "\t\t\tThe Nitrogen6x with 4GB of RAM.\n"
     printf "  - realview-pb-a8:\tRealview Platform Base Board\n"
     printf "\t\t\tAnother reference platform to emulate the hypervisor.\n"
     printf "  - realview-eb-mpcore:\tRealview Platform Base Board\n"

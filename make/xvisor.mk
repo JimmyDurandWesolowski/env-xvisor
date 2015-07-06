@@ -59,8 +59,8 @@ xvisor-dtbs xvisor-modules xvisor-menuconfig xvisor-vars: $(XVISOR_DIR) \
 
 xvisor-dtbs: $(TOOLCHAIN_DIR)
 
-$(BUILDDIR)/$(XVISOR_BOARDNAME).dtb: xvisor-dtbs
-	@echo "(link) $(XVISOR_BOARDNAME).dtb"
+$(BUILDDIR)/$(DTB_BOARDNAME).dtb: xvisor-dtbs
+	@echo "(link) $(DTB_BOARDNAME).dtb"
 	$(Q)SRC=$$(find $(XVISOR_BUILD_DIR)/arch/$(ARCH)/board -type d \
 	           -name $(DTB_DIR)); \
 	  [ -z "$${SRC}/$(DTB)" ] \
@@ -97,7 +97,7 @@ $(XVISOR_UIMAGE): $(XVISOR_BIN) $(UBOOT_BUILD_DIR)/$(UBOOT_MKIMAGE)
 	  -n 'xVisor' -d $< $(TMPDIR)/$(@F)
 	$(Q)cp $(TMPDIR)/$(@F) $@
 
-xvisor-uimage: $(XVISOR_UIMAGE) $(BUILDDIR)/$(XVISOR_BOARDNAME).dtb
+xvisor-uimage: $(XVISOR_UIMAGE) $(BUILDDIR)/$(DTB_BOARDNAME).dtb
 
 
 $(XVISOR_DIR)/$(XVISOR_ELF2C): $(XVISOR_DIR)

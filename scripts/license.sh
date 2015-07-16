@@ -25,7 +25,34 @@ PROJECT="Xvisor Build Environment"
 COMPANY=( "Institut de Recherche Technologique SystemX" "OpenWide" )
 LICENSE_HEADER=$(dirname $0)/license_header.txt
 COLUMN_MAX=79
+testing=${TEST:-0}
+filename=
+dir=
+base=
+tmp_name=
+output=/dev/stdout
 
+function arg_check() {
+    if [ -z "$1" ]; then
+	echo "Missing argument: A file argument is required" >>/dev/stderr
+	exit 1
+    fi
+
+    if [ "${filename}" = "${LICENSE_HEADER}" -o \
+		       "${filename}" = "LICENSE.txt" ]; then
+	echo "Skipping ${filename}" >>/dev/stderr
+	exit 0
+    fi
+
+    filename=$1
+    dir=$(dirname ${filename})
+    base=$(basename ${filename})
+    tmp_name="${dir}/.tmp_${base}"
+
+    if [ ${testing} -ne 1 ]; then
+	output=${tmp_name}
+    fi
+}
 
 function check_exit() {
     if [ $? -ne 0 ]; then
@@ -61,7 +88,7 @@ function header_write_end() {
 }
 
 
-function header_write() {
+function header_do_write() {
     header_write_top "${comment}"
     header_write_line "${comment}" "This file is part of ${PROJECT}."
     for i in $(seq 0 $(( ${#COMPANY[*]} - 1))); do
@@ -80,21 +107,30 @@ function header_write() {
     return 0
 }
 
+function header_write() {
+        output=$1
+
+	header_do_write >> ${output}
+}
+
 function content_write() {
     content=$1
     shebang=$2
+    output=$3
 
     if [ -n "${shebang}" ]; then
 	lines=$(cat ${content} | wc -l)
 	lines=$(( lines - 1 ))
-	tail -n ${lines} ${content}
+	tail -n ${lines} ${content} >> ${output}
     else
-	cat "${content}"
+	cat "${content}" >> ${output}
     fi
 }
 
 function file_prepare() {
     filename=$1
+    output=$2
+
     fline=$(head -1 ${filename})
     start=${fline:0:2}
     extension="${filename##*.}"
@@ -120,36 +156,16 @@ function file_prepare() {
     fi
 
     if [ -n "${shebang}" ]; then
-	echo ${shebang}
+	echo ${shebang} > ${output}
+    else
+	echo -n > ${output}
     fi
 }
 
-testing=${TEST:-0}
-filename=$1
-dir=$(dirname ${filename})
-base=$(basename ${filename})
-tmp_name="${dir}/.tmp_${base}"
-
-if [ -z "$1" ]; then
-    echo "Missing argument: A file argument is required" >>/dev/stderr
-    exit 1
-fi
-
-if [ "${filename}" = "${LICENSE_HEADER}" -o \
-    "${filename}" = "LICENSE.txt" ]; then
-    echo "Skipping ${filename}" >>/dev/stderr
-    exit 0
-fi
-
-if [ ${testing} -eq 1 ]; then
-    output=/dev/stdout
-else
-    output=${tmp_name}
-fi
-
-file_prepare "${filename}" >${output}
-header_write "${filename}" >>${output}
-content_write "${filename}" "${shebang}" >>${output}
+arg_check $*
+file_prepare "${filename}" ${output}
+header_write ${output}
+content_write "${filename}" "${shebang}" ${output}
 if [ ${testing} -eq 1 ]; then
     exit 0
 fi

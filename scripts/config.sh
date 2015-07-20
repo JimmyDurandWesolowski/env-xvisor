@@ -99,8 +99,16 @@ config_write() {
 	echo "${component}_DIR=${BUILDDIR}/${!COMPONENT_PATH}" >> ${CONF}
 	printf "${component}_BUILD_DIR=${BUILDDIR}/build_" >> ${CONF}
 	printf "${!COMPONENT_PATH}\n" >> ${CONF}
-	printf "${component}_BUILD_CONF=${BUILDDIR}/build_" >> ${CONF}
-	printf "${!COMPONENT_PATH}/.config\n" >> ${CONF}
+
+	if [ -n "$(echo LINUX BUSYBOX UBOOT | grep "${component}")" ]; then
+	    printf "${component}_BUILD_CONF=${BUILDDIR}/build_" >> ${CONF}
+	    printf "${!COMPONENT_PATH}/.config\n" >> ${CONF}
+	fi
+
+	if [ XVISOR = "${component}" ]; then
+	    printf "XVISOR_BUILD_CONF=${BUILDDIR}/build_" >> ${CONF}
+	    printf "${!COMPONENT_PATH}/tmpconf/.config\n" >> ${CONF}
+	fi
 	echo >> ${CONF}
     done
 

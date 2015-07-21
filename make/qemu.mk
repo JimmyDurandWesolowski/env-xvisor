@@ -26,14 +26,16 @@ define QEMU
 	qemu-system-$(ARCH) -M $(BOARDNAME) -m 256M $1		\
 	  -kernel $(XVISOR_BIN)					\
 	  -dtb $(BUILDDIR)/$(BOARDNAME).dtb			\
-	  -initrd $(BUILDDIR)/$(ROOTFS_IMG)
+	  -initrd $(DISK_IMG)
 endef
 
 QEMU_DISPLAY?=-display none
 QEMU_MONITOR?=-monitor telnet:127.0.0.1:1234,server,nowait
 QEMU_EXTRA?=
 
-qemu-run: $(XVISOR_BIN) $(BUILDDIR)/$(BOARDNAME).dtb $(BUILDDIR)/$(ROOTFS_IMG)
+qemu-img: $(XVISOR_BIN) $(BUILDDIR)/$(BOARDNAME).dtb $(DISK_IMG)
+
+qemu-run: qemu-img
 	@echo "$@ for $(BOARDNAME)"
 	$(call QEMU,$(QEMU_DISPLAY) -serial stdio $(QEMU_MONITOR) $(QEMU_EXTRA),$<)
 

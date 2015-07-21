@@ -60,7 +60,7 @@ compile: xvisor-compile
 rootfs: busybox-install
 rootfs-img: $(BUILDDIR)/$(ROOTFS_IMG)
 xvisor: xvisor-compile
-qemu-img: $(BUILDDIR)/qemu.img
+qemu-img:
 
 ifeq ($(BOARD_QEMU),1)
   run: qemu-run

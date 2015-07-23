@@ -23,7 +23,7 @@
 
 ifeq ($(BOARD_QEMU),1)
 define QEMU
-	qemu-system-$(ARCH) -M $(BOARDNAME) -m 256M $1		\
+	qemu-system-$(ARCH) -M $(BOARDNAME) -m 512 $1		\
 	  -kernel $(XVISOR_BIN)					\
 	  -dtb $(BUILDDIR)/$(BOARDNAME).dtb			\
 	  -initrd $(DISK_IMG)

@@ -147,7 +147,7 @@ packages_check() {
 	"sys-apps/fakeroot"
 
     # Checking that libtool, used by autotools, is installed
-    package_check_binary ${BOARD_OPENOCD} libtool "libtool-bin" "sys-devel/libtool"
+    package_check_binary ${BOARD_OPENOCD} libtool "libtool" "sys-devel/libtool"
 
     # Checking that telnet, useful with openocd
     package_check_binary ${BOARD_OPENOCD} telnet "telnet" \
@@ -208,10 +208,10 @@ packages_check() {
         fi
         ;;
     Ubuntu|Debian)
-        #if [ "x86_64" = "$(uname -m)" ]; then
-        #    package_debian_installed gcc-multilib
-	#    package_debian_installed binutils-multiarch
-	#fi
+        if [ "x86_64" = "$(uname -m)" ]; then
+           package_debian_installed gcc-multilib
+	   package_debian_installed binutils-multiarch
+	fi
         if [ -n "${INSTALL_DEBIAN}" ]; then
             printf "${BOLD}Please install the following packages before "
             printf "continuing:${NORMAL}\n"

@@ -147,6 +147,9 @@ packages_check() {
     # Checking that Make, used for building, is installed
     package_check_binary_version 1 make "3.81" "make" "sys-devel/make"
 
+    # Checking that bc, used by the Linux, is installed
+    package_check_binary 1 bc "bc" "sys-devel/bc"
+
     # Checking that wget, used by downloading sources, is installed
     package_check_binary 1 wget "wget" "net-misc/wget"
 

@@ -62,7 +62,7 @@ package_check_binary() {
 }
 
 # Check if a binary exists, in the specified version with the format X.Y.Z,
-# and add it to the install list otherwise
+# or X.Y if needed be, and add it to the install list otherwise
 # $1: Test if the binary is necessary (set to 1 to force)
 # $2: The binary to test
 # $3: The minimum expected version
@@ -70,6 +70,7 @@ package_check_binary() {
 # $5: The Gentoo package name
 # $6: The optional Gentoo environment to install the package
 package_check_binary_version() {
+    idx_max=2
     package_check_binary $1 $2 $4 $5 $6
 
     if [ $? -eq 1 ]; then
@@ -80,6 +81,15 @@ package_check_binary_version() {
     REGEX='s/.*([0-9]+)\.([0-9]+)\.([0-9]+).*/\1 \2 \3/p'
     VERSION=($($2 --version | sed -rne "${REGEX}"))
 
+    # Check if the version retrieving failed
+    if [ -z "${VERSION}" ]; then
+	# Try with format X.Y only
+	idx_max=1
+	REGEX='s/.*([0-9]+)\.([0-9]+).*/\1 \2/p'
+	VERSION=($($2 --version | sed -rne "${REGEX}"))
+    fi
+
+    # Check if the version retrieving failed again
     if [ -z "${VERSION}" ]; then
 	echo "Failed to check required version for \"$2\""
 	exit 1
@@ -88,11 +98,11 @@ package_check_binary_version() {
     REQ_VERS=($(echo $3 | sed -rne "${REGEX}"))
     if [ -z "${REQ_VERS}" ]; then
 	echo "Failed to parse the required version for \"$2\""
-	echo "It must be in the X.Y.Z format (X, Y and Z being numbers)"
+	echo "It must be in the X.Y or X.Y.Z format (X, Y and Z being numbers)"
 	exit 1
     fi
 
-    for idx in $(seq 0 2); do
+    for idx in $(seq 0 ${idx_max}); do
 	if [ ${VERSION[$idx]} -gt ${REQ_VERS[$idx]} ]; then
 	    return 0
 	elif [ ${VERSION[$idx]} -lt ${REQ_VERS[$idx]} ]; then
@@ -132,7 +142,19 @@ packages_check() {
     fi
 
     # Check that realpath, used for these scripts is available
-    package_check_binary 1 realpath realpath "realpath" "app-misc/realpath"
+    package_check_binary 1 realpath "realpath" "app-misc/realpath"
+
+    # Checking that Make, used for building, is installed
+    package_check_binary_version 1 make "3.81" "make" "sys-devel/make"
+
+    # Checking that wget, used by downloading sources, is installed
+    package_check_binary 1 wget "wget" "net-misc/wget"
+
+    # Checking that Python, used by Xvisor, is installed
+    package_check_binary_version 1 python "2.7.0" "python" "dev-lang/python"
+
+    # Checking that Git, used for cloning repositories, is installed
+    package_check_binary 1 git "git" "dev-vcs/git"
 
     # Checking that Qemu is installed
     package_check_binary_version ${BOARD_QEMU} qemu-system-${QEMU_ARCH} \
@@ -192,7 +214,7 @@ packages_check() {
     # Check we have pkg-config (not needed on Gentoo)
     package_check_binary 1 "pkg-config" "pkg-config" ""
 
-    if ! pkg-config --exists libusb-1.0; then
+    if [ $? -eq 1 -o -n "$(pkg-config --exists libusb-1.0)" ]; then
 	INSTALL_DEBIAN="${INSTALL_DEBIAN} libusb-1.0-0-dev"
 	INSTALL_GENTOO="${INSTALL_GENTOO} \"dev-libs/libusb\""
     fi

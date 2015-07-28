@@ -79,14 +79,14 @@ package_check_binary_version() {
     fi
 
     REGEX='s/.*([0-9]+)\.([0-9]+)\.([0-9]+).*/\1 \2 \3/p'
-    VERSION=($($2 --version | sed -rne "${REGEX}"))
+    VERSION=($($2 --version 2>&1 | sed -rne "${REGEX}"))
 
     # Check if the version retrieving failed
     if [ -z "${VERSION}" ]; then
 	# Try with format X.Y only
 	idx_max=1
 	REGEX='s/.*([0-9]+)\.([0-9]+).*/\1 \2/p'
-	VERSION=($($2 --version | sed -rne "${REGEX}"))
+	VERSION=($($2 --version 2>&1 | sed -rne "${REGEX}"))
     fi
 
     # Check if the version retrieving failed again

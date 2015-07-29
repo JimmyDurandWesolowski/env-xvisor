@@ -1,31 +1,8 @@
 #
-# This file is part of Xvisor Build Environment.
-# Copyright (C) 2015 Institut de Recherche Technologique SystemX
-# Copyright (C) 2015 OpenWide
-# All rights reserved.
-#
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
-# of the License, or (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this Xvisor Build Environment. If not, see
-# <http://www.gnu.org/licenses/>.
-#
-# @file conf/xvisor-next-master-nitrogen6x-defconfig
-#
-
-#
 # Automatically generated make config: don't edit
 # Project: Xvisor (eXtensible Versatile hypervISOR)
-# Version: 0.2.5
-# Thu Mar  5 09:38:09 2015
+# Version: 0.2.6
+# Wed Jul 29 11:00:05 2015
 #
 CONFIG_ARCH_ARM=y
 # CONFIG_ARCH_x86 is not set
@@ -48,6 +25,7 @@ CONFIG_CPU_CORTEX_A9=y
 CONFIG_ARMV7A=y
 # CONFIG_ARMV7A_VE is not set
 # CONFIG_ARMV8 is not set
+CONFIG_ARM=y
 CONFIG_ARM32=y
 # CONFIG_ARM32VE is not set
 # CONFIG_ARM64 is not set
@@ -75,8 +53,6 @@ CONFIG_ARM32_STACKTRACE=y
 # CONFIG_ARM_ERRATA_743622 is not set
 # CONFIG_ARM_ERRATA_751472 is not set
 # CONFIG_ARM_ERRATA_754322 is not set
-# CONFIG_BOARD_OMAP3 is not set
-# CONFIG_BOARD_EXYNOS4 is not set
 CONFIG_BOARD_GENERIC=y
 
 #
@@ -85,7 +61,9 @@ CONFIG_BOARD_GENERIC=y
 CONFIG_BOARD="generic"
 # CONFIG_GENERIC_REALVIEW is not set
 # CONFIG_GENERIC_VEXPRESS is not set
+# CONFIG_GENERIC_OMAP3 is not set
 CONFIG_GENERIC_SABRELITE=y
+# CONFIG_GENERIC_EXYNOS4 is not set
 # CONFIG_DEFTERM_EARLY_PRINT is not set
 CONFIG_ARM_SCU=y
 CONFIG_ARM_SMP_OPS=y
@@ -94,14 +72,13 @@ CONFIG_ARM_SMP_SPIN_TABLE=y
 CONFIG_ARM_SMP_IPI=y
 # CONFIG_VERSATILE_CLCD is not set
 # CONFIG_OMAP is not set
-# CONFIG_SAMSUNG_MCT is not set
-# CONFIG_SAMSUNG_MCT_LOCAL_TIMERS is not set
 CONFIG_ARCH_MXC=y
 CONFIG_SABRELITE_CONFIG=y
 CONFIG_IMX_CPU=y
 CONFIG_IMX6_CMD=y
 CONFIG_IMX6Q_CLK=y
 CONFIG_IMX6Q_PM=y
+CONFIG_IMX6Q_PHY=y
 
 #
 # Hypervisor Options
@@ -112,6 +89,7 @@ CONFIG_IMX6Q_PM=y
 #
 CONFIG_MODULES=y
 # CONFIG_VERBOSE_MODE is not set
+CONFIG_LOG_LEVEL=6
 # CONFIG_BANNER_NONE is not set
 # CONFIG_BANNER_BANNER3 is not set
 # CONFIG_BANNER_BANNER4 is not set
@@ -121,6 +99,7 @@ CONFIG_MODULES=y
 CONFIG_BANNER_ROMAN=y
 CONFIG_IRQ_STACK_SIZE=4096
 CONFIG_THREAD_STACK_SIZE=8192
+CONFIG_MAX_RAM_BANK_COUNT=16
 CONFIG_MAX_VCPU_COUNT=16
 CONFIG_MAX_GUEST_COUNT=4
 CONFIG_VGPA2REG_CACHE_SIZE=8
@@ -131,7 +110,7 @@ CONFIG_WFI_TIMEOUT_SECS=10
 # Heap Configuration
 #
 CONFIG_HEAP_SIZE_MB=4
-CONFIG_DMA_HEAP_SIZE_KB=2048
+CONFIG_DMA_HEAP_SIZE_KB=3072
 
 #
 # Scheduler Configuration
@@ -157,12 +136,16 @@ CONFIG_LOADBAL_CRUDE=y
 CONFIG_BLOCK=y
 CONFIG_BLOCKPART=y
 CONFIG_BLOCKPART_DOS=y
-# CONFIG_NET is not set
+CONFIG_NET=y
+CONFIG_NET_MBUF_POOL_SIZE=2048
+CONFIG_NET_MBUF_EXT_POOL_SIZE_KB=128
+CONFIG_NET_BH_TIMEOUT_SECS=30
 
 #
 # Virtual IO Support
 #
 CONFIG_VSERIAL=y
+# CONFIG_VDISK is not set
 CONFIG_VDISPLAY=y
 CONFIG_VINPUT=y
 # CONFIG_VINPUT_KEYMAP_AR is not set
@@ -249,9 +232,13 @@ CONFIG_CMD_I2C=y
 #
 # Networking Commands
 #
+CONFIG_CMD_NET=y
+CONFIG_CMD_IPCONFIG=y
+CONFIG_CMD_PING=y
+CONFIG_CMD_MII=y
 
 #
-# Miscellenous Commands
+# Filesystem Commands
 #
 CONFIG_CMD_VFS=y
 
@@ -262,11 +249,20 @@ CONFIG_MTERM=y
 CONFIG_MTERM_CMD_WIDTH=256
 CONFIG_MTERM_HISTORY=y
 CONFIG_MTERM_HISTORY_SIZE=10
+# CONFIG_TELNETD is not set
 
 #
 # Library Options
 #
 CONFIG_VSCREEN=y
+
+#
+# Network Stack Options
+#
+CONFIG_NET_STACK=y
+CONFIG_NET_STACK_LWIP=y
+CONFIG_LWIP=y
+# CONFIG_VSTELNET is not set
 
 #
 # Virtual Terminal Emulator Options
@@ -320,6 +316,7 @@ CONFIG_ARM_GIC=y
 # CONFIG_MXC_AVIC is not set
 # CONFIG_BCM2835_INTC is not set
 # CONFIG_SUN4I_VIC is not set
+# CONFIG_OMAP_INTC is not set
 
 #
 # Clocksource Drivers
@@ -329,6 +326,8 @@ CONFIG_ARM_TWD=y
 CONFIG_MXC_EPIT=y
 CONFIG_MXC_GPT=y
 # CONFIG_BCM2835_TIMER is not set
+# CONFIG_OMAP_S32K is not set
+# CONFIG_OMAP2_TIMER is not set
 # CONFIG_SUN4I_TIMER is not set
 
 #
@@ -350,6 +349,7 @@ CONFIG_SERIAL_IMX=y
 # Block Drivers
 #
 CONFIG_BLOCK_RBD=y
+# CONFIG_BLOCK_INITRD is not set
 
 #
 # MTD drivers
@@ -408,8 +408,7 @@ CONFIG_KEYBOARD_ATKBD=y
 # CONFIG_KEYBOARD_ATKBD_HP_KEYCODES is not set
 CONFIG_INPUT_MOUSEDEV=y
 # CONFIG_MOUSE_PS2 is not set
-CONFIG_INPUT_TOUCHSCREEN=y
-CONFIG_TOUCHSCREEN_EGALAX=y
+# CONFIG_INPUT_TOUCHSCREEN is not set
 
 #
 # Hardware I/O ports
@@ -443,6 +442,22 @@ CONFIG_FB_BACKLIGHT_PWM=y
 #
 # Network Device Support
 #
+CONFIG_NET_DEVICES=y
+CONFIG_NET_NAPI=y
+CONFIG_ETHERNET_DRIVERS=y
+# CONFIG_ETHER_SMSC_911x is not set
+# CONFIG_ETHER_SMSC_91x is not set
+# CONFIG_ETHER_ALLWINNER_SUN4I_EMAC is not set
+# CONFIG_ETHER_REALTEK is not set
+NET_VENDOR_FREESCALE=y
+CONFIG_FEC=y
+CONFIG_PHYLIB=y
+
+#
+# MII PHY device drivers
+#
+# CONFIG_MDIO_SUN4I is not set
+CONFIG_MICREL_PHY=y
 
 #
 # Clock Drivers
@@ -590,6 +605,9 @@ CONFIG_EMU_MISC_A9MPCORE=y
 # Network Interface Controller Emulators
 #
 CONFIG_EMU_NET=y
+CONFIG_EMU_NET_LAN9118=y
+# CONFIG_EMU_NET_SMC91C111 is not set
+# CONFIG_EMU_NET_VIRTIO is not set
 
 #
 # Block Device Emulators
@@ -620,7 +638,8 @@ CONFIG_EMU_SERIAL_PL011=y
 #
 # Console Emulators
 #
-# CONFIG_EMU_CONSOLE is not set
+CONFIG_EMU_CONSOLE=y
+CONFIG_EMU_CONSOLE_VIRTIO=y
 
 #
 # Real-Time Clock Emulators
@@ -633,8 +652,7 @@ CONFIG_EMU_RTC_PL031=y
 # GPIO Emulators
 #
 CONFIG_EMU_GPIO=y
-# CONFIG_EMU_GPIO_PL061 is not set
-CONFIG_EMU_GPIO_PL061_DUMMY=y
+CONFIG_EMU_GPIO_PL061=y
 # CONFIG_EMU_PCI is not set
 
 #

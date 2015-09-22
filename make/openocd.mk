@@ -26,6 +26,17 @@ $(STAMPDIR)/.openocd_reconf: $(OPENOCD_DIR) | $(STAMPDIR)
 	$(Q)cd $< && autoreconf --force --install
 	$(Q)touch $@
 
+$(STAMPDIR)/.openocd_submodules: | $(OPENOCD_DIR)
+	$(Q)cd $(OPENOCD_DIR) && \
+	  ([ -d jimtcl ] && git rm -fqr --cached jimtcl || true) && \
+	  git submodule add \
+	    $$(grep jimtcl.git .gitmodules | cut -d '=' -f 2) jimtcl && \
+	  ([ -d tools/git2cl ] && git rm -fqr --cached tools/git2cl || \
+	    true) && \
+	  git submodule add \
+	    $$(grep git2cl.git .gitmodules | cut -d '=' -f 2) tools/git2cl
+	$(Q)touch $@
+
 $(BUILDDIR)/generated_$(OPENOCD_CONF): $(XVISOR_BIN) $(CONF) \
   $(XVISOR_BUILD_DIR)/vmm.elf $(TOOLCHAIN) $(BUILDDIR)/$(DTB_BOARDNAME).dtb \
   $(SCRIPTDIR)/openocd_gen_xvisor.sh
@@ -39,13 +50,13 @@ $(BUILDDIR)/generated_$(OPENOCD_CONF): $(XVISOR_BIN) $(CONF) \
 	    $(XVISOR_BIN) $(BUILDDIR)/$(DTB_BOARDNAME).dtb $@
 
 openocd-configure $(OPENOCD_BUILD_DIR)/Makefile: $(STAMPDIR)/.openocd_reconf \
-  $(CONF) | $(OPENOCD_DIR)
+  $(STAMPDIR)/.openocd_submodules $(CONF) | $(OPENOCD_DIR)
 	$(Q)mkdir -p $(OPENOCD_BUILD_DIR)
 	$(Q)cd $(OPENOCD_BUILD_DIR) && \
 	  $(OPENOCD_DIR)/configure --enable-ftdi --prefix=$(HOSTDIR)
 
-openocd-compile $(OPENOCD_BUILD_DIR)/src/openocd: | \
-  $(OPENOCD_BUILD_DIR)/Makefile
+openocd-compile $(OPENOCD_BUILD_DIR)/src/openocd: \
+  | $(OPENOCD_BUILD_DIR)/Makefile
 	$(Q)$(MAKE) -C $(OPENOCD_BUILD_DIR) all
 
 openocd-install $(HOSTDIR)/bin/openocd: $(OPENOCD_BUILD_DIR)/src/openocd

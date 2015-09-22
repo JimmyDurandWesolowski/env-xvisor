@@ -57,9 +57,14 @@ $(LINUX_BUILD_DIR)/arch/$(ARCH)/boot/zImage: $(LINUX_BUILD_DIR)/vmlinux
 
 $(LINUX_DIR)/arch/$(ARCH)/boot/dts/$(KERN_DT).dts: | $(LINUX_DIR)
 
+dtsflags = $(cppflags) -nostdinc -nostdlib -fno-builtin -D__DTS__
+dtsflags += -x assembler-with-cpp -I$(LINUX_DIR)/include
+
 $(DISK_DIR)/$(DISK_BOARD)/$(KERN_DT).dtb: $(LINUX_DIR)/arch/$(ARCH)/boot/dts/$(KERN_DT).dts $(XVISOR_BUILD_DIR)/tools/dtc/dtc | $(XVISOR_DIR) $(DISK_DIR)/$(DISK_BOARD)
 	@echo "(dtc) $(KERN_DT)"
-	$(XVISOR_BUILD_DIR)/tools/dtc/dtc -I dts -O dtb -p 0x800 -o $@ $<
+	$(Q)$(CROSS_COMPILE)cpp $(dtsflags) $< -o $(TMPDIR)/$(KERN_DT).dts
+	$(Q)$(XVISOR_BUILD_DIR)/tools/dtc/dtc -I dts -O dtb -p 0x800 -o $@ \
+	  $(TMPDIR)/$(KERN_DT).dts
 
 linux-configure: $(LINUX_BUILD_CONF)
 

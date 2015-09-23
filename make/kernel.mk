@@ -58,17 +58,27 @@ $(LINUX_BUILD_DIR)/arch/$(ARCH)/boot/zImage: $(LINUX_BUILD_DIR)/vmlinux
 $(LINUX_DIR)/arch/$(ARCH)/boot/dts/$(KERN_DT).dts: | $(LINUX_DIR)
 
 dtsflags = $(cppflags) -nostdinc -nostdlib -fno-builtin -D__DTS__
-dtsflags += -x assembler-with-cpp -I$(LINUX_DIR)/include
+dtsflags += -x assembler-with-cpp -I$(XVISOR_LINUX_CONF_DIR)
+dtsflags += -I$(LINUX_DIR)/include -I$(LINUX_DIR)/arch/$(ARCH)/boot/dts
 
-$(DISK_DIR)/$(DISK_BOARD)/$(KERN_DT).dtb: $(LINUX_DIR)/arch/$(ARCH)/boot/dts/$(KERN_DT).dts $(XVISOR_BUILD_DIR)/tools/dtc/dtc | $(XVISOR_DIR) $(DISK_DIR)/$(DISK_BOARD)
+
+$(TMPDIR)/$(KERN_DT).pre.dts: $(XVISOR_LINUX_CONF_DIR)/$(KERN_DT).dts | \
+  $(XVISOR_DIR) $(DISK_DIR)/$(DISK_BOARD)
+	$(Q)sed -re 's|/include/|#include|' $< >$@
+
+$(TMPDIR)/$(KERN_DT).dts: $(TMPDIR)/$(KERN_DT).pre.dts
+	@echo "(cpp) $(KERN_DT)"
+	$(Q)$(CROSS_COMPILE)cpp $(dtsflags) $< -o $@
+
+$(DISK_DIR)/$(DISK_BOARD)/$(KERN_DT).dtb: $(TMPDIR)/$(KERN_DT).dts \
+  $(XVISOR_BUILD_DIR)/tools/dtc/dtc
 	@echo "(dtc) $(KERN_DT)"
-	$(Q)$(CROSS_COMPILE)cpp $(dtsflags) $< -o $(TMPDIR)/$(KERN_DT).dts
-	$(Q)$(XVISOR_BUILD_DIR)/tools/dtc/dtc -I dts -O dtb -p 0x800 -o $@ \
-	  $(TMPDIR)/$(KERN_DT).dts
+	$(Q)$(XVISOR_BUILD_DIR)/tools/dtc/dtc -I dts -O dtb -p 0x800 -o $@ $<
 
 linux-configure: $(LINUX_BUILD_CONF)
 
-linux-oldconfig linux-menuconfig linux-savedefconfig linux-dtbs: | $(LINUX_BUILD_DIR) $(LINUX_DIR) TOOLCHAIN-prepare
+linux-oldconfig linux-menuconfig linux-savedefconfig linux-dtbs: | \
+  $(LINUX_BUILD_DIR) $(LINUX_DIR) TOOLCHAIN-prepare
 	@echo "($(subst linux-,,$@)) Linux"
 	$(Q)$(MAKE) -C $(LINUX_DIR) O=$(LINUX_BUILD_DIR) $(subst linux-,,$@)
 

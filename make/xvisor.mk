@@ -47,7 +47,7 @@ $(XVISOR_BUILD_DIR)/tmpconf: $(XVISOR_BUILD_DIR)/tools/dtc/dtc
 
 $(XVISOR_BUILD_CONF): $(XVISOR_DIR)/arch/$(ARCH)/configs/$(XVISOR_CONF) \
   $(TOOLCHAIN_DIR) | $(XVISOR_BUILD_DIR)/tmpconf
-	@echo "(defconfig) xVisor"
+	@echo "(defconfig) Xvisor"
 	$(call cmd_xbuild,$(XVISOR_CONF))
 
 xvisor-configure: $(XVISOR_BUILD_CONF)

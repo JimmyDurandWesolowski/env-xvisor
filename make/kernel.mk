@@ -70,6 +70,11 @@ $(TMPDIR)/$(KERN_DT).dts: $(TMPDIR)/$(KERN_DT).pre.dts
 	@echo "(cpp) $(KERN_DT)"
 	$(Q)$(CROSS_COMPILE)cpp $(dtsflags) $< -o $@
 
+ifneq ($(wildcard $(XVISOR_LINUX_CONF_DIR)/$(KERN_DT).dts),)
+  $(TMPDIR)/$(KERN_DT).dts: $(shell sed -nre \
+    's|^\# [0-9]+ "(.+\.dtsi)".*|\1|p' $(TMPDIR)/$(KERN_DT).dts)
+endif
+
 $(DISK_DIR)/$(DISK_BOARD)/$(KERN_DT).dtb: $(TMPDIR)/$(KERN_DT).dts \
   $(XVISOR_BUILD_DIR)/tools/dtc/dtc
 	@echo "(dtc) $(KERN_DT)"

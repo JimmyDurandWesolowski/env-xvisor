@@ -71,7 +71,7 @@ $(BUILDDIR)/$(DTB_BOARDNAME).dtb: xvisor-dtbs
 .PHONY: $(XVISOR_BIN)
 $(XVISOR_BIN): $(XVISOR_BUILD_CONF) $(CONF) \
   $(XVISOR_BUILD_DIR)/tools/dtc/dtc | $(XVISOR_DIR) $(XVISOR_BUILD_DIR)/tmpconf
-	@echo "(make) xVisor"
+	@echo "(make) Xvisor"
 	$(call cmd_xbuild)
 	$(Q)ln -sf $(XVISOR_BUILD_DIR)/vmm.bin $@
 
@@ -81,7 +81,7 @@ xvisor-compile: $(XVISOR_BIN)
 
 $(XVISOR_IMX): $(XVISOR_BIN) $(UBOOT_BUILD_DIR)/$(UBOOT_BOARD_CFG).cfgtmp \
   $(UBOOT_BUILD_DIR)/$(UBOOT_MKIMAGE)
-	@echo "(generate) xVisor IMX image"
+	@echo "(generate) Xvisor IMX image"
 	$(Q)$(UBOOT_BUILD_DIR)/$(UBOOT_MKIMAGE) \
           -n $(UBOOT_BUILD_DIR)/$(UBOOT_BOARD_CFG).cfgtmp -T imximage \
 	  -e $(ADDR_HYPER) -d $< $(TMPDIR)/$(@F)
@@ -90,11 +90,11 @@ $(XVISOR_IMX): $(XVISOR_BIN) $(UBOOT_BUILD_DIR)/$(UBOOT_BOARD_CFG).cfgtmp \
 xvisor-imx: $(XVISOR_IMX)
 
 $(XVISOR_UIMAGE): $(XVISOR_BIN) $(UBOOT_BUILD_DIR)/$(UBOOT_MKIMAGE)
-	@echo "(generate) xVisor u-Boot image"
+	@echo "(generate) Xvisor u-Boot image"
 	$(Q)$(UBOOT_BUILD_DIR)/$(UBOOT_MKIMAGE) \
           -A $(ARCH) -O linux -C none -T kernel \
 	  -a $(ADDR_HYPER) -e $(ADDR_HYPER) \
-	  -n 'xVisor' -d $< $(TMPDIR)/$(@F)
+	  -n 'Xvisor' -d $< $(TMPDIR)/$(@F)
 	$(Q)cp $(TMPDIR)/$(@F) $@
 
 xvisor-uimage: $(XVISOR_UIMAGE) $(BUILDDIR)/$(DTB_BOARDNAME).dtb

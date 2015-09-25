@@ -105,7 +105,7 @@ ifeq ($(BOARD_QEMU),1)
 	@printf "  run			- Start the board emulation\n"
 endif
 ifeq ($(BOARD_LOADER),1)
-	@printf "  load			- Load xVisor on the board\n"
+	@printf "  load			- Load Xvisor on the board\n"
 endif
 ifneq ($(TEST_NAME),)
 	@printf "  test			- Run automatic test\n"

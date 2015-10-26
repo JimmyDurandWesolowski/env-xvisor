@@ -216,8 +216,15 @@ packages_check() {
 
     # Check we have pkg-config (not needed on Gentoo)
     package_check_binary 1 "pkg-config" "pkg-config" ""
+    RET_PKG_CONFIG=$?
 
-    if [ $? -eq 1 -o -n "$(pkg-config --exists libusb-1.0)" ]; then
+    RET_LIBUSB=1
+    if [ ${RET_PKG_CONFIG} -eq 0 ]; then
+	pkg-config --exists libusb-1.0
+	RET_LIBUSB=$?
+    fi
+
+    if [ ${RET_PKG_CONFIG} -eq 1 -o ${RET_LIBUSB} -eq 1 ]; then
 	INSTALL_DEBIAN="${INSTALL_DEBIAN} libusb-1.0-0-dev"
 	INSTALL_GENTOO="${INSTALL_GENTOO} \"dev-libs/libusb\""
     fi

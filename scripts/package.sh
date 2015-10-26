@@ -214,20 +214,26 @@ packages_check() {
     fi
     rm -f ${NCURSE_TMP} ${NCURSE_TMP}.c
 
-    # Check we have pkg-config (not needed on Gentoo)
-    package_check_binary 1 "pkg-config" "pkg-config" ""
-    RET_PKG_CONFIG=$?
+    if [ ${BOARD_OPENOCD} -eq 0 ]; then
+	# Check we have pkg-config (not needed on Gentoo)
+	package_check_binary 1 "pkg-config" "pkg-config" ""
+	RET_PKG_CONFIG=$?
 
-    RET_LIBUSB=1
-    if [ ${RET_PKG_CONFIG} -eq 0 ]; then
-	pkg-config --exists libusb-1.0
-	RET_LIBUSB=$?
+	RET_LIBUSB=1
+	if [ ${RET_PKG_CONFIG} -eq 0 ]; then
+	    pkg-config --exists libusb-1.0
+	    RET_LIBUSB=$?
+	fi
+
+	if [ ${RET_PKG_CONFIG} -eq 1 -o ${RET_LIBUSB} -eq 1 ]; then
+	    INSTALL_DEBIAN="${INSTALL_DEBIAN} libusb-1.0-0-dev"
+	    INSTALL_GENTOO="${INSTALL_GENTOO} \"dev-libs/libusb\""
+	fi
+
     fi
 
-    if [ ${RET_PKG_CONFIG} -eq 1 -o ${RET_LIBUSB} -eq 1 ]; then
-	INSTALL_DEBIAN="${INSTALL_DEBIAN} libusb-1.0-0-dev"
-	INSTALL_GENTOO="${INSTALL_GENTOO} \"dev-libs/libusb\""
-    fi
+    package_check_binary ${BOARD_OPENOCD} "makeinfo" "texinfo" \
+			 "sys-apps/texinfo"
 
     case "${DISTRO}" in
     Gentoo)

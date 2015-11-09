@@ -91,9 +91,12 @@ board_list() {
     printf "${BOLD}Available board support:${NORMAL}\n"
     printf "  - vexpress-a9:\tARM Versatile Express A9\n"
     printf "\t\t\tThe reference platform to emulate the hypervisor.\n"
-    printf "  - sabrelite-a9:\t\tARM Sabrelite platform\n"
+    printf "  - sabrelite-a9:\tARM Sabrelite platform\n"
     printf "\t\t\tThe real board to run the hypervisor on.\n"
     printf "  - nitrogen6x:\t\tBoundary Devices Nitrogen6x platform\n"
+    printf "\t\t\tSimilar to Sabrelite.\n"
+    printf "  - nitrogen6x_android:\tBoundary Devices Nitrogen6x platform "
+    printf "with android\n"
     printf "\t\t\tSimilar to Sabrelite.\n"
     printf "  - nitrogen6_max:\tBoundary Devices Nitrogen6 Max platform\n"
     printf "\t\t\tThe Nitrogen6x with 4GB of RAM.\n"
@@ -101,7 +104,7 @@ board_list() {
     printf "\t\t\tAnother reference platform to emulate the hypervisor.\n"
     printf "  - realview-eb-mpcore:\tRealview Platform Base Board\n"
     printf "\t\t\tAnother reference platform to emulate the hypervisor.\n"
-    printf "  - bcm2835-raspi:\t\tThe Famous Raspberry PI B(+) platform\n"
+    printf "  - bcm2835-raspi:\tThe Famous Raspberry PI B(+) platform\n"
     printf "\t\t\tCan run realview-eb-mpcore guests.\n"
 
     exit ${RET}

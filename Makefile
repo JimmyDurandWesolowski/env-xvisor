@@ -48,6 +48,7 @@ endif
 -include $(MAKEDIR)/loader.mk
 -include $(MAKEDIR)/tftp.mk
 -include $(MAKEDIR)/board-$(GUEST_BOARDNAME).mk
+-include $(MAKEDIR)/android.mk
 
 export PATH := $(TOOLCHAIN_DIR)/bin:$(HOSTDIR)/bin/:$(PATH)
 export ARCH

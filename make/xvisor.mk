@@ -78,7 +78,6 @@ $(XVISOR_BUILD_DIR)/vmm.bin: $(XVISOR_BUILD_CONF) $(CONF) FORCE \
 	$(call cmd_xbuild)
 
 $(XVISOR_BUILD_DIR)/vmm.elf: $(XVISOR_BIN)
-
 xvisor-compile: $(XVISOR_BIN)
 
 $(XVISOR_IMX): $(realpath $(XVISOR_BIN)) \

@@ -39,21 +39,27 @@ $(BUILDDIR)/$($1_PATH): $($1_LOCAL)
 
   # This rule only exists for archived components (i.e. the kernel)
   ifeq ($($1_REPO),)
-    # The component server and file must be set
+	    # The component server and file must be set
   endif # !$1_REPO
-
+ 
+  # Check if the component repo repository is defined
+  ifneq ($($1_GREPO),)
+$(BUILDDIR)/$($1_PATH):
+	@echo "(Repo clone) $$@"
+	mkdir -p $$@; cd $$@; $(SCRIPTDIR)/repo init -u $$($1_GREPO) -b $$($1_BRANCH); $(SCRIPTDIR)/repo sync -c -q -f
   # Check if the component git repository is defined
-  ifneq ($($1_REPO),)
+  else
+    ifneq ($($1_REPO),)
 $(BUILDDIR)/$($1_PATH):
 	@echo "(Clone) $$@"
 	$(Q)git clone -q $$($1_REPO) -b $$($1_BRANCH) $$@
 
   # The component is not fetch with a git repository
-  else # $($1_REPO) empty or unset
+    else # $($1_REPO) empty or unset
 
-    # Check if the component can be downloaded
-    ifneq ($($1_SERVER),)
-      ifneq ($($1_FILE),)
+      # Check if the component can be downloaded
+      ifneq ($($1_SERVER),)
+        ifneq ($($1_FILE),)
 $(ARCDIR)/$($1_FILE): | $(TMPDIR)
 	@echo "(Download) $$(@F)"
 	$(Q)wget --no-check-certificate --no-verbose $($1_SERVER)/$$(@F) -O $(TMPDIR)/$$(@F)
@@ -82,10 +88,11 @@ $(BUILDDIR)/$($1_PATH):
     # Nor $1_SERVER nor $1_REPO has been set, we cannot fetch the component
     else # $1_SERVER empty or unset
 $(BUILDDIR)/$($1_PATH):
-	@echo "$1 server or repository has not been set, exiting..."
+	@echo "$1 server or repository has not been set, exiting... "
 	$(Q)exit 1
     endif # $1_SERVER
   endif # $1_REPO
+  endif # $1_GREPO
  endif # $1_LOCAL
 endef
 

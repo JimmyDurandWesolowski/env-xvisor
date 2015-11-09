@@ -88,7 +88,7 @@ config_write() {
 
     echo "# Board configuration" >> ${CONF}
     for elt in BOARDNAME ARCH QEMU_ARCH XVISOR_ARCH BOARD_BUSYBOX \
-	BOARD_QEMU BOARD_LOADER BOARD_UBOOT TOOLCHAIN_PREFIX; do
+	BOARD_QEMU BOARD_LOADER BOARD_UBOOT TOOLCHAIN_PREFIX BOARD_LINUX BOARD_ANDROID; do
 	echo "${elt}=${!elt}" >> ${CONF}
     done
     printf "\n\n" >> ${CONF}
@@ -115,6 +115,7 @@ config_write() {
 	COMPONENT_BRANCH=${component}_BRANCH
 	COMPONENT_SERVER=${component}_SERVER
 	COMPONENT_LOCAL=${component}_LOCAL
+	COMPONENT_GREPO=${component}_GREPO
 
 	echo "${COMPONENT_VERSION}=${!COMPONENT_VERSION}" >> ${CONF}
 	echo "${COMPONENT_PATH}=${!COMPONENT_PATH}" >> ${CONF}
@@ -124,19 +125,31 @@ config_write() {
 	    echo "${COMPONENT_LOCAL}=${!COMPONENT_LOCAL}" >> ${CONF}
 	fi
 
-	# If the component is on a git repository, get its path...
-	if [ -n "${!COMPONENT_REPO}" ]; then
-	    echo "${COMPONENT_REPO}=${!COMPONENT_REPO}" >> ${CONF}
-	    # ... and its branch
-	    if [ -n "${!COMPONENT_BRANCH}" ]; then
-		echo "${COMPONENT_BRANCH}=${!COMPONENT_BRANCH}" >> ${CONF}
-	    else
-		echo "${COMPONENT_BRANCH}=master" >> ${CONF}
-	    fi
-	# Otherwise, it is provided with a archive server and file
+	
+	if [ -n "${!COMPONENT_GREPO}" ]; then
+		echo "${COMPONENT_GREPO}=${!COMPONENT_GREPO}" >> ${CONF}
+		if [ -n "${COMPONENT_BRANCH}" ]; then
+			echo "${COMPONENT_BRANCH}=${!COMPONENT_BRANCH}" >> ${CONF}
+		fi
+
+		if [ -n "${COMPONENT_TARGET}" ]; then
+			echo "${COMPONENT_TARGET}=${!COMPONENT_TARGET}" >> ${CONF}
+		fi
 	else
-	    echo "${COMPONENT_SERVER}=${!COMPONENT_SERVER}" >> ${CONF}
-	    echo "${COMPONENT_FILE}=${!COMPONENT_FILE}" >> ${CONF}
+		# If the component is on a git repository, get its path...
+		if [ -n "${!COMPONENT_REPO}" ]; then
+		    echo "${COMPONENT_REPO}=${!COMPONENT_REPO}" >> ${CONF}
+		    # ... and its branch
+		    if [ -n "${!COMPONENT_BRANCH}" ]; then
+			echo "${COMPONENT_BRANCH}=${!COMPONENT_BRANCH}" >> ${CONF}
+		    else
+			echo "${COMPONENT_BRANCH}=master" >> ${CONF}
+		    fi
+		# Otherwise, it is provided with a archive server and file
+		else
+		    echo "${COMPONENT_SERVER}=${!COMPONENT_SERVER}" >> ${CONF}
+		    echo "${COMPONENT_FILE}=${!COMPONENT_FILE}" >> ${CONF}
+		fi
 	fi
 	echo "${component}_DIR=${BUILDDIR}/${!COMPONENT_PATH}" >> ${CONF}
 	printf "${component}_BUILD_DIR=${BUILDDIR}/build_" >> ${CONF}

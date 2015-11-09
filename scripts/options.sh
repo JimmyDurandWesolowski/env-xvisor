@@ -207,7 +207,7 @@ option_board_validate() {
 
     # Check that the board is correct
     case ${BOARDNAME} in
-	("nitrogen6x"|"nitrogen6_max")
+	("nitrogen6x"|"nitrogen6_max" | "nitrogen6x_android")
 	    GUEST_BOARDNAME=sabrelite-a9
 	    XVISOR_CFG_BOARDNAME=nitrogen6x
 	    ;;
@@ -232,12 +232,11 @@ option_board() {
     source ${CONFDIR}/${ARCH}.conf
     source ${CONFDIR}/components.conf
 
-    for elt in BUSYBOX UBOOT LOADER OPENOCD LIBFTDI; do
+    for elt in BUSYBOX UBOOT LOADER OPENOCD LIBFTDI LINUX ANDROID; do
 	BOARD_ELT=BOARD_${elt}
 	if [ -z "${!BOARD_ELT}" ]; then
 	    continue
 	fi
-
 	if [ ${!BOARD_ELT} -eq 1 ]; then
 	    COMPONENTS="${COMPONENTS} ${elt}"
 	fi

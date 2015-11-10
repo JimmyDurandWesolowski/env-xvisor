@@ -117,7 +117,7 @@ $(DISKA)/$(ROOTFS_IMG): $(BUILDDIR)/$(ROOTFS_IMG) | $(DISKA)
 
 $(DISKA)/$(DTB_IN_IMG).dtb: $(XVISOR_DIR)/tests/$(XVISOR_ARCH)/$(GUEST_BOARDNAME)/$(DTB_IN_IMG).dts $(XVISOR_BUILD_DIR)/tools/dtc/dtc | $(DISKA)
 	@echo "(dtc) $(DTB_IN_IMG)"
-	$(XVISOR_BUILD_DIR)/tools/dtc/dtc -I dts -O dtb -o $@ $<
+	$(Q)$(XVISOR_BUILD_DIR)/tools/dtc/dtc -I dts -O dtb -o $@ $<
 
 FIRMWARE_DIR = $(XVISOR_BUILD_DIR)/tests/$(XVISOR_ARCH)/$(GUEST_BOARDNAME)/basic
 FIRMWARE = $(FIRMWARE_DIR)/firmware.bin.patched

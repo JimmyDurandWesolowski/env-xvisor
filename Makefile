@@ -44,11 +44,14 @@ endif
 -include $(MAKEDIR)/openocd.mk
 -include $(MAKEDIR)/qemu.mk
 -include $(MAKEDIR)/uboot.mk
--include $(MAKEDIR)/kernel.mk
 -include $(MAKEDIR)/loader.mk
 -include $(MAKEDIR)/tftp.mk
 -include $(MAKEDIR)/board-$(GUEST_BOARDNAME).mk
--include $(MAKEDIR)/android.mk
+ifeq ($(BOARD_ANDROID),1)
+	-include $(MAKEDIR)/android.mk
+else
+	-include $(MAKEDIR)/kernel.mk
+endif
 
 export PATH := $(TOOLCHAIN_DIR)/bin:$(HOSTDIR)/bin/:$(PATH)
 export ARCH

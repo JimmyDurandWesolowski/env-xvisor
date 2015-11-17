@@ -21,15 +21,49 @@
 # @file make/android.mk
 #
 
+
+XVISOR_ANDROID_CONF_DIR=$(XVISOR_DIR)/tests/$(XVISOR_ARCH)/$(GUEST_BOARDNAME)/android
+ANDROID_DTS_PATCH_DIR=$(ANDROID_DIR)/kernel_imx/arch/${ARCH}/boot/dts/include
+ANDROID_DTS_DIR=$(ANDROID_DIR)/kernel_imx/arch/${ARCH}/boot/dts
+ANDROID_KERNEL_DIR=$(ANDROID_DIR)/kernel_imx
+
+ANDROID_DTB_TARGET=imx6q-nitrogen6x.dtb
+
+
 $(ANDROID_BUILD_DIR):
 	$(Q)mkdir -p $@
 
 
 
-android-compile: 
-	@echo "(make) AOSP"
-	cd $(ANDROID_DIR); make -j$(PARALLEL_JOBS)  
 
-android-configure:
-	@echo "(LUNCH) $(ANDROID_CONF)"
-	SHELL=/bin/bash; cd $(ANDROID_DIR); . build/envsetup.sh; OUT_DIR=$(ANDROID_BUILD_DIR) lunch $(ANDROID_CONF) 
+$(DISK_DIR)/$(DISK_dddBOARD)/$(KERN_DT).dtb: $(TMPDIR)/$(KERN_DT).dts $(XVISOR_BUILD_DIR)/tools/dtc/dtc 
+	@echo "(dtc) $(KERN_DT)" 
+	$(Q)$(XVISOR_BUILD_DIR)/tools/dtc/dtc -I dts -O dtb -p 0x800 -o $@ $< 
+
+android-compile:
+	@echo "(make) $(ANDROID_CONF)"
+	$(Q)cd $(ANDROID_DIR); source build/envsetup.sh; OUT_DIR=$(ANDROID_BUILD_DIR) lunch $(ANDROID_CONF); \
+	OUT_DIR=$(ANDROID_BUILD_DIR) make -j$(PARALLEL_JOBS); cd -
+
+android-patch-dts: $(XVISOR_ANDROID_CONF_DIR) 
+	$(Q)cp $^/* $(ANDROID_DTS_DIR)
+
+android-dtbs: android-patch-dts android-sed
+	@echo "(make) android-dtbs"
+	cd $(ANDROID_KERNEL_DIR); make $(ANDROID_DTB_TARGET); cd -
+
+
+android-sed:
+	$(Q)sed -r  s/TARGET_BOARD_DTS_CONFIG=imx6q:imx6q-nitrogen6x.dtb\ /TARGET_BOARD_DTS_CONFIG=imx6q:imx6q-nitrogen6x.dtb#\ / -i  build/android/device/boundary/nitrogen6x/AndroidBoard.mk
+
+$(DISK_DIR)/$(DISK_BOARD)/Image: android-imx
+	$(Q)cp $(ANDROID_KERNEL_DIR)/arch/$(ARCH)/boot/Image $@
+
+$(DISK_DIR)/$(DISK_BOARD)/$(ANDROID_DTB_TARGET): android-imx
+	$(Q)cp $(ANDROID_KERNEL_DIR)/arch/$(ARCH)/boot/dts/$(ANDROID_DTB_TARGET) $@
+
+
+android-imx: xvisor-imx android-compile android-dtbs
+
+
+

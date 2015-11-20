@@ -47,7 +47,7 @@ endif
 -include $(MAKEDIR)/kernel.mk
 -include $(MAKEDIR)/loader.mk
 -include $(MAKEDIR)/tftp.mk
--include $(MAKEDIR)/board.mk
+-include $(MAKEDIR)/board-$(BOARDNAME).mk
 
 export PATH := $(TOOLCHAIN_DIR)/bin:$(HOSTDIR)/bin/:$(PATH)
 export ARCH

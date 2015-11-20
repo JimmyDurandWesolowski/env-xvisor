@@ -75,6 +75,38 @@ usage() {
     exit ${RET}
 }
 
+board_list() {
+    RET=$1
+
+    if [ -z "${RET}" ]; then
+	RET=1
+    fi
+
+    if [ ${RET} -eq 1 ]; then
+	OUTPUT=/dev/stderr
+    else
+	OUTPUT=/dev/stdout
+    fi
+
+    printf "${BOLD}Available board support:${NORMAL}\n"
+    printf "  - vexpress-a9:\tARM Versatile Express A9\n"
+    printf "\t\t\tThe reference platform to emulate the hypervisor.\n"
+    printf "  - sabrelite-a9:\t\tARM Sabrelite platform\n"
+    printf "\t\t\tThe real board to run the hypervisor on.\n"
+    printf "  - nitrogen6x:\t\tBoundary Devices Nitrogen6x platform\n"
+    printf "\t\t\tSimilar to Sabrelite.\n"
+    printf "  - nitrogen6_max:\tBoundary Devices Nitrogen6 Max platform\n"
+    printf "\t\t\tThe Nitrogen6x with 4GB of RAM.\n"
+    printf "  - realview-pb-a8:\tRealview Platform Base Board\n"
+    printf "\t\t\tAnother reference platform to emulate the hypervisor.\n"
+    printf "  - realview-eb-mpcore:\tRealview Platform Base Board\n"
+    printf "\t\t\tAnother reference platform to emulate the hypervisor.\n"
+    printf "  - bcm2835-raspi:\t\tThe Famous Raspberry PI B(+) platform\n"
+    printf "\t\t\tCan run realview-eb-mpcore guests.\n"
+
+    exit ${RET}
+}
+
 pre_option_check() {
     # Parallel job number
     CPU_INFO=/proc/cpuinfo
@@ -173,17 +205,14 @@ option_board_validate() {
     # Check that the board is correct
     case ${BOARDNAME} in
 	("nitrogen6x"|"nitrogen6_max")
-	    DTB_BOARDNAME=sabrelite-a9
 	    GUEST_BOARDNAME=sabrelite-a9
 	    XVISOR_CFG_BOARDNAME=nitrogen6x
 	    ;;
 	("bcm2835-raspi")
-	    DTB_BOARDNAME=bcm2835-raspi
 	    GUEST_BOARDNAME=realview-eb-mpcore
 	    XVISOR_CFG_BOARDNAME=${BOARDNAME}
 	    ;;
-	("vexpress-a9"|"sabrelite"|"realview-pb-a8"|"realview-eb-mpcore")
-	    DTB_BOARDNAME=${BOARDNAME}
+	("vexpress-a9"|"sabrelite-a9"|"realview-pb-a8"|"realview-eb-mpcore")
 	    GUEST_BOARDNAME=${BOARDNAME}
 	    XVISOR_CFG_BOARDNAME=${BOARDNAME}
 	    ;;

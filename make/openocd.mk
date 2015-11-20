@@ -27,7 +27,7 @@ $(STAMPDIR)/.openocd_reconf: $(OPENOCD_DIR) | $(STAMPDIR)
 	$(Q)touch $@
 
 $(BUILDDIR)/generated_$(OPENOCD_CONF): $(XVISOR_BIN) $(CONF) \
-  $(XVISOR_BUILD_DIR)/vmm.elf $(TOOLCHAIN) $(BUILDDIR)/$(DTB_BOARDNAME).dtb \
+  $(XVISOR_BUILD_DIR)/vmm.elf $(TOOLCHAIN) $(BUILDDIR)/vmm-$(BOARDNAME).dtb \
   $(SCRIPTDIR)/openocd_gen_xvisor.sh
 	@echo "(generate) $(OPENOCD_CONF)"
 	$(Q)TOOLCHAIN_PREFIX=$(TOOLCHAIN_PREFIX) \
@@ -36,7 +36,7 @@ $(BUILDDIR)/generated_$(OPENOCD_CONF): $(XVISOR_BIN) $(CONF) \
 	  RAM_BASE=$(RAM_BASE) \
 	  BOARD=$(BOARDNAME) \
 	  $(SCRIPTDIR)/openocd_gen_xvisor.sh $(XVISOR_BUILD_DIR)/vmm.elf \
-	    $(XVISOR_BIN) $(BUILDDIR)/$(DTB_BOARDNAME).dtb $@
+	    $(XVISOR_BIN) $(BUILDDIR)/vmm-$(BOARDNAME).dtb $@
 
 openocd-configure $(OPENOCD_BUILD_DIR)/Makefile: $(STAMPDIR)/.openocd_reconf \
   | $(OPENOCD_DIR)
@@ -54,7 +54,7 @@ openocd-install $(HOSTDIR)/bin/openocd: $(OPENOCD_BUILD_DIR)/src/openocd
 CONF_RULE=$(wildcard $(CONFDIR)/*usb-jtag-perm.rules)
 INSTALLED_RULE=$(wildcard /etc/udev/rules.d/*usb-jtag-perm.rules)
 OPENOCD_DEPS=$(HOSTDIR)/bin/openocd $(XVISOR_BIN) \
-  $(BUILDDIR)/$(DTB_BOARDNAME).dtb \
+  $(BUILDDIR)/vmm-$(BOARDNAME).dtb \
   $(BUILDDIR)/generated_$(OPENOCD_CONF) | $(CONFDIR)/$(OPENOCD_CONF) \
   $(CONFDIR)/openocd
 

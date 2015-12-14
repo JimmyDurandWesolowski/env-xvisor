@@ -37,11 +37,11 @@ $(DISK_DIR)/6x_bootscript: $(XVISOR_DIR)/docs/arm/sabrelite-bootscript \
 $(DISK_DIR)/$(notdir $(XVISOR_UIMAGE)): $(XVISOR_UIMAGE)
 	$(call COPY)
 
-$(DISK_DIR)/vmm-$(BOARDNAME).dtb: $(BUILDDIR)/vmm-$(BOARDNAME).dtb
+$(DISK_DIR)/vmm-imx6q-$(BOARDNAME).dtb: $(BUILDDIR)/vmm-$(BOARDNAME).dtb
 	$(call COPY)
 
 disk-xvisor: $(DISK_DIR)/$(notdir $(XVISOR_UIMAGE)) \
-  $(DISK_DIR)/vmm-$(BOARDNAME).dtb $(DISK_DIR)/6x_bootscript
+  $(DISK_DIR)/vmm-imx6q-$(BOARDNAME).dtb $(DISK_DIR)/6x_bootscript
 
 # populate disk with guests information as for qemu image,
 # also copy some files to the root dir to ease loading them from xvisor

@@ -69,7 +69,6 @@ android-patch-dts: $(XVISOR_ANDROID_CONF_DIR)
 android-sed:
 	$(Q)sed -r  s/TARGET_BOARD_DTS_CONFIG=imx6q:imx6q-nitrogen6x.dtb\ /TARGET_BOARD_DTS_CONFIG=imx6q:imx6q-nitrogen6x.dtb#\ / -i  build/android/device/boundary/nitrogen6x/AndroidBoard.mk
 
-
 android-unpatch-dtbs:
 	$(Q)sed -r  s/TARGET_BOARD_DTS_CONFIG=imx6q:imx6q-nitrogen6x.dtb#\ /TARGET_BOARD_DTS_CONFIG=imx6q:imx6q-nitrogen6x.dtb\ / -i  build/android/device/boundary/nitrogen6x/AndroidBoard.mk
 
@@ -87,9 +86,37 @@ android-dtbs: android-patch-dts android-sed
 #	$(Q)mkdir -p $(DISK_DIR)/$(DISK_BOARD)
 #	$(Q)cp $(ANDROID_BUILD_DIR)/Image $@
 
-$(DISK_DIR)/$(DISK_BOARD)/$(ANDROID_DTB_TARGET): android-imx
-	@echo "(copy) android dtb: $(DISK_DIR)/$(DISK_BOARD)/$(ANDROID_DTB_TARGET)"
-	$(Q)cp $(ANDROID_KERNEL_DIR)/arch/$(ARCH)/boot/dts/$(ANDROID_DTB_TARGET) $@
+#$(DISK_DIR)/$(DISK_BOARD)/$(ANDROID_DTB_TARGET): android-imx
+#	@echo "(copy) android dtb: $(DISK_DIR)/$(DISK_BOARD)/$(ANDROID_DTB_TARGET)"
+#	$(Q)cp $(ANDROID_KERNEL_DIR)/arch/$(ARCH)/boot/dts/$(ANDROID_DTB_TARGET) $@
 
-android-imx: android-unpatch-dtbs android-compile android-dtbs 
-	
+android-imx: android-compile android-dtbs 
+
+
+
+
+
+
+
+
+
+
+
+
+dtsflags = $(cppflags) -nostdinc -nostdlib -fno-builtin -D__DTS__
+dtsflags += -x assembler-with-cpp -I$(XVISOR_ANDROID_CONF_DIR) -I$(ANDROID_DTS_PATCH_DIR) -I$(ANDROID_DTS_DIR)
+
+
+
+$(TMPDIR)/$(KERN_DT).pre.dts: $(XVISOR_ANDROID_CONF_DIR)/$(KERN_DT).dts | \
+	  $(XVISOR_DIR) $(DISK_DIR)/$(DISK_BOARD)
+	        $(Q)sed -re 's|/include/|#include|' $< >$@
+
+$(TMPDIR)/$(KERN_DT).dts: $(TMPDIR)/$(KERN_DT).pre.dts
+	        @echo "(cpp) $(KERN_DT)"
+		        $(Q)$(CROSS_COMPILE)cpp $(dtsflags) $< -o $@
+
+$(DISK_DIR)/$(DISK_BOARD)/$(ANDROID_DTB_TARGET): $(TMPDIR)/$(KERN_DT).dts \
+	  $(XVISOR_BUILD_DIR)/tools/dtc/dtc
+	        @echo "(dtc) $(KERN_DT)"
+		        $(Q)$(XVISOR_BUILD_DIR)/tools/dtc/dtc -I dts -O dtb -p 0x800 -o $@ $<

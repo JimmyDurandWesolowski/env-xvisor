@@ -33,6 +33,26 @@ ANDROID_DTB_TARGET=imx6q-nitrogen6x.dtb
 $(ANDROID_BUILD_DIR):
 	$(Q)mkdir -p $@
 
+$(ANDROID_KERNEL_DIR)/arch/${ARCH}/boot/compressed/vmlinux: android-imx
+
+
+$(ANDROID_BUILD_DIR)/vmlinux: $(ANDROID_KERNEL_DIR)/arch/${ARCH}/boot/compressed/vmlinux
+	$(Q)cp $< $@
+
+
+
+
+
+OBJCOPYFLAGS	:=-O binary -R .comment -S
+
+$(DISK_DIR)/$(DISK_BOARD)/$(KERN_IMG): $(ANDROID_BUILD_DIR)/vmlinux \
+  $(XVISOR_DIR)/$(XVISOR_ELF2C) $(XVISOR_BUILD_DIR)/$(XVISOR_CPATCH) \
+  | $(DISK_DIR)/$(DISK_BOARD)
+	@echo "(patch) android kernel"
+	$(Q)cp $< $<.bak
+	$(Q)$(XVISOR_DIR)/$(XVISOR_ELF2C) -f $< | $(XVISOR_BUILD_DIR)/$(XVISOR_CPATCH) $< 0
+	objcopy $(OBJCOPYFLAGS) $< $@
+	$(Q)mv $<.bak $<
 
 
 android-compile:
@@ -40,26 +60,36 @@ android-compile:
 	$(Q)bash -c "cd $(ANDROID_DIR); source build/envsetup.sh; OUT_DIR=$(ANDROID_BUILD_DIR) lunch $(ANDROID_CONF); \
 		        OUT_DIR=$(ANDROID_BUILD_DIR) make -j$(PARALLEL_JOBS)"
 
+#replace dts modified in aosp build
 android-patch-dts: $(XVISOR_ANDROID_CONF_DIR) 
 	$(Q)cp $^/* $(ANDROID_DTS_DIR)
+
+
+#disable non needed board in AndroidBoard.mk, as copy of custom dts and dtsi will break other boards.
+android-sed:
+	$(Q)sed -r  s/TARGET_BOARD_DTS_CONFIG=imx6q:imx6q-nitrogen6x.dtb\ /TARGET_BOARD_DTS_CONFIG=imx6q:imx6q-nitrogen6x.dtb#\ / -i  build/android/device/boundary/nitrogen6x/AndroidBoard.mk
+
+
+android-unpatch-dtbs:
+	$(Q)sed -r  s/TARGET_BOARD_DTS_CONFIG=imx6q:imx6q-nitrogen6x.dtb#\ /TARGET_BOARD_DTS_CONFIG=imx6q:imx6q-nitrogen6x.dtb\ / -i  build/android/device/boundary/nitrogen6x/AndroidBoard.mk
 
 android-dtbs: android-patch-dts android-sed
 	@echo "(make) android-dtbs"
 	cd $(ANDROID_KERNEL_DIR); make $(ANDROID_DTB_TARGET); cd -
 
-#disable non needed board in AndroidBoard.mk, as copy of custom dts and dtsi will break other boards.
-android-sed:
-	$(Q)sed -r  s/TARGET_BOARD_DTS_CONFIG=imx6q:imx6q-nitrogen6x.dtb\ /TARGET_BOARD_DTS_CONFIG=imx6q:imx6q-nitrogen6x.dtb#\ / -i  build/android/device/boundary/nitrogen6x/AndroidBoard.mk
+
+
+
+
 	
-$(DISK_DIR)/$(DISK_BOARD)/$(KERN_IMG): android-imx
-	@echo "(copy) android kernel: $(DISK_DIR)/$(DISK_BOARD)/$(KERN_IMG)"
-	$(Q)mkdir -p $(DISK_DIR)/$(DISK_BOARD)
-	$(Q)cp $(ANDROID_KERNEL_DIR)/arch/$(ARCH)/boot/Image $@
+#$(DISK_DIR)/$(DISK_BOARD)/$(KERN_IMG): android-imx
+#	@echo "(copy) android kernel: $(DISK_DIR)/$(DISK_BOARD)/$(KERN_IMG)"
+#	$(Q)mkdir -p $(DISK_DIR)/$(DISK_BOARD)
+#	$(Q)cp $(ANDROID_BUILD_DIR)/Image $@
 
 $(DISK_DIR)/$(DISK_BOARD)/$(ANDROID_DTB_TARGET): android-imx
 	@echo "(copy) android dtb: $(DISK_DIR)/$(DISK_BOARD)/$(ANDROID_DTB_TARGET)"
 	$(Q)cp $(ANDROID_KERNEL_DIR)/arch/$(ARCH)/boot/dts/$(ANDROID_DTB_TARGET) $@
 
-
-android-imx: android-compile android-dtbs
+android-imx: android-unpatch-dtbs android-compile android-dtbs 
 	

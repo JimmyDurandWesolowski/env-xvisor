@@ -35,9 +35,9 @@ ANDROID_PREBUILT=$(ANDROID_DIR)/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm
 $(ANDROID_BUILD_DIR):
 	$(Q)mkdir -p $@
 
-$(ANDROID_KERNEL_DIR)/arch/${ARCH}/boot/compressed/vmlinux: android-compile
+$(ANDROID_KERNEL_DIR)/vmlinux: android-compile
 
-$(ANDROID_BUILD_DIR)/vmlinux: $(ANDROID_KERNEL_DIR)/arch/${ARCH}/boot/compressed/vmlinux
+$(ANDROID_BUILD_DIR)/vmlinux: $(ANDROID_KERNEL_DIR)/vmlinux
 	$(Q)cp $< $@
 
 
@@ -57,7 +57,7 @@ $(DISK_DIR)/$(DISK_BOARD)/$(KERN_IMG): $(ANDROID_BUILD_DIR)/vmlinux \
   | $(DISK_DIR)/$(DISK_BOARD)
 	@echo "(patch) android kernel"
 	$(Q)cp $< $<.bak
-	$(Q)$(XVISOR_DIR)/$(XVISOR_ELF2C) -f $< | $(XVISOR_BUILD_DIR)/$(XVISOR_CPATCH) $< 0
+	$(XVISOR_DIR)/$(XVISOR_ELF2C) -f $< | $(XVISOR_BUILD_DIR)/$(XVISOR_CPATCH) $< 0
 	objcopy $(OBJCOPYFLAGS) $< $@
 	$(Q)mv $<.bak $<
 

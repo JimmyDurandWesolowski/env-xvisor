@@ -21,28 +21,35 @@
 # @file make/android.mk
 #
 
-
-XVISOR_ANDROID_CONF_DIR=$(XVISOR_DIR)/tests/$(XVISOR_ARCH)/$(GUEST_BOARDNAME)/android
-ANDROID_DTS_PATCH_DIR=$(ANDROID_DIR)/kernel_imx/arch/${ARCH}/boot/dts/include
-ANDROID_DTS_DIR=$(ANDROID_DIR)/kernel_imx/arch/${ARCH}/boot/dts
 ANDROID_KERNEL_DIR=$(ANDROID_DIR)/kernel_imx
+#This is where we have our custom dts files with lots of components commented
+XVISOR_ANDROID_CONF_DIR=$(XVISOR_DIR)/tests/$(XVISOR_ARCH)/$(GUEST_BOARDNAME)/android
+#This is were default dts for android are, we use them to link to headers like pinfunc.h
+ANDROID_DTS_DIR=$(ANDROID_KERNEL_DIR)/arch/${ARCH}/boot/dts
+ANDROID_DTS_PATCH_DIR=$(ANDROID_DTS_DIR)/include
+#This is the prebuild coming with Android buid
+ANDROID_PREBUILT=$(ANDROID_DIR)/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi-
 
-ANDROID_DTB_TARGET=imx6q-nitrogen6x.dtb
 
-
+#--------------------- ANDROID COMPILATION
 $(ANDROID_BUILD_DIR):
 	$(Q)mkdir -p $@
 
-$(ANDROID_KERNEL_DIR)/arch/${ARCH}/boot/compressed/vmlinux: android-imx
-
+$(ANDROID_KERNEL_DIR)/arch/${ARCH}/boot/compressed/vmlinux: android-compile
 
 $(ANDROID_BUILD_DIR)/vmlinux: $(ANDROID_KERNEL_DIR)/arch/${ARCH}/boot/compressed/vmlinux
 	$(Q)cp $< $@
 
 
+#We are building a whole android here. We could build only the kernel for now, but it's done for later.
+android-compile:
+	        @echo "(make) $(ANDROID_CONF)"
+		 $(Q)bash -c "cd $(ANDROID_DIR); source build/envsetup.sh; OUT_DIR=$(ANDROID_BUILD_DIR) lunch $(ANDROID_CONF); \
+		 OUT_DIR=$(ANDROID_BUILD_DIR) make -j$(PARALLEL_JOBS)"
 
 
 
+#-------------------------- PATCH KERNEL
 OBJCOPYFLAGS	:=-O binary -R .comment -S
 
 $(DISK_DIR)/$(DISK_BOARD)/$(KERN_IMG): $(ANDROID_BUILD_DIR)/vmlinux \
@@ -54,55 +61,7 @@ $(DISK_DIR)/$(DISK_BOARD)/$(KERN_IMG): $(ANDROID_BUILD_DIR)/vmlinux \
 	objcopy $(OBJCOPYFLAGS) $< $@
 	$(Q)mv $<.bak $<
 
-
-android-compile:
-	@echo "(make) $(ANDROID_CONF)"
-	$(Q)bash -c "cd $(ANDROID_DIR); source build/envsetup.sh; OUT_DIR=$(ANDROID_BUILD_DIR) lunch $(ANDROID_CONF); \
-		        OUT_DIR=$(ANDROID_BUILD_DIR) make -j$(PARALLEL_JOBS)"
-
-#replace dts modified in aosp build
-android-patch-dts: $(XVISOR_ANDROID_CONF_DIR) 
-	$(Q)cp $^/* $(ANDROID_DTS_DIR)
-
-
-#disable non needed board in AndroidBoard.mk, as copy of custom dts and dtsi will break other boards.
-android-sed:
-	$(Q)sed -r  s/TARGET_BOARD_DTS_CONFIG=imx6q:imx6q-nitrogen6x.dtb\ /TARGET_BOARD_DTS_CONFIG=imx6q:imx6q-nitrogen6x.dtb#\ / -i  build/android/device/boundary/nitrogen6x/AndroidBoard.mk
-
-android-unpatch-dtbs:
-	$(Q)sed -r  s/TARGET_BOARD_DTS_CONFIG=imx6q:imx6q-nitrogen6x.dtb#\ /TARGET_BOARD_DTS_CONFIG=imx6q:imx6q-nitrogen6x.dtb\ / -i  build/android/device/boundary/nitrogen6x/AndroidBoard.mk
-
-android-dtbs: android-patch-dts android-sed
-	@echo "(make) android-dtbs"
-	cd $(ANDROID_KERNEL_DIR); make $(ANDROID_DTB_TARGET); cd -
-
-
-
-
-
-	
-#$(DISK_DIR)/$(DISK_BOARD)/$(KERN_IMG): android-imx
-#	@echo "(copy) android kernel: $(DISK_DIR)/$(DISK_BOARD)/$(KERN_IMG)"
-#	$(Q)mkdir -p $(DISK_DIR)/$(DISK_BOARD)
-#	$(Q)cp $(ANDROID_BUILD_DIR)/Image $@
-
-#$(DISK_DIR)/$(DISK_BOARD)/$(ANDROID_DTB_TARGET): android-imx
-#	@echo "(copy) android dtb: $(DISK_DIR)/$(DISK_BOARD)/$(ANDROID_DTB_TARGET)"
-#	$(Q)cp $(ANDROID_KERNEL_DIR)/arch/$(ARCH)/boot/dts/$(ANDROID_DTB_TARGET) $@
-
-android-imx: android-compile android-dtbs 
-
-
-
-
-
-
-
-
-
-
-
-
+#----------------- DTB GENERATION
 dtsflags = $(cppflags) -nostdinc -nostdlib -fno-builtin -D__DTS__
 dtsflags += -x assembler-with-cpp -I$(XVISOR_ANDROID_CONF_DIR) -I$(ANDROID_DTS_PATCH_DIR) -I$(ANDROID_DTS_DIR)
 
@@ -114,9 +73,10 @@ $(TMPDIR)/$(KERN_DT).pre.dts: $(XVISOR_ANDROID_CONF_DIR)/$(KERN_DT).dts | \
 
 $(TMPDIR)/$(KERN_DT).dts: $(TMPDIR)/$(KERN_DT).pre.dts
 	        @echo "(cpp) $(KERN_DT)"
-		        $(Q)$(CROSS_COMPILE)cpp $(dtsflags) $< -o $@
+		        $(Q)$(ANDROID_PREBUILT)cpp $(dtsflags) $< -o $@
 
-$(DISK_DIR)/$(DISK_BOARD)/$(ANDROID_DTB_TARGET): $(TMPDIR)/$(KERN_DT).dts \
+$(DISK_DIR)/$(DISK_BOARD)/$(KERN_DT).dtb: $(TMPDIR)/$(KERN_DT).dts \
 	  $(XVISOR_BUILD_DIR)/tools/dtc/dtc
 	        @echo "(dtc) $(KERN_DT)"
 		        $(Q)$(XVISOR_BUILD_DIR)/tools/dtc/dtc -I dts -O dtb -p 0x800 -o $@ $<
+#------------------- DTB GENERATION

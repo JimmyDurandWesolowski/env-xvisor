@@ -21,28 +21,49 @@
 # @file make/android.mk
 #
 
+
+
 ANDROID_KERNEL_DIR=$(ANDROID_DIR)/kernel_imx
 #This is where we have our custom dts files with lots of components commented
 XVISOR_ANDROID_CONF_DIR=$(XVISOR_DIR)/tests/$(XVISOR_ARCH)/$(GUEST_BOARDNAME)/android
 #This is were default dts for android are, we use them to link to headers like pinfunc.h
 ANDROID_DTS_DIR=$(ANDROID_KERNEL_DIR)/arch/${ARCH}/boot/dts
 ANDROID_DTS_PATCH_DIR=$(ANDROID_DTS_DIR)/include
-#This is the prebuild coming with Android buid
+#This is the prebuild coming with Android build
 ANDROID_PREBUILT=$(ANDROID_DIR)/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi-
 
 
+
+BOARDNAME_CONF?=$(shell echo $(GUEST_BOARDNAME) | tr '-' '_')
+XVISOR_ANDROID_CONF_NAME=android_$(BOARDNAME_CONF)_defconfig
+XVISOR_ANDROID_CONF=$(XVISOR_ANDROID_CONF_DIR)/$(XVISOR_ANDROID_CONF_NAME)
+ANDROID_BUILD_CONF=$(ANDROID_KERNEL_DIR)/.config
+
+
 #--------------------- ANDROID COMPILATION
+linux-menuconfig: $(ANDROID_BUILD_CONF) | $(ANDROID_BUILD_DIR) $(ANDROID_DIR)
+	$(Q)$(MAKE) -C $(ANDROID_KERNEL_DIR) menuconfig
+
+#Use the linux kernel conf from xvisor.
+$(ANDROID_BUILD_CONF): $(XVISOR_ANDROID_CONF) | $(ANDROID_BUILD_DIR) $(ANDROID_DIR)
+	@echo "(copy) Android conf from $(XVISOR_ANDROID_CONF)  to $(ANDROID_BUILD_CONF) "
+	$(Q)cp $< $@
+
+
+
 $(ANDROID_BUILD_DIR):
 	$(Q)mkdir -p $@
 
 $(ANDROID_KERNEL_DIR)/vmlinux: android-compile
+	@echo "(make) android"
+
 
 $(ANDROID_BUILD_DIR)/vmlinux: $(ANDROID_KERNEL_DIR)/vmlinux
 	$(Q)cp $< $@
 
 
 #We are building a whole android here. We could build only the kernel for now, but it's done for later.
-android-compile:
+android-compile: $(ANDROID_BUILD_CONF)
 	        @echo "(make) $(ANDROID_CONF)"
 		 $(Q)bash -c "cd $(ANDROID_DIR); source build/envsetup.sh; OUT_DIR=$(ANDROID_BUILD_DIR) lunch $(ANDROID_CONF); \
 		 OUT_DIR=$(ANDROID_BUILD_DIR) make -j$(PARALLEL_JOBS)"
@@ -79,4 +100,3 @@ $(DISK_DIR)/$(DISK_BOARD)/$(KERN_DT).dtb: $(TMPDIR)/$(KERN_DT).dts \
 	  $(XVISOR_BUILD_DIR)/tools/dtc/dtc
 	        @echo "(dtc) $(KERN_DT)"
 		        $(Q)$(XVISOR_BUILD_DIR)/tools/dtc/dtc -I dts -O dtb -p 0x800 -o $@ $<
-#------------------- DTB GENERATION

@@ -69,7 +69,7 @@ $(BUILDDIR)/vmm-$(BOARDNAME).dtb: xvisor-dtbs
 	    || ln -sf $${SRC}/$(DTB) $@
 
 .PHONY: $(XVISOR_BIN)
-$(XVISOR_BIN): $(XVISOR_BUILD_CONF) $(CONF) \
+$(XVISOR_BIN): $(XVISOR_BUILD_CONF) $(CONF) FORCE \
   $(XVISOR_BUILD_DIR)/tools/dtc/dtc | $(XVISOR_DIR) $(XVISOR_BUILD_DIR)/tmpconf
 	@echo "(make) Xvisor"
 	$(call cmd_xbuild)
@@ -79,7 +79,8 @@ $(XVISOR_BUILD_DIR)/vmm.elf: $(XVISOR_BIN)
 
 xvisor-compile: $(XVISOR_BIN)
 
-$(XVISOR_IMX): $(XVISOR_BIN) $(UBOOT_BUILD_DIR)/$(UBOOT_BOARD_CFG).cfgtmp \
+$(XVISOR_IMX): $(realpath $(XVISOR_BIN)) \
+  $(UBOOT_BUILD_DIR)/$(UBOOT_BOARD_CFG).cfgtmp \
   $(UBOOT_BUILD_DIR)/$(UBOOT_MKIMAGE)
 	@echo "(generate) Xvisor IMX image"
 	$(Q)$(UBOOT_BUILD_DIR)/$(UBOOT_MKIMAGE) \
@@ -87,17 +88,17 @@ $(XVISOR_IMX): $(XVISOR_BIN) $(UBOOT_BUILD_DIR)/$(UBOOT_BOARD_CFG).cfgtmp \
 	  -e $(ADDR_HYPER) -d $< $(TMPDIR)/$(@F)
 	$(Q)cp $(TMPDIR)/$(@F) $@
 
-xvisor-imx: $(XVISOR_IMX)
+xvisor-imx: $(XVISOR_BIN) $(XVISOR_IMX)
 
-$(XVISOR_UIMAGE): $(XVISOR_BIN) $(UBOOT_BUILD_DIR)/$(UBOOT_MKIMAGE)
+$(XVISOR_UIMAGE): $(realpath $(XVISOR_BIN)) $(UBOOT_BUILD_DIR)/$(UBOOT_MKIMAGE)
 	@echo "(generate) Xvisor u-Boot image"
 	$(Q)$(UBOOT_BUILD_DIR)/$(UBOOT_MKIMAGE) \
           -A $(ARCH) -O linux -C none -T kernel \
 	  -a $(ADDR_HYPER) -e $(ADDR_HYPER) \
 	  -n 'Xvisor' -d $< $(TMPDIR)/$(@F)
-	$(Q)cp $(TMPDIR)/$(@F) $@
+	$(Q)cp -v $(TMPDIR)/$(@F) $@
 
-xvisor-uimage: $(XVISOR_UIMAGE) $(BUILDDIR)/vmm-$(BOARDNAME).dtb
+xvisor-uimage: $(XVISOR_BIN) $(XVISOR_UIMAGE) $(BUILDDIR)/vmm-$(BOARDNAME).dtb
 
 
 $(XVISOR_DIR)/$(XVISOR_ELF2C): $(XVISOR_DIR)
@@ -122,7 +123,7 @@ $(DISKA)/$(DTB_IN_IMG).dtb: $(XVISOR_DIR)/tests/$(XVISOR_ARCH)/$(GUEST_BOARDNAME
 FIRMWARE_DIR = $(XVISOR_BUILD_DIR)/tests/$(XVISOR_ARCH)/$(GUEST_BOARDNAME)/basic
 FIRMWARE = $(FIRMWARE_DIR)/firmware.bin.patched
 
-xvisor-firmware $(FIRMWARE): $(XVISOR_BUILD_CONF) | \
+xvisor-firmware $(FIRMWARE): $(XVISOR_BUILD_CONF) FORCE | \
   $(XVISOR_BUILD_DIR)/tmpconf $(XVISOR_BUILD_DIR)/$(XVISOR_CPATCH)
 	@echo "(make) Xvisor $(GUEST_BOARDNAME) firmware"
 	$(call cmd_xbuild,,tests/$(XVISOR_ARCH)/$(GUEST_BOARDNAME)/basic)
@@ -180,8 +181,9 @@ xvisor-dump: $(XVISOR_BUILD_DIR)/vmm.elf
 	$(Q)$(TOOLCHAIN_PREFIX)objdump -dS $< > $(BUILDDIR)/vmm.dis
 
 
-xvisor-rm:
-	@echo remove xvisor except config.
-	@echo then use: make xvisor-menuconfig
-	$(Q) rm -rf $(XVISOR_BUILD_DIR)/*
-	$(Q) rm -f $(XVISOR_BUILD_DIR)/.deps
+xvisor-clean:
+	$(Q)$(call cmd_xbuild,clean)
+
+
+xvisor-distclean:
+	$(Q)$(call cmd_xbuild,distclean)

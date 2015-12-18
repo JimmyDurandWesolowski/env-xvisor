@@ -99,7 +99,7 @@ $(XVISOR_UIMAGE): $(realpath $(XVISOR_BIN)) $(UBOOT_BUILD_DIR)/$(UBOOT_MKIMAGE)
 	  -n 'Xvisor' -d $< $(TMPDIR)/$(@F)
 	$(Q)cp -v $(TMPDIR)/$(@F) $@
 
-xvisor-uimage: $(XVISOR_UIMAGE) $(BUILDDIR)/vmm-$(BOARDNAME).dtb
+xvisor-uimage: $(XVISOR_BIN) $(XVISOR_UIMAGE) $(BUILDDIR)/vmm-$(BOARDNAME).dtb
 
 
 $(XVISOR_DIR)/$(XVISOR_ELF2C): $(XVISOR_DIR)

@@ -45,6 +45,17 @@ disk-xvisor: $(DISK_DIR)/$(notdir $(XVISOR_UIMAGE)) \
 
 # populate disk with guests information as for qemu image,
 # also copy some files to the root dir to ease loading them from xvisor
-disk-guests: $(STAMPDIR)/.disk_populate
+disk-guests: $(FIRMWARE) $(STAMPDIR)/.disk_populate
 	$(Q)cp $(DISKB)/nor_flash.list $(DISK_DIR)/nor_flash.list
 	$(Q)cp $(DISKA)/$(DTB_IN_IMG).dtb $(DISK_DIR)/$(DTB_IN_IMG).dtb
+
+SDPART1=$(wildcard $(SDDEV)*1)
+sd: disk-guests
+ifneq ($(SDPART1),)
+	$(Q)pmount $(SDPART1) mmc1 && \
+	  rsync -rva $(DISK_DIR)/* /media/mmc1; \
+	  pumount /media/mmc1
+else # SDPART1 = ''
+	@echo "Could not find SD first partition from '$(SDDEV)'"
+	$(Q)exit 1
+endif

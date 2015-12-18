@@ -112,6 +112,7 @@ config_write() {
 	COMPONENT_CONF=${component}_CONF
 	COMPONENT_FILE=${component}_FILE
 	COMPONENT_REPO=${component}_REPO
+	COMPONENT_REPO_ARG=${component}_REPO_ARG
 	COMPONENT_BRANCH=${component}_BRANCH
 	COMPONENT_SERVER=${component}_SERVER
 	COMPONENT_LOCAL=${component}_LOCAL
@@ -125,7 +126,6 @@ config_write() {
 	    echo "${COMPONENT_LOCAL}=${!COMPONENT_LOCAL}" >> ${CONF}
 	fi
 
-	
 	if [ -n "${!COMPONENT_GREPO}" ]; then
 		echo "${COMPONENT_GREPO}=${!COMPONENT_GREPO}" >> ${CONF}
 		if [ -n "${COMPONENT_BRANCH}" ]; then
@@ -139,6 +139,7 @@ config_write() {
 		# If the component is on a git repository, get its path...
 		if [ -n "${!COMPONENT_REPO}" ]; then
 		    echo "${COMPONENT_REPO}=${!COMPONENT_REPO}" >> ${CONF}
+		    echo "${COMPONENT_REPO_ARG}=${!COMPONENT_REPO_ARG}" >> ${CONF}
 		    # ... and its branch
 		    if [ -n "${!COMPONENT_BRANCH}" ]; then
 			echo "${COMPONENT_BRANCH}=${!COMPONENT_BRANCH}" >> ${CONF}

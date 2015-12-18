@@ -52,7 +52,7 @@ $(BUILDDIR)/$($1_PATH):
     ifneq ($($1_REPO),)
 $(BUILDDIR)/$($1_PATH):
 	@echo "(Clone) $$@"
-	$(Q)git clone -q $$($1_REPO) -b $$($1_BRANCH) $$@
+	$(Q)git clone $$($1_REPO_ARG) -q $$($1_REPO) -b $$($1_BRANCH) $$@
 
   # The component is not fetch with a git repository
     else # $($1_REPO) empty or unset

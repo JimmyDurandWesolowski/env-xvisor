@@ -50,7 +50,7 @@ disk-guests: $(FIRMWARE) $(STAMPDIR)/.disk_populate
 	$(Q)cp $(DISKA)/$(DTB_IN_IMG).dtb $(DISK_DIR)/$(DTB_IN_IMG).dtb
 
 SDPART1=$(wildcard $(SDDEV)*1)
-sd: disk-guests
+sd: disk-guests $(DISK_DIR)/uvmm.bin $(DISK_DIR)/vmm-imx6q-$(BOARDNAME).dtb
 ifneq ($(SDPART1),)
 	$(Q)pmount $(SDPART1) mmc1 && \
 	  rsync -rva $(DISK_DIR)/* /media/mmc1; \

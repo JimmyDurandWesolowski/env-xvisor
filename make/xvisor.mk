@@ -69,11 +69,13 @@ $(BUILDDIR)/vmm-$(BOARDNAME).dtb: xvisor-dtbs
 	    || ln -sf $${SRC}/$(DTB) $@
 
 .PHONY: $(XVISOR_BIN)
-$(XVISOR_BIN): $(XVISOR_BUILD_CONF) $(CONF) FORCE \
+$(XVISOR_BIN): $(XVISOR_BUILD_DIR)/vmm.bin
+	$(Q)ln -sf $< $@
+
+$(XVISOR_BUILD_DIR)/vmm.bin: $(XVISOR_BUILD_CONF) $(CONF) FORCE \
   $(XVISOR_BUILD_DIR)/tools/dtc/dtc | $(XVISOR_DIR) $(XVISOR_BUILD_DIR)/tmpconf
 	@echo "(make) Xvisor"
 	$(call cmd_xbuild)
-	$(Q)ln -sf $(XVISOR_BUILD_DIR)/vmm.bin $@
 
 $(XVISOR_BUILD_DIR)/vmm.elf: $(XVISOR_BIN)
 
@@ -98,7 +100,7 @@ $(XVISOR_UIMAGE): $(realpath $(XVISOR_BIN)) $(UBOOT_BUILD_DIR)/$(UBOOT_MKIMAGE)
 	  -n 'Xvisor' -d $< $(TMPDIR)/$(@F)
 	$(Q)cp -v $(TMPDIR)/$(@F) $@
 
-xvisor-uimage: $(XVISOR_BIN) $(XVISOR_UIMAGE) $(BUILDDIR)/vmm-$(BOARDNAME).dtb
+xvisor-uimage: $(XVISOR_UIMAGE) $(BUILDDIR)/vmm-$(BOARDNAME).dtb
 
 
 $(XVISOR_DIR)/$(XVISOR_ELF2C): $(XVISOR_DIR)

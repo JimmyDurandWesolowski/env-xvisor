@@ -56,7 +56,7 @@ $(BUILDDIR)/$($1_PATH):
       ifneq ($($1_FILE),)
 $(ARCDIR)/$($1_FILE): | $(TMPDIR)
 	@echo "(Download) $$(@F)"
-	$(Q)wget --no-verbose $($1_SERVER)/$$(@F) -O $(TMPDIR)/$$(@F)
+	$(Q)wget --no-check-certificate --no-verbose $($1_SERVER)/$$(@F) -O $(TMPDIR)/$$(@F)
 	$(Q)mkdir -p $$(@D)
 	$(Q)mv $(TMPDIR)/$$(@F) $$@
 

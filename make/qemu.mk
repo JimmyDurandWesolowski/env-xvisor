@@ -25,7 +25,7 @@ ifeq ($(BOARD_QEMU),1)
 define QEMU
 	qemu-system-$(ARCH) -M $(BOARDNAME) -m 512 $1		\
 	  -kernel $(XVISOR_BIN)					\
-	  -dtb $(BUILDDIR)/$(BOARDNAME).dtb			\
+	  -dtb $(BUILDDIR)/vmm-$(BOARDNAME).dtb			\
 	  -initrd $(DISK_IMG)
 endef
 
@@ -33,7 +33,7 @@ QEMU_DISPLAY?=-display none
 QEMU_MONITOR?=-monitor telnet:127.0.0.1:1234,server,nowait
 QEMU_EXTRA?=
 
-qemu-img: $(XVISOR_BIN) $(BUILDDIR)/$(BOARDNAME).dtb $(DISK_IMG)
+qemu-img: $(XVISOR_BIN) $(BUILDDIR)/vmm-$(BOARDNAME).dtb $(DISK_IMG)
 
 qemu-run: qemu-img
 	@echo "$@ for $(BOARDNAME)"

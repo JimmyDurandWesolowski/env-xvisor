@@ -81,10 +81,15 @@ BOARD_QEMU=0
 # Verbosity option, that can be modify through the program arguments
 VERBOSE=0
 
-if [ -e "local.conf" ]; then
-    printf "You have a local.conf file so we source it, but use it at your own risk !!\n"
-    source local.conf
-fi
+# What git should use in its remote (fallback)
+GIT_BASE_REMOTE="git://github.com/JimmyDurandWesolowski"
+
+# Default branch to checkout
+GIT_BRANCH="master"
+
+# Name of the experimental branch
+GIT_EXPERIMENTAL_BRANCH="experimental"
+
 
 # Option functions used in this script
 source ${SCRIPTDIR}/options.sh
@@ -93,7 +98,14 @@ source ${SCRIPTDIR}/config.sh
 
 pre_option_check
 option_parse $*
+config_check_git
 option_board_validate
 option_board
 packages_check
+
+if [ -e "local.conf" ]; then
+    printf "You have a local.conf file so we source it, but use it at your own risk !!\n"
+    source local.conf
+fi
+
 config_write

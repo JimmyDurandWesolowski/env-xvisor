@@ -22,7 +22,49 @@
 # @file scripts/config.sh
 #
 
+config_check_git() {
+   # Determine whether git exists or not
+   which git &> /dev/null
+   if [ $? -ne 0 ]; then
+      echo "*** Git binary is missing in your PATH" 1>&2
+   else # $? -eq 0
+      # Determine whether it is a git repository or not
+      git --git-dir="${CURDIR}/.git" rev-parse HEAD &> /dev/null
+      if [ $? -ne 0 ]; then
+         # Not a git repository
+         echo "Not using git..."
+      else # $? -eq 0
 
+         # Determine the remote of the current repository to use it
+         # to checkout other repositories later
+         remotes="$(git remote)"
+         for remote in ${remotes}; do
+            # Search for 'origin'. If origin does not exist, the last one
+            # will be retained
+            if [ "x${remote}" = "xorigin" ]; then
+               break
+            fi
+         done
+         # Get the remote (fetch)
+         remote_info="$(git remote -v | grep "${remote}" | grep "(fetch)")"
+         remote="$(echo "${remote_info}" | sed -e "s/${remote}\s*//" -e 's/\s*(fetch)//')"
+
+         # Base remote, with format: $GIT_PROTOCOL/$BASE_URL
+         GIT_BASE_REMOTE="$(dirname "${remote}")"
+
+         # Determine the current branch to checkout one with a similar name
+         # later with other repositories
+         git_branch="$(git branch --no-color | grep '\*' | sed 's/\*\s*//')"
+
+         # Set the git branch to be experimental the EXPRIMENTAL only
+         # if we have pulled the experimental environment
+         if [ x"${git_branch}" = x"${GIT_EXPERIMENTAL_BRANCH}" ]; then
+            GIT_BRANCH="${GIT_EXPERIMENTAL_BRANCH}"
+         fi
+
+      fi # $? -ne 0
+   fi # $? -ne 0
+}
 
 config_write() {
     print "${BOLD}Components:${NORMAL} ${COMPONENTS}\n"

@@ -24,4 +24,4 @@
 
 # Build with docker
 docker build -t ela/ubuntu-env-xvisor ..
- cd .. && docker run -v $(pwd):/root/env-xvisor ela/ubuntu-env-xvisor /bin/bash -c /root/make_xvisor_uimage.sh
+ cd .. && docker run --rm -v $(pwd):/root/env-xvisor ela/ubuntu-env-xvisor /bin/bash -c /root/make_xvisor_uimage.sh

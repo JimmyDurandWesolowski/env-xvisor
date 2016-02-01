@@ -26,17 +26,19 @@ XVISOR_LINUX_CONF_DIR=$(XVISOR_DIR)/tests/$(XVISOR_ARCH)/$(GUEST_BOARDNAME)/linu
 XVISOR_LINUX_CONF_NAME=$(LINUX_PATH)_$(BOARDNAME_CONF)_defconfig
 XVISOR_LINUX_CONF=$(XVISOR_LINUX_CONF_DIR)/$(XVISOR_LINUX_CONF_NAME)
 
-$(XVISOR_LINUX_CONF): $(XVISOR_DIR)
+$(XVISOR_LINUX_CONF): XVISOR-prepare
 
 $(LINUX_BUILD_DIR):
 	$(Q)mkdir -p $@
 
-$(LINUX_BUILD_CONF): $(XVISOR_LINUX_CONF) | $(LINUX_BUILD_DIR) $(LINUX_DIR) TOOLCHAIN-prepare
+$(LINUX_BUILD_CONF): $(XVISOR_LINUX_CONF) | $(LINUX_BUILD_DIR) LINUX-prepare \
+  TOOLCHAIN-prepare
 	@echo "(defconfig) Linux"
 	$(Q)cp $< $@
 	$(Q)$(MAKE) -C $(LINUX_DIR) O=$(LINUX_BUILD_DIR) oldconfig
 
-$(LINUX_BUILD_DIR)/vmlinux: $(LINUX_BUILD_CONF) | $(LINUX_DIR) $(TOOLCHAIN)
+$(LINUX_BUILD_DIR)/vmlinux: $(LINUX_BUILD_CONF) | LINUX-prepare \
+  TOOLCHAIN-prepare
 	@echo "(make) Linux"
 	$(Q)$(MAKE) -C $(LINUX_DIR) O=$(LINUX_BUILD_DIR) vmlinux
 
@@ -54,7 +56,7 @@ $(LINUX_BUILD_DIR)/arch/$(ARCH)/boot/zImage: $(LINUX_BUILD_DIR)/vmlinux
 	$(Q)$(MAKE) -C $(LINUX_DIR) O=$(LINUX_BUILD_DIR) zImage
 
 
-$(LINUX_DIR)/arch/$(ARCH)/boot/dts/$(KERN_DT).dts: | $(LINUX_DIR)
+$(LINUX_DIR)/arch/$(ARCH)/boot/dts/$(KERN_DT).dts: | LINUX-prepare
 
 dtsflags = $(cppflags) -nostdinc -nostdlib -fno-builtin -D__DTS__
 dtsflags += -x assembler-with-cpp -I$(XVISOR_LINUX_CONF_DIR)
@@ -65,7 +67,7 @@ FORCE:
 .PHONY: $(TMPDIR)/$(KERN_DT).pre.dts
 
 $(TMPDIR)/$(KERN_DT).pre.dts: $(XVISOR_LINUX_CONF_DIR)/$(KERN_DT).dts | \
-  $(XVISOR_DIR) $(DISK_DIR)/$(DISK_BOARD) FORCE
+  XVISOR-prepare $(DISK_DIR)/$(DISK_BOARD) FORCE
 	$(Q)sed -re 's|/include/|#include|' $< >$@
 
 $(TMPDIR)/$(KERN_DT).dts: $(TMPDIR)/$(KERN_DT).pre.dts
@@ -80,7 +82,7 @@ $(DISK_DIR)/$(DISK_BOARD)/$(KERN_DT).dtb: $(TMPDIR)/$(KERN_DT).dts \
 linux-configure: $(LINUX_BUILD_CONF)
 
 linux-oldconfig linux-menuconfig linux-savedefconfig linux-dtbs: | \
-  $(LINUX_BUILD_DIR) $(LINUX_DIR) TOOLCHAIN-prepare
+  $(LINUX_BUILD_DIR) LINUX-prepare TOOLCHAIN-prepare
 	@echo "($(subst linux-,,$@)) Linux"
 	$(Q)$(MAKE) -C $(LINUX_DIR) O=$(LINUX_BUILD_DIR) $(subst linux-,,$@)
 

@@ -47,6 +47,9 @@ TESTDIR=${CURDIR}/test
 # Configuration file directory
 CONFDIR=${CURDIR}/conf
 
+# Patch file directory
+PATCHDIR=${CURDIR}/patches
+
 # Build directory, used by this script to write the resulting configuration
 # (the next variable)
 BUILDDIR=${CURDIR}/build

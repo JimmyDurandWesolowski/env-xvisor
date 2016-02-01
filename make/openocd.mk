@@ -22,13 +22,13 @@
 #
 
 # OpenOCD configure is buggy, reconfigure it
-$(STAMPDIR)/.openocd_reconf: $(OPENOCD_DIR) | $(STAMPDIR)
+$(STAMPDIR)/.openocd_reconf: OPENOCD-prepare | $(STAMPDIR)
 	$(Q)cd $< && autoreconf --force --install
 	$(Q)touch $@
 
 $(BUILDDIR)/generated_$(OPENOCD_CONF): $(XVISOR_BIN) $(CONF) \
-  $(XVISOR_BUILD_DIR)/vmm.elf $(TOOLCHAIN) $(BUILDDIR)/vmm-$(BOARDNAME).dtb \
-  $(SCRIPTDIR)/openocd_gen_xvisor.sh
+  $(XVISOR_BUILD_DIR)/vmm.elf TOOLCHAIN-prepare \
+  $(BUILDDIR)/vmm-$(BOARDNAME).dtb $(SCRIPTDIR)/openocd_gen_xvisor.sh
 	@echo "(generate) $(OPENOCD_CONF)"
 	$(Q)TOOLCHAIN_PREFIX=$(TOOLCHAIN_PREFIX) \
 	  BUILD_DEBUG=$(BUILD_DEBUG) \
@@ -39,7 +39,7 @@ $(BUILDDIR)/generated_$(OPENOCD_CONF): $(XVISOR_BIN) $(CONF) \
 	    $(XVISOR_BIN) $(BUILDDIR)/vmm-$(BOARDNAME).dtb $@
 
 openocd-configure $(OPENOCD_BUILD_DIR)/Makefile: $(STAMPDIR)/.openocd_reconf \
-  | $(OPENOCD_DIR)
+  | OPENOCD-prepare
 	$(Q)mkdir -p $(OPENOCD_BUILD_DIR)
 	$(Q)cd $(OPENOCD_BUILD_DIR) && \
 	  $(OPENOCD_DIR)/configure --enable-ftdi --prefix=$(HOSTDIR)

@@ -89,7 +89,7 @@ dtsflags += -x assembler-with-cpp -I$(XVISOR_ANDROID_CONF_DIR) -I$(ANDROID_DTS_P
 
 
 $(TMPDIR)/$(KERN_DT).pre.dts: $(XVISOR_ANDROID_CONF_DIR)/$(KERN_DT).dts | \
-	  $(XVISOR_DIR) $(DISK_DIR)/$(DISK_BOARD)
+	  XVISOR-prepare $(DISK_DIR)/$(DISK_BOARD)
 	        $(Q)sed -re 's|/include/|#include|' $< >$@
 
 $(TMPDIR)/$(KERN_DT).dts: $(TMPDIR)/$(KERN_DT).pre.dts

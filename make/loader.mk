@@ -24,7 +24,7 @@
 ifeq ($(BOARD_LOADER),1)
 loader-build: $(STAMPDIR)/.loader_build
 
-$(STAMPDIR)/.loader_build: $(LOADER_DIR) | $(STAMPDIR)
+$(STAMPDIR)/.loader_build: LOADER-prepare | $(STAMPDIR)
 	$(Q)$(MAKE) -C $(LOADER_DIR) all
 	$(Q)touch $@
 
@@ -36,7 +36,8 @@ load-%: | $(STAMPDIR)/.loader_build
 	$(Q)echo USB Loading $(notdir $<)
 	$(Q)echo make sure the switch are correclty set: D1 ON, D2 OFF
 	$(Q)$(LOADER_DIR)/imx_usb $<
-	$(Q)if [ -z "$(IMX_INSTALLED_RULE)" -o ! -e $(IMX_INSTALLED_RULE) ]; then \
+	$(Q)if [ -z "$(IMX_INSTALLED_RULE)" -o ! -e $(IMX_INSTALLED_RULE) ]; \
+	then \
 	  echo; \
 	  echo "If you have any permission difficulties, copy the file"; \
 	  echo "  $(IMX_CONF_RULE)"; \

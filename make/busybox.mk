@@ -28,14 +28,14 @@ busybox-configure $(BUSYBOX_BUILD_CONF): $(CONFDIR)/$(BUSYBOX_CONF) \
   $(BUSYBOX_DIR)
 	$(call COPY)
 
-busybox-menuconfig: $(TOOLCHAIN_DIR) $(BUSYBOX_DIR) $(BUSYBOX_BUILD_DIR)
+busybox-menuconfig: TOOLCHAIN-prepare BUSYBOX-prepare $(BUSYBOX_BUILD_DIR)
 	@echo "(menuconfig) Busybox"
 	$(Q)$(MAKE) -C $(BUSYBOX_DIR) O=$(BUSYBOX_BUILD_DIR) menuconfig
 	rm $(STAMPDIR)/.target_compile
 	rm $(STAMPDIR)/.target
 
 ifeq ($(ROOTFS_LOCAL),)
-$(STAMPDIR)/.target_compile: $(TOOLCHAIN_DIR) $(BUSYBOX_BUILD_CONF) $(CONF) \
+$(STAMPDIR)/.target_compile: TOOLCHAIN-prepare $(BUSYBOX_BUILD_CONF) $(CONF) \
   | $(BUSYBOX_BUILD_DIR) $(STAMPDIR)
 	@echo "(make) busybox"
 	$(Q)$(MAKE) -C $(BUSYBOX_DIR) O=$(BUSYBOX_BUILD_DIR) all
@@ -52,7 +52,7 @@ $(STAMPDIR)/.target: $(STAMPDIR)/.target_compile
 BUSYBOX-install: $(STAMPDIR)/.target
 endif
 
-$(XVISOR_DIR)/$(BUSYBOX_XVISOR_DEV): $(XVISOR_DIR)
+$(XVISOR_DIR)/$(BUSYBOX_XVISOR_DEV): XVISOR-prepare
 
 ifeq ($(ROOTFS_LOCAL),)
 # $(BUILDDIR)/$(ROOTFS_IMG) for ext2

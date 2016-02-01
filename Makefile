@@ -59,6 +59,7 @@ export CROSS_COMPILE=$(TOOLCHAIN_PREFIX)
 
 # Prepare all the components, the prepare rule depend on each component path
 # to be ready
+fetch: $(foreach component,$(COMPONENTS),$(component)-fetch)
 prepare: $(foreach component,$(COMPONENTS),$(component)-prepare)
 compile: xvisor-compile
 rootfs: busybox-install

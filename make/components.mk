@@ -26,10 +26,10 @@
 COMPONENTS:=$(shell echo $(COMPONENTS))
 
 #
-# Prepare rule for each component, i.e. the step to get the component sources
+# Fetch rule for each component, i.e. the step to get the component sources
 # $1: The component name (TOOLCHAIN, LINUX, ...)
 #
-define PREPARE_RULE
+define FETCH_RULE
  ifneq ($($1_LOCAL),)
 $(BUILDDIR)/$($1_PATH): $($1_LOCAL)
 	@echo "(Link) $$@"
@@ -41,7 +41,7 @@ $(BUILDDIR)/$($1_PATH): $($1_LOCAL)
   ifeq ($($1_REPO),)
 	    # The component server and file must be set
   endif # !$1_REPO
- 
+
   # Check if the component repo repository is defined
   ifneq ($($1_GREPO),)
 $(BUILDDIR)/$($1_PATH):
@@ -87,7 +87,7 @@ $(BUILDDIR)/$($1_PATH):
 
     # Nor $1_SERVER nor $1_REPO has been set, we cannot fetch the component
     else # $1_SERVER empty or unset
-$(BUILDDIR)/$($1_PATH):
+$(BUILDDIR)/.$($1_PATH):
 	@echo "$1 server or repository has not been set, exiting... "
 	$(Q)exit 1
     endif # $1_SERVER
@@ -96,9 +96,32 @@ $(BUILDDIR)/$($1_PATH):
  endif # $1_LOCAL
 endef
 
+
+#
+# Patch rule for each component, i.e. the step to patch the component name
+# if necessary
+# $1: The component name (TOOLCHAIN, LINUX, ...)
+#
+define PATCH_RULE
+ $(STAMPDIR)/.$1_patch: $(wildcard $(PATCHDIR)/$($1_PATH)) | $($1_DIR) \
+  $(STAMPDIR)
+	@echo "(Patching) $($1_PATH)"
+	$(Q)[ -d $(PATCHDIR)/$($1_PATH) ] && (cd $($1_DIR) &&		\
+	  for patchfile in						\
+	  $$$$(echo "$(PATCHDIR)/$($1_PATH)/*.patch"); do		\
+		patch -p1 < $$$${patchfile} &&				\
+		  echo $$$${patchfile} >> $$@;				\
+	  done) || touch $$@
+endef
+
+
 $(foreach component,$(COMPONENTS),\
-  $(eval $(component)-prepare: $($(component)_DIR)))
+  $(eval $(component)-fetch: $($1_DIR)))
+
+$(foreach component,$(COMPONENTS),\
+  $(eval $(component)-prepare: $(STAMPDIR)/.$(component)_patch))
 
 # Generate the preparation rules for each component, depending on the fetching
-# method (git repository cloning or archive download)
-$(foreach component,$(COMPONENTS),$(eval $(call PREPARE_RULE,$(component))))
+# method (git repository cloning or archive download) and patching
+$(foreach component,$(COMPONENTS),$(eval $(call FETCH_RULE,$(component))))
+$(foreach component,$(COMPONENTS),$(eval $(call PATCH_RULE,$(component))))

@@ -27,37 +27,39 @@ define cmd_xbuild
 	  VERBOSE=$(BUILD_VERBOSE) O=$(XVISOR_BUILD_DIR)/$3 $1
 endef
 
-$(XVISOR_DIR)/$(MEMIMG): $(XVISOR_DIR)
+$(XVISOR_DIR)/$(MEMIMG): XVISOR-prepare
+$(XVISOR_DIR)/$(XVISOR_ELF2C): XVISOR-prepare
+
 
 $(XVISOR_BUILD_DIR):
 	$(Q)mkdir -p $@
 
 $(XVISOR_DIR)/arch/$(ARCH)/configs/$(XVISOR_CONF): $(CONFDIR)/$(XVISOR_CONF) \
-  | $(XVISOR_DIR)
+  | XVISOR-prepare
 	$(call COPY)
 
 # remove the V= variable before calling xvisor makefile
 $(XVISOR_BUILD_DIR)%: MAKEOVERRIDES := $(filter-out V=%,$(MAKEOVERRIDES))
 
-$(XVISOR_BUILD_DIR)/tools/dtc/dtc: | $(XVISOR_DIR) $(XVISOR_BUILD_DIR)
+$(XVISOR_BUILD_DIR)/tools/dtc/dtc: | XVISOR-prepare $(XVISOR_BUILD_DIR)
 	$(Q)mkdir -p $(@D)
 	$(call cmd_xbuild,,tools/dtc,tools/dtc)
 
 $(XVISOR_BUILD_DIR)/tmpconf: $(XVISOR_BUILD_DIR)/tools/dtc/dtc
 
 $(XVISOR_BUILD_CONF): $(XVISOR_DIR)/arch/$(ARCH)/configs/$(XVISOR_CONF) \
-  | $(TOOLCHAIN_DIR) $(XVISOR_BUILD_DIR)/tmpconf
+  | TOOLCHAIN-prepare $(XVISOR_BUILD_DIR)/tmpconf
 	@echo "(defconfig) Xvisor"
 	$(call cmd_xbuild,$(XVISOR_CONF))
 
 xvisor-configure: $(XVISOR_BUILD_CONF)
 
-xvisor-dtbs xvisor-modules xvisor-menuconfig xvisor-vars: $(XVISOR_DIR) \
+xvisor-dtbs xvisor-modules xvisor-menuconfig xvisor-vars: XVISOR-prepare \
   $(XVISOR_BUILD_DIR)/tools/dtc/dtc $(XVISOR_BUILD_CONF)
 	@echo "($(subst xvisor-,,$@)) Xvisor"
 	$(call cmd_xbuild,$(subst xvisor-,,$@))
 
-xvisor-dtbs: $(TOOLCHAIN_DIR)
+xvisor-dtbs: TOOLCHAIN-prepare
 
 $(BUILDDIR)/vmm-$(BOARDNAME).dtb: xvisor-dtbs
 	@echo "(link) $(@F)"
@@ -72,8 +74,9 @@ $(BUILDDIR)/vmm-$(BOARDNAME).dtb: xvisor-dtbs
 $(XVISOR_BIN): $(XVISOR_BUILD_DIR)/vmm.bin
 	$(Q)ln -sf $< $@
 
-$(XVISOR_BUILD_DIR)/vmm.bin: $(XVISOR_BUILD_CONF) $(CONF) FORCE \
-  $(XVISOR_BUILD_DIR)/tools/dtc/dtc | $(XVISOR_DIR) $(XVISOR_BUILD_DIR)/tmpconf
+$(XVISOR_BUILD_DIR)/vmm.bin: $(XVISOR_BUILD_CONF) $(CONF) \
+  $(XVISOR_BUILD_DIR)/tools/dtc/dtc | XVISOR-prepare \
+  $(XVISOR_BUILD_DIR)/tmpconf
 	@echo "(make) Xvisor"
 	$(call cmd_xbuild)
 
@@ -102,9 +105,7 @@ $(XVISOR_UIMAGE): $(realpath $(XVISOR_BIN)) $(UBOOT_BUILD_DIR)/$(UBOOT_MKIMAGE)
 xvisor-uimage: $(XVISOR_BIN) $(XVISOR_UIMAGE) $(BUILDDIR)/vmm-$(BOARDNAME).dtb
 
 
-$(XVISOR_DIR)/$(XVISOR_ELF2C): $(XVISOR_DIR)
-
-$(XVISOR_BUILD_DIR)/$(XVISOR_CPATCH): | $(XVISOR_DIR) $(XVISOR_BUILD_DIR)
+$(XVISOR_BUILD_DIR)/$(XVISOR_CPATCH): | XVISOR-prepare $(XVISOR_BUILD_DIR)
 	$(Q)mkdir -p $(@D)
 	$(call cmd_xbuild,,tools/cpatch,$(dir $(XVISOR_CPATCH)))
 
@@ -117,14 +118,15 @@ $(DISKA) $(DISKB):
 $(DISKA)/$(ROOTFS_IMG): $(BUILDDIR)/$(ROOTFS_IMG) | $(DISKA)
 	$(call COPY)
 
-$(DISKA)/$(DTB_IN_IMG).dtb: $(XVISOR_DIR)/tests/$(XVISOR_ARCH)/$(GUEST_BOARDNAME)/$(DTB_IN_IMG).dts $(XVISOR_BUILD_DIR)/tools/dtc/dtc | $(DISKA)
+$(DISKA)/$(DTB_IN_IMG).dtb: $(XVISOR_DIR)/tests/$(XVISOR_ARCH)/$(GUEST_BOARDNAME)/$(DTB_IN_IMG).dts \
+  $(XVISOR_BUILD_DIR)/tools/dtc/dtc | $(DISKA)
 	@echo "(dtc) $(DTB_IN_IMG)"
 	$(Q)$(XVISOR_BUILD_DIR)/tools/dtc/dtc -I dts -O dtb -o $@ $<
 
 FIRMWARE_DIR = $(XVISOR_BUILD_DIR)/tests/$(XVISOR_ARCH)/$(GUEST_BOARDNAME)/basic
 FIRMWARE = $(FIRMWARE_DIR)/firmware.bin.patched
 
-xvisor-firmware $(FIRMWARE): $(XVISOR_BUILD_CONF) FORCE | \
+xvisor-firmware $(FIRMWARE): $(XVISOR_BUILD_CONF) | \
   $(XVISOR_BUILD_DIR)/tmpconf $(XVISOR_BUILD_DIR)/$(XVISOR_CPATCH)
 	@echo "(make) Xvisor $(GUEST_BOARDNAME) firmware"
 	$(call cmd_xbuild,,tests/$(XVISOR_ARCH)/$(GUEST_BOARDNAME)/basic)

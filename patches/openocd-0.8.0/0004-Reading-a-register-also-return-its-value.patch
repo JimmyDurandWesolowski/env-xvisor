@@ -1,0 +1,178 @@
+From fca057b9b5f3e75bc7ce5474a99fb421b438918f Mon Sep 17 00:00:00 2001
+From: Jimmy Durand Wesolowski <jimmy.durand-wesolowski@openwide.fr>
+Date: Thu, 5 Jun 2014 17:35:04 +0200
+Subject: [PATCH 4/4] Reading a register also return its value.
+
+---
+ src/target/target.c | 73 ++++++++++++++++++++++++++++++++++++++---------------
+ 1 file changed, 52 insertions(+), 21 deletions(-)
+
+diff --git a/src/target/target.c b/src/target/target.c
+index c7fd44b..18c7937 100644
+--- a/src/target/target.c
++++ b/src/target/target.c
+@@ -2427,26 +2427,42 @@ static int handle_target(void *priv)
+ 	return retval;
+ }
+ 
+-COMMAND_HANDLER(handle_reg_command)
++static int jim_reg_command(Jim_Interp *interp, int argc, Jim_Obj * const *argv)
+ {
+-	struct target *target;
++	int len = 0;
++	const char *arg;
++	struct command_context *context = NULL;
++	struct target *target = NULL;
+ 	struct reg *reg = NULL;
+ 	unsigned count = 0;
+ 	char *value;
+ 
++	argc -=1;
++
+ 	LOG_DEBUG("-");
+ 
+-	target = get_current_target(CMD_CTX);
++	context = current_command_context(interp);
++	assert(context != NULL);
++
++	target = get_current_target(context);
++	if (target == NULL) {
++		LOG_ERROR("%s: no current target", __func__);
++		return JIM_ERR;
++	}
++	if (!target_was_examined(target)) {
++		LOG_ERROR("%s: not yet examined", target_name(target));
++		return JIM_ERR;
++	}
+ 
+ 	/* list all available registers for the current target */
+-	if (CMD_ARGC == 0) {
++	if (argc == 0) {
+ 		struct reg_cache *cache = target->reg_cache;
+ 
+ 		count = 0;
+ 		while (cache) {
+ 			unsigned i;
+ 
+-			command_print(CMD_CTX, "===== %s", cache->name);
++			command_print(context, "===== %s", cache->name);
+ 
+ 			for (i = 0, reg = cache->reg_list;
+ 					i < cache->num_regs;
+@@ -2455,7 +2471,7 @@ COMMAND_HANDLER(handle_reg_command)
+ 				if (reg->valid) {
+ 					value = buf_to_str(reg->value,
+ 							reg->size, 16);
+-					command_print(CMD_CTX,
++					command_print(context,
+ 							"(%i) %s (/%" PRIu32 "): 0x%s%s",
+ 							count, reg->name,
+ 							reg->size, value,
+@@ -2464,7 +2480,7 @@ COMMAND_HANDLER(handle_reg_command)
+ 								: "");
+ 					free(value);
+ 				} else {
+-					command_print(CMD_CTX, "(%i) %s (/%" PRIu32 ")",
++					command_print(context, "(%i) %s (/%" PRIu32 ")",
+ 							  count, reg->name,
+ 							  reg->size) ;
+ 				}
+@@ -2475,10 +2491,11 @@ COMMAND_HANDLER(handle_reg_command)
+ 		return ERROR_OK;
+ 	}
+ 
++	arg = Jim_GetString(argv[1], &len);
+ 	/* access a single register by its ordinal number */
+-	if ((CMD_ARGV[0][0] >= '0') && (CMD_ARGV[0][0] <= '9')) {
+-		unsigned num;
+-		COMMAND_PARSE_NUMBER(uint, CMD_ARGV[0], num);
++	if ((arg[0] >= '0') && (arg[0] <= '9')) {
++		long int num;
++		Jim_GetLong(interp, argv[1], &num);
+ 
+ 		struct reg_cache *cache = target->reg_cache;
+ 		count = 0;
+@@ -2496,47 +2513,61 @@ COMMAND_HANDLER(handle_reg_command)
+ 		}
+ 
+ 		if (!reg) {
+-			command_print(CMD_CTX, "%i is out of bounds, the current target "
++			command_print(context, "%li is out of bounds, the current target "
+ 					"has only %i registers (0 - %i)", num, count, count - 1);
+ 			return ERROR_OK;
+ 		}
+ 	} else {
+ 		/* access a single register by its name */
+-		reg = register_get_by_name(target->reg_cache, CMD_ARGV[0], 1);
++		reg = register_get_by_name(target->reg_cache, arg, 1);
+ 
+ 		if (!reg) {
+-			command_print(CMD_CTX, "register %s not found in current target", CMD_ARGV[0]);
++			command_print(context, "register %s not found in current target", arg);
+ 			return ERROR_OK;
+ 		}
+ 	}
+ 
+ 	assert(reg != NULL); /* give clang a hint that we *know* reg is != NULL here */
+ 
++	if (argc == 2)
++		arg = Jim_GetString(argv[2], &len);
++
+ 	/* display a register */
+-	if ((CMD_ARGC == 1) || ((CMD_ARGC == 2) && !((CMD_ARGV[1][0] >= '0')
+-			&& (CMD_ARGV[1][0] <= '9')))) {
+-		if ((CMD_ARGC == 2) && (strcmp(CMD_ARGV[1], "force") == 0))
++	if ((argc == 1) || ((argc == 2) && !((arg[0] >= '0')
++			&& (arg[0] <= '9')))) {
++		int8_t i = 0;
++		long long int lli_val = 0;
++
++		if ((argc == 2) && (strcmp(arg, "force") == 0))
+ 			reg->valid = 0;
+ 
+ 		if (reg->valid == 0)
+ 			reg->type->get(reg);
+ 		value = buf_to_str(reg->value, reg->size, 16);
+-		command_print(CMD_CTX, "%s (/%i): 0x%s", reg->name, (int)(reg->size), value);
++		command_print(context, "%s (/%i): 0x%s", reg->name, (int)(reg->size), value);
++
++		i = reg->size / 8 - 1;
++		while (i >= 0) {
++			lli_val <<= 8;
++			lli_val |= ((uint8_t*)reg->value)[i];
++			--i;
++		}
++		Jim_SetResult(interp, Jim_NewIntObj(interp, lli_val));
+ 		free(value);
+ 		return ERROR_OK;
+ 	}
+ 
+ 	/* set register value */
+-	if (CMD_ARGC == 2) {
++	if (argc == 2) {
+ 		uint8_t *buf = malloc(DIV_ROUND_UP(reg->size, 8));
+ 		if (buf == NULL)
+ 			return ERROR_FAIL;
+-		str_to_buf(CMD_ARGV[1], strlen(CMD_ARGV[1]), buf, reg->size, 0);
++		str_to_buf(arg, strlen(arg), buf, reg->size, 0);
+ 
+ 		reg->type->set(reg, buf);
+ 
+ 		value = buf_to_str(reg->value, reg->size, 16);
+-		command_print(CMD_CTX, "%s (/%i): 0x%s", reg->name, (int)(reg->size), value);
++		command_print(context, "%s (/%i): 0x%s", reg->name, (int)(reg->size), value);
+ 		free(value);
+ 
+ 		free(buf);
+@@ -5900,7 +5931,7 @@ static const struct command_registration target_exec_command_handlers[] = {
+ 	},
+ 	{
+ 		.name = "reg",
+-		.handler = handle_reg_command,
++		.jim_handler = jim_reg_command,
+ 		.mode = COMMAND_EXEC,
+ 		.help = "display (reread from target with \"force\") or set a register; "
+ 			"with no arguments, displays all registers and their values",
+-- 
+2.4.6
+

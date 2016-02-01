@@ -1,0 +1,25 @@
+From b2c263e25fe0a07f2a43af250697807ba2cab6b8 Mon Sep 17 00:00:00 2001
+From: Jimmy Durand Wesolowski <jimmy.durand-wesolowski@openwide.fr>
+Date: Thu, 5 Jun 2014 17:32:07 +0200
+Subject: [PATCH 2/4] Avoid the userspace address checking.
+
+---
+ src/target/armv7a.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/target/armv7a.c b/src/target/armv7a.c
+index 27bc90c..ff044f4 100644
+--- a/src/target/armv7a.c
++++ b/src/target/armv7a.c
+@@ -115,7 +115,7 @@ static int armv7a_read_ttbcr(struct target *target)
+ 		armv7a->armv7a_mmu.os_border = 0xffffffff & armv7a->armv7a_mmu.ttbr0_mask;
+ 	} else {
+ 		/*  fix me , default is hard coded LINUX border  */
+-		armv7a->armv7a_mmu.os_border = 0xc0000000;
++		armv7a->armv7a_mmu.os_border = 0x00000000;
+ 	}
+ done:
+ 	dpm->finish(dpm);
+-- 
+2.4.6
+

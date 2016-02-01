@@ -1,0 +1,91 @@
+From 11fc61712e76dea23cbdb64b68192608671aec99 Mon Sep 17 00:00:00 2001
+From: Jimmy Durand Wesolowski <jimmy.durand-wesolowski@openwide.fr>
+Date: Thu, 5 Jun 2014 17:34:19 +0200
+Subject: [PATCH 3/4] Add a physical reading of memory with phys_mem2array.
+
+---
+ src/target/target.c | 38 +++++++++++++++++++++++++++++++++-----
+ 1 file changed, 33 insertions(+), 5 deletions(-)
+
+diff --git a/src/target/target.c b/src/target/target.c
+index 32ab117..c7fd44b 100644
+--- a/src/target/target.c
++++ b/src/target/target.c
+@@ -66,7 +66,7 @@ static int target_write_buffer_default(struct target *target, uint32_t address,
+ static int target_array2mem(Jim_Interp *interp, struct target *target,
+ 		int argc, Jim_Obj * const *argv);
+ static int target_mem2array(Jim_Interp *interp, struct target *target,
+-		int argc, Jim_Obj * const *argv);
++			    int argc, Jim_Obj * const *argv, int physical);
+ static int target_register_user_commands(struct command_context *cmd_ctx);
+ static int target_get_gdb_fileio_info_default(struct target *target,
+ 		struct gdb_fileio_info *fileio_info);
+@@ -3724,10 +3724,27 @@ static int jim_mem2array(Jim_Interp *interp, int argc, Jim_Obj *const *argv)
+ 		return JIM_ERR;
+ 	}
+ 
+-	return target_mem2array(interp, target, argc - 1, argv + 1);
++	return target_mem2array(interp, target, argc - 1, argv + 1, 0);
+ }
+ 
+-static int target_mem2array(Jim_Interp *interp, struct target *target, int argc, Jim_Obj *const *argv)
++static int jim_phys_mem2array(Jim_Interp *interp, int argc, Jim_Obj *const *argv)
++{
++	struct command_context *context;
++	struct target *target;
++
++	context = current_command_context(interp);
++	assert(context != NULL);
++
++	target = get_current_target(context);
++	if (target == NULL) {
++		LOG_ERROR("mem2array: no current target");
++		return JIM_ERR;
++	}
++
++	return target_mem2array(interp, target, argc - 1, argv + 1, 1);
++}
++
++static int target_mem2array(Jim_Interp *interp, struct target *target, int argc, Jim_Obj *const *argv, int physical)
+ {
+ 	long l;
+ 	uint32_t width;
+@@ -3829,7 +3846,10 @@ static int target_mem2array(Jim_Interp *interp, struct target *target, int argc,
+ 		if (count > (buffersize / width))
+ 			count = (buffersize / width);
+ 
+-		retval = target_read_memory(target, addr, width, count, buffer);
++		if (physical)
++			retval = target_read_phys_memory(target, addr, width, count, buffer);
++		else
++			retval = target_read_memory(target, addr, width, count, buffer);
+ 		if (retval != ERROR_OK) {
+ 			/* BOO !*/
+ 			LOG_ERROR("mem2array: Read @ 0x%08x, w=%d, cnt=%d, failed",
+@@ -4675,7 +4695,7 @@ static int jim_target_mem2array(Jim_Interp *interp,
+ 		int argc, Jim_Obj *const *argv)
+ {
+ 	struct target *target = Jim_CmdPrivData(interp);
+-	return target_mem2array(interp, target, argc - 1, argv + 1);
++	return target_mem2array(interp, target, argc - 1, argv + 1, 0);
+ }
+ 
+ static int jim_target_array2mem(Jim_Interp *interp,
+@@ -6042,6 +6062,14 @@ static const struct command_registration target_exec_command_handlers[] = {
+ 		.usage = "arrayname bitwidth address count",
+ 	},
+ 	{
++		.name = "phys_mem2array",
++		.mode = COMMAND_EXEC,
++		.jim_handler = jim_phys_mem2array,
++		.help = "read 8/16/32 bit physical memory and return as a "
++			"TCL array for script processing",
++		.usage = "arrayname bitwidth address count",
++	},
++	{
+ 		.name = "array2mem",
+ 		.mode = COMMAND_EXEC,
+ 		.jim_handler = jim_array2mem,
+-- 
+2.4.6
+

@@ -22,7 +22,7 @@
 #
 
 # OpenOCD configure is buggy, reconfigure it
-$(STAMPDIR)/.openocd_reconf: OPENOCD-prepare | $(STAMPDIR)
+$(STAMPDIR)/.openocd_reconf: | OPENOCD-prepare $(STAMPDIR)
 	$(Q)cd $(OPENOCD_DIR) && autoreconf --force --install && \
 	  git submodule --quiet init && git submodule --quiet update
 	$(Q)touch $@

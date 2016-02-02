@@ -1,17 +1,17 @@
-From fca057b9b5f3e75bc7ce5474a99fb421b438918f Mon Sep 17 00:00:00 2001
+From 50de92a04187b17b4715b7b8e67414495d37cb26 Mon Sep 17 00:00:00 2001
 From: Jimmy Durand Wesolowski <jimmy.durand-wesolowski@openwide.fr>
 Date: Thu, 5 Jun 2014 17:35:04 +0200
-Subject: [PATCH 4/4] Reading a register also return its value.
+Subject: [PATCH 3/4] Reading a register also return its value.
 
 ---
  src/target/target.c | 73 ++++++++++++++++++++++++++++++++++++++---------------
  1 file changed, 52 insertions(+), 21 deletions(-)
 
 diff --git a/src/target/target.c b/src/target/target.c
-index c7fd44b..18c7937 100644
+index 8cf6e41..587170a 100644
 --- a/src/target/target.c
 +++ b/src/target/target.c
-@@ -2427,26 +2427,42 @@ static int handle_target(void *priv)
+@@ -2595,26 +2595,42 @@ static int handle_target(void *priv)
  	return retval;
  }
  
@@ -59,7 +59,7 @@ index c7fd44b..18c7937 100644
  
  			for (i = 0, reg = cache->reg_list;
  					i < cache->num_regs;
-@@ -2455,7 +2471,7 @@ COMMAND_HANDLER(handle_reg_command)
+@@ -2623,7 +2639,7 @@ COMMAND_HANDLER(handle_reg_command)
  				if (reg->valid) {
  					value = buf_to_str(reg->value,
  							reg->size, 16);
@@ -68,7 +68,7 @@ index c7fd44b..18c7937 100644
  							"(%i) %s (/%" PRIu32 "): 0x%s%s",
  							count, reg->name,
  							reg->size, value,
-@@ -2464,7 +2480,7 @@ COMMAND_HANDLER(handle_reg_command)
+@@ -2632,7 +2648,7 @@ COMMAND_HANDLER(handle_reg_command)
  								: "");
  					free(value);
  				} else {
@@ -77,7 +77,7 @@ index c7fd44b..18c7937 100644
  							  count, reg->name,
  							  reg->size) ;
  				}
-@@ -2475,10 +2491,11 @@ COMMAND_HANDLER(handle_reg_command)
+@@ -2643,10 +2659,11 @@ COMMAND_HANDLER(handle_reg_command)
  		return ERROR_OK;
  	}
  
@@ -92,7 +92,7 @@ index c7fd44b..18c7937 100644
  
  		struct reg_cache *cache = target->reg_cache;
  		count = 0;
-@@ -2496,47 +2513,61 @@ COMMAND_HANDLER(handle_reg_command)
+@@ -2664,47 +2681,61 @@ COMMAND_HANDLER(handle_reg_command)
  		}
  
  		if (!reg) {
@@ -164,7 +164,7 @@ index c7fd44b..18c7937 100644
  		free(value);
  
  		free(buf);
-@@ -5900,7 +5931,7 @@ static const struct command_registration target_exec_command_handlers[] = {
+@@ -5993,7 +6024,7 @@ static const struct command_registration target_exec_command_handlers[] = {
  	},
  	{
  		.name = "reg",

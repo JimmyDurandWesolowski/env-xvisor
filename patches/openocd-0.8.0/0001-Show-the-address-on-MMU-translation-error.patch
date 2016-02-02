@@ -1,43 +1,36 @@
-From b8016d499c0fa1163c96f64d23cd42628792f96c Mon Sep 17 00:00:00 2001
+From 102527fa9eabb7a2733d7d476d09a1adbc7df6af Mon Sep 17 00:00:00 2001
 From: Jimmy Durand Wesolowski <jimmy.durand-wesolowski@openwide.fr>
 Date: Tue, 3 Jun 2014 11:13:16 +0200
 Subject: [PATCH 1/4] Show the address on MMU translation error.
 
 ---
- src/target/armv7a.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ src/target/armv7a.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
 diff --git a/src/target/armv7a.c b/src/target/armv7a.c
-index bfe4ef4..27bc90c 100644
+index b9320d1..9c2f194 100644
 --- a/src/target/armv7a.c
 +++ b/src/target/armv7a.c
-@@ -160,7 +160,7 @@ int armv7a_mmu_translate_va(struct target *target,  uint32_t va, uint32_t *val)
+@@ -236,7 +236,8 @@ int armv7a_mmu_translate_va(struct target *target,  uint32_t va, uint32_t *val)
  	LOG_DEBUG("1st lvl desc: %8.8" PRIx32 "", first_lvl_descriptor);
  
  	if ((first_lvl_descriptor & 0x3) == 0) {
 -		LOG_ERROR("Address translation failure");
-+		LOG_ERROR("First level address translation failure, virtual address 0x%08X", va);
++		LOG_ERROR("First level address translation failure, virtual "
++			  "address 0x%08X", va);
  		return ERROR_TARGET_TRANSLATION_FAULT;
  	}
  
-@@ -193,7 +193,7 @@ int armv7a_mmu_translate_va(struct target *target,  uint32_t va, uint32_t *val)
+@@ -268,7 +269,8 @@ int armv7a_mmu_translate_va(struct target *target,  uint32_t va, uint32_t *val)
  	LOG_DEBUG("2nd lvl desc: %8.8" PRIx32 "", second_lvl_descriptor);
  
  	if ((second_lvl_descriptor & 0x3) == 0) {
 -		LOG_ERROR("Address translation failure");
-+		LOG_ERROR("Second level address translation failure, virtual address 0x%08X", va);
++		LOG_ERROR("Second level address translation failure, virtual "
++			  "address 0x%08X", va);
  		return ERROR_TARGET_TRANSLATION_FAULT;
  	}
  
-@@ -215,7 +215,7 @@ int armv7a_mmu_translate_va(struct target *target,  uint32_t va, uint32_t *val)
- 	}
- 
- 	/* should not happen */
--	LOG_ERROR("Address translation failure");
-+	LOG_ERROR("Address translation failure, virtual address 0x%08X", va);
- 	return ERROR_TARGET_TRANSLATION_FAULT;
- 
- done:
 -- 
 2.4.6
 

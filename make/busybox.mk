@@ -21,32 +21,35 @@
 # @file make/busybox.mk
 #
 
+define busybox_build
+	$(Q)$(MAKE) -C $(BUSYBOX_DIR) O=$(BUSYBOX_BUILD_DIR) $1
+endef
+
 $(BUSYBOX_BUILD_DIR):
 	$(Q)mkdir -p $@
 
-busybox-configure $(BUSYBOX_BUILD_CONF): $(CONFDIR)/$(BUSYBOX_CONF) \
-  $(BUSYBOX_DIR)
+busybox-configure $(BUSYBOX_BUILD_CONF): $(CONFDIR)/$(BUSYBOX_CONF) | \
+  BUSYBOX-prepare
 	$(call COPY)
 
 busybox-menuconfig: TOOLCHAIN-prepare BUSYBOX-prepare $(BUSYBOX_BUILD_DIR)
 	@echo "(menuconfig) Busybox"
-	$(Q)$(MAKE) -C $(BUSYBOX_DIR) O=$(BUSYBOX_BUILD_DIR) menuconfig
+	$(call busybox_build,menuconfig)
 	rm $(STAMPDIR)/.target_compile
 	rm $(STAMPDIR)/.target
 
 ifeq ($(ROOTFS_LOCAL),)
-$(STAMPDIR)/.target_compile: TOOLCHAIN-prepare $(BUSYBOX_BUILD_CONF) $(CONF) \
-  | $(BUSYBOX_BUILD_DIR) $(STAMPDIR)
+$(STAMPDIR)/.target_compile: $(BUSYBOX_BUILD_CONF) $(CONF) \
+  | $(BUSYBOX_BUILD_DIR) $(STAMPDIR) TOOLCHAIN-prepare
 	@echo "(make) busybox"
-	$(Q)$(MAKE) -C $(BUSYBOX_DIR) O=$(BUSYBOX_BUILD_DIR) all
+	$(call busybox_build,all)
 	$(Q)touch $@
 
 busybox-compile: $(STAMPDIR)/.target_compile
 
 $(STAMPDIR)/.target: $(STAMPDIR)/.target_compile
 	@echo "(install) $@"
-	$(Q)$(MAKE) -C $(BUSYBOX_DIR) O=$(BUSYBOX_BUILD_DIR) \
-	  CONFIG_PREFIX=$(TARGETDIR) install
+	$(call busybox_build,CONFIG_PREFIX=$(TARGETDIR) install)
 	$(Q)touch $@
 
 BUSYBOX-install: $(STAMPDIR)/.target

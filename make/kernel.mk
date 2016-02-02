@@ -63,11 +63,8 @@ dtsflags += -x assembler-with-cpp -I$(XVISOR_LINUX_CONF_DIR)
 dtsflags += -I$(LINUX_DIR)/include -I$(LINUX_DIR)/arch/$(ARCH)/boot/dts
 
 
-FORCE:
-.PHONY: $(TMPDIR)/$(KERN_DT).pre.dts
-
 $(TMPDIR)/$(KERN_DT).pre.dts: $(XVISOR_LINUX_CONF_DIR)/$(KERN_DT).dts | \
-  XVISOR-prepare $(DISK_DIR)/$(DISK_BOARD) FORCE
+  XVISOR-prepare $(DISK_DIR)/$(DISK_BOARD)
 	$(Q)sed -re 's|/include/|#include|' $< >$@
 
 $(TMPDIR)/$(KERN_DT).dts: $(TMPDIR)/$(KERN_DT).pre.dts

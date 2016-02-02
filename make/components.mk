@@ -52,8 +52,11 @@ $(BUILDDIR)/$($1_PATH):
     ifneq ($($1_REPO),)
 $(BUILDDIR)/$($1_PATH):
 	@echo "(Clone) $$@"
-	$(Q)git clone $$($1_REPO_ARG) -q $$($1_REPO) -b $$($1_BRANCH) $$@
-
+	$(Q)git clone $$($1_REPO_ARG) -q $$($1_REPO) $$@
+      ifneq ($($1_TAG),)
+	@echo "(Checkout) Tag $$($1_TAG)"
+	$(Q)cd $$@ && git checkout -b $$($1_TAG) $$($1_TAG)
+      endif
   # The component is not fetch with a git repository
     else # $($1_REPO) empty or unset
 
@@ -106,12 +109,17 @@ define PATCH_RULE
  $(STAMPDIR)/.$1_patch: $(wildcard $(PATCHDIR)/$($1_PATH)) | $($1_DIR) \
   $(STAMPDIR)
 	@echo "(Patching) $($1_PATH)"
-	$(Q)[ -d $(PATCHDIR)/$($1_PATH) ] && (cd $($1_DIR) &&		\
-	  for patchfile in						\
-	  $$$$(echo "$(PATCHDIR)/$($1_PATH)/*.patch"); do		\
+	$(Q)[ -d $(PATCHDIR)/$($1_PATH) ] && cd $($1_DIR) &&		\
+	  if [ -d .git ]; then						\
+	    git am $(PATCHDIR)/$($1_PATH)/*.patch;			\
+	  else								\
+	    for patchfile in						\
+	      $$$$(echo "$(PATCHDIR)/$($1_PATH)/*.patch"); do		\
+		echo "Applying patch $$$$(basename $$$${patchfile})";	\
 		patch -p1 < $$$${patchfile} &&				\
 		  echo $$$${patchfile} >> $$@;				\
-	  done) || touch $$@
+	    done							\
+	  fi && touch $$@
 endef
 
 

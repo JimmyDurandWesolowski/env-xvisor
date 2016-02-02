@@ -114,6 +114,7 @@ config_write() {
 	COMPONENT_REPO=${component}_REPO
 	COMPONENT_REPO_ARG=${component}_REPO_ARG
 	COMPONENT_BRANCH=${component}_BRANCH
+	COMPONENT_TAG=${component}_TAG
 	COMPONENT_SERVER=${component}_SERVER
 	COMPONENT_LOCAL=${component}_LOCAL
 	COMPONENT_GREPO=${component}_GREPO
@@ -140,11 +141,15 @@ config_write() {
 		if [ -n "${!COMPONENT_REPO}" ]; then
 		    echo "${COMPONENT_REPO}=${!COMPONENT_REPO}" >> ${CONF}
 		    echo "${COMPONENT_REPO_ARG}=${!COMPONENT_REPO_ARG}" >> ${CONF}
-		    # ... and its branch
+		    # ... its branch ...
 		    if [ -n "${!COMPONENT_BRANCH}" ]; then
 			echo "${COMPONENT_BRANCH}=${!COMPONENT_BRANCH}" >> ${CONF}
 		    else
 			echo "${COMPONENT_BRANCH}=master" >> ${CONF}
+		    fi
+		    # ... and its tag
+		    if [ -n "${!COMPONENT_TAG}" ]; then
+			echo "${COMPONENT_TAG}=${!COMPONENT_TAG}" >> ${CONF}
 		    fi
 		# Otherwise, it is provided with a archive server and file
 		else

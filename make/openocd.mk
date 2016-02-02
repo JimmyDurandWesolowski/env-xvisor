@@ -23,7 +23,7 @@
 
 # OpenOCD configure is buggy, reconfigure it
 $(STAMPDIR)/.openocd_reconf: OPENOCD-prepare | $(STAMPDIR)
-	$(Q)cd $< && autoreconf --force --install
+	$(Q)cd $(OPENOCD_DIR) && autoreconf --force --install
 	$(Q)touch $@
 
 $(BUILDDIR)/generated_$(OPENOCD_CONF): $(XVISOR_BIN) $(CONF) \

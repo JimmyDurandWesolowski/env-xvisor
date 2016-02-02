@@ -54,21 +54,21 @@ $(XVISOR_BUILD_CONF): $(XVISOR_DIR)/arch/$(ARCH)/configs/$(XVISOR_CONF) \
 
 xvisor-configure: $(XVISOR_BUILD_CONF)
 
-xvisor-dtbs xvisor-modules xvisor-menuconfig xvisor-vars: XVISOR-prepare \
-  $(XVISOR_BUILD_DIR)/tools/dtc/dtc $(XVISOR_BUILD_CONF)
+xvisor-dtbs xvisor-modules xvisor-menuconfig xvisor-vars: \
+  $(XVISOR_BUILD_DIR)/tools/dtc/dtc $(XVISOR_BUILD_CONF) | XVISOR-prepare
 	@echo "($(subst xvisor-,,$@)) Xvisor"
 	$(call cmd_xbuild,$(subst xvisor-,,$@))
 
-xvisor-dtbs: TOOLCHAIN-prepare
-
-$(BUILDDIR)/vmm-$(BOARDNAME).dtb: xvisor-dtbs
-	@echo "(link) $(@F)"
-	$(Q)SRC=$$(find $(XVISOR_BUILD_DIR)/arch/$(ARCH)/board -type d \
-	           -name $(DTB_DIR)); \
-	  [ -z "$${SRC}/$(DTB)" ] \
-	    && (echo "Could not find \"$(DTB_DIR)/$(DTB)\" DTB directory, " \
+$(BUILDDIR)/vmm-$(BOARDNAME).dtb: \
+  $(shell find $(XVISOR_DIR)/arch/ -name $(patsubst %.dtb,%.dts,$(DTB)))
+	@echo "(dtbs) Xvisor"
+	$(call cmd_xbuild,dtbs)
+	@echo "(Link) $(@F)"
+	$(Q)SRC=$$(find $(XVISOR_BUILD_DIR)/arch -name $(DTB)); \
+	  [ -z "$${SRC}" ] \
+	    && (echo "Could not find \"$(DTB)\" in the DTB directory, " \
 	             "exiting"; exit 1) \
-	    || ln -sf $${SRC}/$(DTB) $@
+	    || ln -sf $${SRC} $@
 
 .PHONY: $(XVISOR_BIN)
 $(XVISOR_BIN): $(XVISOR_BUILD_DIR)/vmm.bin
@@ -77,7 +77,7 @@ $(XVISOR_BIN): $(XVISOR_BUILD_DIR)/vmm.bin
 $(XVISOR_BUILD_DIR)/vmm.bin: $(XVISOR_BUILD_CONF) $(CONF) \
   $(XVISOR_BUILD_DIR)/tools/dtc/dtc | XVISOR-prepare \
   $(XVISOR_BUILD_DIR)/tmpconf
-	@echo "(make) Xvisor"
+	@echo "(Make) Xvisor"
 	$(call cmd_xbuild)
 
 $(XVISOR_BUILD_DIR)/vmm.elf: $(XVISOR_BIN)
@@ -86,7 +86,7 @@ xvisor-compile: $(XVISOR_BIN)
 $(XVISOR_IMX): $(realpath $(XVISOR_BIN)) \
   $(UBOOT_BUILD_DIR)/$(UBOOT_BOARD_CFG).cfgtmp \
   $(UBOOT_BUILD_DIR)/$(UBOOT_MKIMAGE)
-	@echo "(generate) Xvisor IMX image"
+	@echo "(Generate) Xvisor IMX image"
 	$(Q)$(UBOOT_BUILD_DIR)/$(UBOOT_MKIMAGE) \
           -n $(UBOOT_BUILD_DIR)/$(UBOOT_BOARD_CFG).cfgtmp -T imximage \
 	  -e $(ADDR_HYPER) -d $< $(TMPDIR)/$(@F)
@@ -95,7 +95,7 @@ $(XVISOR_IMX): $(realpath $(XVISOR_BIN)) \
 xvisor-imx: $(XVISOR_BIN) $(XVISOR_IMX)
 
 $(XVISOR_UIMAGE): $(realpath $(XVISOR_BIN)) $(UBOOT_BUILD_DIR)/$(UBOOT_MKIMAGE)
-	@echo "(generate) Xvisor u-Boot image"
+	@echo "(Generate) Xvisor u-Boot image"
 	$(Q)$(UBOOT_BUILD_DIR)/$(UBOOT_MKIMAGE) \
           -A $(ARCH) -O linux -C none -T kernel \
 	  -a $(ADDR_HYPER) -e $(ADDR_HYPER) \
@@ -106,6 +106,7 @@ xvisor-uimage: $(XVISOR_BIN) $(XVISOR_UIMAGE) $(BUILDDIR)/vmm-$(BOARDNAME).dtb
 
 
 $(XVISOR_BUILD_DIR)/$(XVISOR_CPATCH): | XVISOR-prepare $(XVISOR_BUILD_DIR)
+	@echo "(Make) Xvisor cpatch"
 	$(Q)mkdir -p $(@D)
 	$(call cmd_xbuild,,tools/cpatch,$(dir $(XVISOR_CPATCH)))
 
@@ -120,7 +121,7 @@ $(DISKA)/$(ROOTFS_IMG): $(BUILDDIR)/$(ROOTFS_IMG) | $(DISKA)
 
 $(DISKA)/$(DTB_IN_IMG).dtb: $(XVISOR_DIR)/tests/$(XVISOR_ARCH)/$(GUEST_BOARDNAME)/$(DTB_IN_IMG).dts \
   $(XVISOR_BUILD_DIR)/tools/dtc/dtc | $(DISKA)
-	@echo "(dtc) $(DTB_IN_IMG)"
+	@echo "(DTC) $(DTB_IN_IMG)"
 	$(Q)$(XVISOR_BUILD_DIR)/tools/dtc/dtc -I dts -O dtb -o $@ $<
 
 FIRMWARE_DIR = $(XVISOR_BUILD_DIR)/tests/$(XVISOR_ARCH)/$(GUEST_BOARDNAME)/basic
@@ -128,14 +129,14 @@ FIRMWARE = $(FIRMWARE_DIR)/firmware.bin.patched
 
 xvisor-firmware $(FIRMWARE): $(XVISOR_BUILD_CONF) | \
   $(XVISOR_BUILD_DIR)/tmpconf $(XVISOR_BUILD_DIR)/$(XVISOR_CPATCH)
-	@echo "(make) Xvisor $(GUEST_BOARDNAME) firmware"
+	@echo "(Make) Xvisor $(GUEST_BOARDNAME) firmware"
 	$(call cmd_xbuild,,tests/$(XVISOR_ARCH)/$(GUEST_BOARDNAME)/basic)
 
 $(DISKB)/$(XVISOR_FW_IMG): $(FIRMWARE) | $(DISKB)
 	$(call COPY)
 
 $(DISKB)/nor_flash.list: $(CONF) | $(DISKB)
-	@echo "(generating) nor_flash.list"
+	@echo "(Generating) nor_flash.list"
 	$(Q)echo "$(ADDRH_FLASH_FW) /$(DISK_BOARD)/$(XVISOR_FW_IMG)" > $@
 	$(Q)echo "$(ADDRH_FLASH_CMD) /$(DISK_BOARD)/cmdlist" >> $@
 	$(Q)echo "$(ADDRH_FLASH_KERN) /$(DISK_BOARD)/$(KERN_IMG)" >> $@
@@ -150,7 +151,7 @@ ifeq ($(USE_KERN_DT),1)
 endif
 
 $(DISKB)/cmdlist: $(CONF) $(DISKB)/$(KERN_IMG) $(DISKA)/$(ROOTFS_IMG) $(DISKB_KERN_DTB)
-	@echo "(generating) cmdlist"
+	@echo "(Generating) cmdlist"
 	$(Q)printf "copy $(ADDRH_KERN) $(ADDRH_FLASH_KERN) " > $@
 	$(Q)$(call FILE_SIZE,$(DISKB)/$(KERN_IMG)) >> $@
 ifeq ($(USE_KERN_DT),1)
@@ -168,7 +169,7 @@ else
 endif
 
 $(DISK_IMG): $(STAMPDIR)/.disk_populate
-	@echo "(genext2fs) $@"
+	@echo "(Genext2fs) $@"
 	$(Q)SIZE=$$(du -b --max-depth=0 $(DISK_DIR) | cut -f 1); \
 	 	BLK_SZ=1024; SIZE=$$(( $${SIZE} / $${BLK_SZ} * 5 / 4 )); \
 	 	genext2fs -b $${SIZE} -N $${BLK_SZ} -d $(DISK_DIR) $@
@@ -180,7 +181,7 @@ $(STAMPDIR)/.disk_populate: $(DISKB)/$(KERN_IMG) $(DISKB)/$(XVISOR_FW_IMG) \
 
 
 xvisor-dump: $(XVISOR_BUILD_DIR)/vmm.elf
-	@echo "(disassemble) $<"
+	@echo "(Disassemble) $<"
 	$(Q)$(TOOLCHAIN_PREFIX)objdump -dS $< > $(BUILDDIR)/vmm.dis
 
 

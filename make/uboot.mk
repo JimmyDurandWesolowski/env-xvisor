@@ -28,15 +28,17 @@ ifeq ($(BOARD_UBOOT),1)
   # the whole u-boot project...
   $(UBOOT_BUILD_DIR)/$(UBOOT_BOARD_CFG).cfgtmp: \
     $(UBOOT_DIR)/$(UBOOT_BOARD_CFG) | TOOLCHAIN-prepare
-	@echo "(defconfig) U-Boot"
+	@echo "(Defconfig) U-Boot"
 	$(Q)$(MAKE) -C $(UBOOT_DIR) O=$(UBOOT_BUILD_DIR) $(UBOOT_BOARDNAME)
 
   $(UBOOT_BUILD_DIR)/include/config.h: | UBOOT-prepare TOOLCHAIN-prepare
+	@echo "(Make) U-Boot"
 	$(Q)$(MAKE) -C $(UBOOT_DIR) O=$(UBOOT_BUILD_DIR) $(UBOOT_BOARDNAME)
 
   uboot-configure: $(UBOOT_BUILD_DIR)/include/config.h
 
   mkimage $(UBOOT_BUILD_DIR)/$(UBOOT_MKIMAGE): $(UBOOT_BUILD_DIR)/include/config.h
+	@echo "(Make) U-Boot mkimage"
 	$(Q)$(MAKE) -C $(UBOOT_DIR) O=$(UBOOT_BUILD_DIR) all tools
 
   $(UBOOT_BUILD_DIR)/u-boot.imx: $(UBOOT_BUILD_DIR)/$(UBOOT_MKIMAGE)

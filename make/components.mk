@@ -121,6 +121,9 @@ $(foreach component,$(COMPONENTS),\
 $(foreach component,$(COMPONENTS),\
   $(eval $(component)-prepare: $(STAMPDIR)/.$(component)_patch))
 
+.PHONY: $(foreach component,$(COMPONENTS),$(component)-fetch \
+  $(component)-prepare)
+
 # Generate the preparation rules for each component, depending on the fetching
 # method (git repository cloning or archive download) and patching
 $(foreach component,$(COMPONENTS),$(eval $(call FETCH_RULE,$(component))))

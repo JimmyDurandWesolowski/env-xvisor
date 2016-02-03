@@ -109,7 +109,10 @@ define PATCH_RULE
  $(STAMPDIR)/.$1_patch: $(wildcard $(PATCHDIR)/$($1_PATH)) | $($1_DIR) \
   $(STAMPDIR)
 	@echo "(Patching) $($1_PATH)"
-	$(Q)[ -d $(PATCHDIR)/$($1_PATH) ] && cd $($1_DIR) &&		\
+	$(Q)if [ ! -d $(PATCHDIR)/$($1_PATH) ]; then			\
+	  touch $$@;							\
+	else								\
+	  cd $($1_DIR) &&						\
 	  if [ -d .git ]; then						\
 	    git am $(PATCHDIR)/$($1_PATH)/*.patch;			\
 	  else								\
@@ -119,7 +122,8 @@ define PATCH_RULE
 		patch -p1 < $$$${patchfile} &&				\
 		  echo $$$${patchfile} >> $$@;				\
 	    done							\
-	  fi && touch $$@
+	  fi && touch $$@;						\
+	fi
 endef
 
 

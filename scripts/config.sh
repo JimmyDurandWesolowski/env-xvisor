@@ -149,7 +149,7 @@ config_write() {
 
 	if [ XVISOR = "${component}" ]; then
 	    printf "XVISOR_BUILD_CONF=${BUILDDIR}/build_" >> ${CONF}
-	    printf "${!COMPONENT_PATH}/tmpconf/.config\n" >> ${CONF}
+	    printf "${!COMPONENT_PATH}/openconf/.config\n" >> ${CONF}
 	fi
 	echo >> ${CONF}
     done

@@ -25,7 +25,7 @@
 disk: disk-xvisor disk-guests
 
 # boundary u-boot script
-$(DISK_DIR)/6x_bootscript: $(XVISOR_DIR)/docs/arm/sabrelite-bootscript \
+$(DISK_DIR)/6x_bootscript: $(XVISOR_DIR)/docs/arm/imx6-sabrelite-bootscript \
   $(UBOOT_BUILD_DIR)/$(UBOOT_MKIMAGE)
 	@echo "(generate) Bondary Devices u-Boot script"
 	$(Q)$(UBOOT_BUILD_DIR)/$(UBOOT_MKIMAGE) \

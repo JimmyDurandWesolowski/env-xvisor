@@ -72,7 +72,7 @@ $(BUILDDIR)/vmm-$(BOARDNAME).dtb: xvisor-dtbs
 $(XVISOR_BIN): $(XVISOR_BUILD_DIR)/vmm.bin
 	$(Q)ln -sf $< $@
 
-$(XVISOR_BUILD_DIR)/vmm.bin: $(XVISOR_BUILD_CONF) $(CONF) \
+$(XVISOR_BUILD_DIR)/vmm.bin: $(XVISOR_BUILD_CONF) $(CONF) FORCE \
   $(XVISOR_BUILD_DIR)/tools/dtc/dtc | $(XVISOR_DIR) $(XVISOR_BUILD_DIR)/tmpconf
 	@echo "(make) Xvisor"
 	$(call cmd_xbuild)

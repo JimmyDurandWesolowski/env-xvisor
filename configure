@@ -104,7 +104,9 @@ option_parse $*
 config_check_git
 option_board_validate
 option_board
-packages_check
+if [ -z "$NO_CHECK_PACKAGES" ]; then
+   packages_check
+fi
 
 if [ -e "local.conf" ]; then
     printf "You have a local.conf file so we source it, but use it at your own risk !!\n"

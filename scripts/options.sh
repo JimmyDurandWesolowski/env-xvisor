@@ -68,6 +68,8 @@ usage() {
     printf "${PARALLEL_JOBS})\n" >> ${OUTPUT}
     printf "  -s, --single-job\t\t\tAvoid using Makefile " >> ${OUTPUT}
     printf "parallel jobs\n" >> ${OUTPUT}
+    printf "  --no-check-packages\t\t\t\tDon't check for distro and packages\n"\
+           >> ${OUTPUT}
     printf "  -n\t\t\t\t\tEquivalent to \"--board nitrogen6x\"\n" >> ${OUTPUT}
     printf "  -m\t\t\t\t\tEquivalent to \"--board nitrogen6_max\"\n" >> \
 	   ${OUTPUT}
@@ -174,6 +176,10 @@ option_parse() {
 		shift
 		PARALLEL_JOBS=$1
 		;;
+
+            (--no-check-packages)
+                NO_CHECK_PACKAGES=1
+                ;;
 
 	    (-n)
 		BOARDNAME=nitrogen6x

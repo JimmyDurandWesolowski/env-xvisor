@@ -52,7 +52,7 @@ $(BUILDDIR)/$($1_PATH):
     ifneq ($($1_REPO),)
 $(BUILDDIR)/$($1_PATH):
 	@echo "(Clone) $$@"
-	$(Q)git clone $$($1_REPO_ARG) -q $$($1_REPO) $$@
+	$(Q)git clone $$($1_REPO_ARG) -q $$($1_REPO) -b $$($1_BRANCH) $$@
       ifneq ($($1_TAG),)
 	@echo "(Checkout) Tag $$($1_TAG)"
 	$(Q)cd $$@ && git checkout -b $$($1_TAG) $$($1_TAG)

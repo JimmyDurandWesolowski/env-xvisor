@@ -32,7 +32,7 @@ CONF=$(BUILDDIR)/.env_config
 ifeq ($(wildcard $(CONF)),)
   # If this is not a cleaning rule
   ifeq ($(findstring clean,$(MAKECMDGOALS)),)
-    $(error Configuration file not found, You must run the "configure" script first)
+    $(error Configuration file not found. You must run the "configure" script first)
   endif
 endif
 

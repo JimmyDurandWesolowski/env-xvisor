@@ -65,7 +65,7 @@ $(BUILDDIR)/%.ext2: $(STAMPDIR)/.target $(ROOTFS_EXTRA) \
 	$(Q)SIZE=$$(du -b --max-depth=0 $(TARGETDIR) | cut -f 1); \
 		BLK_SZ=1024; SIZE=$$(( $${SIZE} / $${BLK_SZ} + 1024 )); \
 		fakeroot /bin/bash -c "genext2fs -b $${SIZE} -N $${BLK_SZ} -D \
-		  $(XVISOR_DIR)/$(BUSYBOX_XVISOR_DEV) -d $(TARGETDIR) $@"
+		  $(CONFDIR)/$(BUSYBOX_XVISOR_DEV) -d $(TARGETDIR) $@"
 else
 $(BUILDDIR)/%.ext2: $(ROOTFS_LOCAL)
 	cp $(ROOTFS_LOCAL) $@

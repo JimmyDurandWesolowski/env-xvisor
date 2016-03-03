@@ -45,10 +45,10 @@ $(XVISOR_BUILD_DIR)/tools/dtc/dtc: | XVISOR-prepare $(XVISOR_BUILD_DIR)
 	$(Q)mkdir -p $(@D)
 	$(call cmd_xbuild,,tools/dtc,tools/dtc)
 
-$(XVISOR_BUILD_DIR)/tmpconf: $(XVISOR_BUILD_DIR)/tools/dtc/dtc
+$(XVISOR_BUILD_DIR)/openconf: $(XVISOR_BUILD_DIR)/tools/dtc/dtc
 
 $(XVISOR_BUILD_CONF): $(XVISOR_DIR)/arch/$(ARCH)/configs/$(XVISOR_CONF) \
-  | TOOLCHAIN-prepare $(XVISOR_BUILD_DIR)/tmpconf
+  | TOOLCHAIN-prepare $(XVISOR_BUILD_DIR)/openconf
 	@echo "(defconfig) Xvisor"
 	$(call cmd_xbuild,$(XVISOR_CONF))
 
@@ -76,7 +76,7 @@ $(XVISOR_BIN): $(XVISOR_BUILD_DIR)/vmm.bin
 
 $(XVISOR_BUILD_DIR)/vmm.bin: $(XVISOR_BUILD_CONF) $(CONF) \
   $(XVISOR_BUILD_DIR)/tools/dtc/dtc | XVISOR-prepare \
-  $(XVISOR_BUILD_DIR)/tmpconf
+  $(XVISOR_BUILD_DIR)/openconf
 	@echo "(Make) Xvisor"
 	$(call cmd_xbuild)
 
@@ -128,7 +128,7 @@ FIRMWARE_DIR = $(XVISOR_BUILD_DIR)/tests/$(XVISOR_ARCH)/$(GUEST_BOARDNAME)/basic
 FIRMWARE = $(FIRMWARE_DIR)/firmware.bin.patched
 
 xvisor-firmware $(FIRMWARE): $(XVISOR_BUILD_CONF) | \
-  $(XVISOR_BUILD_DIR)/tmpconf $(XVISOR_BUILD_DIR)/$(XVISOR_CPATCH)
+  $(XVISOR_BUILD_DIR)/openconf $(XVISOR_BUILD_DIR)/$(XVISOR_CPATCH)
 	@echo "(Make) Xvisor $(GUEST_BOARDNAME) firmware"
 	$(call cmd_xbuild,,tests/$(XVISOR_ARCH)/$(GUEST_BOARDNAME)/basic)
 

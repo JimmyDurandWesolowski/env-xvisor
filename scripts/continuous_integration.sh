@@ -1,8 +1,8 @@
-#! /bin/sh
+#! /usr/bin/env sh
 #
 # This file is part of Xvisor Build Environment.
-# Copyright (C) 2015 Institut de Recherche Technologique SystemX
-# Copyright (C) 2015 OpenWide
+# Copyright (C) 2015-2016 Institut de Recherche Technologique SystemX
+# Copyright (C) 2015-2016 OpenWide
 # All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
@@ -22,9 +22,9 @@
 # @file scripts/continuous_integration.sh
 #
 
-BOARDNAME=$1
+BOARDNAME="$1"
 
-cd $(dirname $0)/..
+cd "$(dirname "$0")/.."
 rm -rf build
 
 # default to nitrogen6x (for now)
@@ -36,7 +36,7 @@ if [ -z "${BOARDNAME}" ]; then
 fi
 
 #Configure env-xvisor for ${BOARDNAME}
-./configure -b ${BOARDNAME}
+./configure -b "${BOARDNAME}"
 
 #Build env
 echo "Build env"
@@ -44,7 +44,7 @@ make
 
 #Tests
 echo "Tests"
-case ${BOARDNAME} in
+case "${BOARDNAME}" in
   ("nitrogen6x"|"sabrelite")
     make xvisor-uimage
     make disk-guests

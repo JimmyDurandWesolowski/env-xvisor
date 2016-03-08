@@ -52,16 +52,6 @@ config_check_git() {
          # Base remote, with format: $GIT_PROTOCOL/$BASE_URL
          GIT_BASE_REMOTE="$(dirname "${remote}")"
 
-         # Determine the current branch to checkout one with a similar name
-         # later with other repositories
-         git_branch="$(git branch --no-color | grep '\*' | sed 's/\*\s*//')"
-
-         # Set the git branch to be experimental the EXPRIMENTAL only
-         # if we have pulled the experimental environment
-         if [ x"${git_branch}" = x"${GIT_EXPERIMENTAL_BRANCH}" ]; then
-            GIT_BRANCH="${GIT_EXPERIMENTAL_BRANCH}"
-         fi
-
       fi # $? -ne 0
    fi # $? -ne 0
 }

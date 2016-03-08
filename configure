@@ -87,13 +87,6 @@ VERBOSE=0
 # What git should use in its remote (fallback)
 GIT_BASE_REMOTE="https://github.com/IRT-SystemX"
 
-# Default branch to checkout
-GIT_BRANCH="master"
-
-# Name of the experimental branch
-GIT_EXPERIMENTAL_BRANCH="experimental"
-
-
 # Option functions used in this script
 source ${SCRIPTDIR}/options.sh
 source ${SCRIPTDIR}/package.sh

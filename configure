@@ -85,7 +85,7 @@ BOARD_QEMU=0
 VERBOSE=0
 
 # What git should use in its remote (fallback)
-GIT_BASE_REMOTE="git://github.com/JimmyDurandWesolowski"
+GIT_BASE_REMOTE="https://github.com/IRT-SystemX"
 
 # Default branch to checkout
 GIT_BRANCH="master"

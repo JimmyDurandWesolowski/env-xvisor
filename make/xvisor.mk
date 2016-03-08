@@ -186,7 +186,13 @@ xvisor-dump: $(XVISOR_BUILD_DIR)/vmm.elf
 
 xvisor-clean:
 	$(Q)$(call cmd_xbuild,clean)
+	$(Q)$(RM) $(XVISOR_BIN)
+	$(Q)$(RM) $(XVISOR_BUILD_DIR)/vmm.bin
+	$(Q)$(RM) $(BUILDDIR)/vmm-$(BOARDNAME).dtb
+	$(Q)$(RM) $(XVISOR_BUILD_DIR)/vmm.elf
 
-
-xvisor-distclean:
+xvisor-distclean: xvisor-clean
 	$(Q)$(call cmd_xbuild,distclean)
+
+xvisor-mrproper: xvisor-clean
+	$(Q)$(RM) -r $(XVISOR_BUILD_DIR)

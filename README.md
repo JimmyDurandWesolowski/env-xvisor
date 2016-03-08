@@ -32,6 +32,9 @@ These components are:
 | xvisor-menuconfig | Runs Xvisor configuration utility |
 | linux-menuconfig | Runs Linux configuration utility |
 | sd | Writes the contents of `build/disk/` in the partition specified by `$(SDDEV)1` |
+| xvisor-clean | Removes images of xvisor and symlinks. Allow a `make disk` or `make sd` to re-compile files in Xvisor that changed. |
+| xvisor-distclean | Same than xvisor-clean but a bit more aggressive |
+| xvisor-mrproper | Same than xvisor-clean but removes completely Xvisor build directory |
 
 
 __Example: Nitrogen6X__

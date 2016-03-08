@@ -53,6 +53,8 @@ usage() {
     printf "Configure the ELA hypervisor build system.\n" >> ${OUTPUT}
     printf "\n" >> ${OUTPUT}
     printf "Options are:\n" >> ${OUTPUT}
+    printf "  -X, --xvisor GIT_REVISION\tBuild a specific revision " \
+	    "(branch or tag) of Xvisor\n" >> ${OUTPUT}
     printf "  -b BOARDNAME,--board BOARDNAME\tBuild the " >> ${OUTPUT}
     printf "hypervisor and the required components for the " >> ${OUTPUT}
     printf "board BOARDNAME\n" >> ${OUTPUT}
@@ -143,6 +145,12 @@ option_parse() {
 		shift
 		BOARDNAME=$1
 		;;
+
+            (-X|--xvisor)
+                option_test_arg $*
+                shift
+                XVISOR_REVISION="$1"
+                ;;
 
 	    (-l|--list)
 		board_list 0

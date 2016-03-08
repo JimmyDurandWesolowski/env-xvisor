@@ -46,17 +46,13 @@ $(BUILDDIR)/$($1_PATH): $($1_LOCAL)
   ifneq ($($1_GREPO),)
 $(BUILDDIR)/$($1_PATH):
 	@echo "(Repo clone) $$@"
-	mkdir -p $$@; cd $$@; $(SCRIPTDIR)/repo init -u $$($1_GREPO) -b $$($1_BRANCH); $(SCRIPTDIR)/repo sync -c -q -f
+	mkdir -p $$@; cd $$@; $(SCRIPTDIR)/repo init -u $$($1_GREPO) -b $$($1_REVISION); $(SCRIPTDIR)/repo sync -c -q -f
   # Check if the component git repository is defined
   else
     ifneq ($($1_REPO),)
 $(BUILDDIR)/$($1_PATH):
 	@echo "(Clone) $$@"
-	$(Q)git clone $$($1_REPO_ARG) -q $$($1_REPO) -b $$($1_BRANCH) $$@
-      ifneq ($($1_TAG),)
-	@echo "(Checkout) Tag $$($1_TAG)"
-	$(Q)cd $$@ && git checkout -b $$($1_TAG) $$($1_TAG)
-      endif
+	$(Q)git clone $$($1_REPO_ARG) -q $$($1_REPO) -b $$($1_REVISION) $$@
   # The component is not fetch with a git repository
     else # $($1_REPO) empty or unset
 

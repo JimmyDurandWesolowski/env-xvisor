@@ -113,8 +113,7 @@ config_write() {
 	COMPONENT_FILE=${component}_FILE
 	COMPONENT_REPO=${component}_REPO
 	COMPONENT_REPO_ARG=${component}_REPO_ARG
-	COMPONENT_BRANCH=${component}_BRANCH
-	COMPONENT_TAG=${component}_TAG
+	COMPONENT_REVISION=${component}_REVISION
 	COMPONENT_SERVER=${component}_SERVER
 	COMPONENT_LOCAL=${component}_LOCAL
 	COMPONENT_GREPO=${component}_GREPO
@@ -129,8 +128,8 @@ config_write() {
 
 	if [ -n "${!COMPONENT_GREPO}" ]; then
 		echo "${COMPONENT_GREPO}=${!COMPONENT_GREPO}" >> ${CONF}
-		if [ -n "${COMPONENT_BRANCH}" ]; then
-			echo "${COMPONENT_BRANCH}=${!COMPONENT_BRANCH}" >> ${CONF}
+		if [ -n "${COMPONENT_REVISION}" ]; then
+			echo "${COMPONENT_REVISION}=${!COMPONENT_REVISION}" >> ${CONF}
 		fi
 
 		if [ -n "${COMPONENT_TARGET}" ]; then
@@ -141,15 +140,11 @@ config_write() {
 		if [ -n "${!COMPONENT_REPO}" ]; then
 		    echo "${COMPONENT_REPO}=${!COMPONENT_REPO}" >> ${CONF}
 		    echo "${COMPONENT_REPO_ARG}=${!COMPONENT_REPO_ARG}" >> ${CONF}
-		    # ... its branch ...
-		    if [ -n "${!COMPONENT_BRANCH}" ]; then
-			echo "${COMPONENT_BRANCH}=${!COMPONENT_BRANCH}" >> ${CONF}
+		    # ... its branch or tag.
+		    if [ -n "${!COMPONENT_REVISION}" ]; then
+			echo "${COMPONENT_REVISION}=${!COMPONENT_REVISION}" >> ${CONF}
 		    else
-			echo "${COMPONENT_BRANCH}=master" >> ${CONF}
-		    fi
-		    # ... and its tag
-		    if [ -n "${!COMPONENT_TAG}" ]; then
-			echo "${COMPONENT_TAG}=${!COMPONENT_TAG}" >> ${CONF}
+			echo "${COMPONENT_REVISION}=master" >> ${CONF}
 		    fi
 		# Otherwise, it is provided with a archive server and file
 		else

@@ -70,7 +70,6 @@ $(BUILDDIR)/vmm-$(BOARDNAME).dtb: \
 	             "exiting"; exit 1) \
 	    || ln -sf $${SRC} $@
 
-.PHONY: $(XVISOR_BIN)
 $(XVISOR_BIN): $(XVISOR_BUILD_DIR)/vmm.bin
 	$(Q)ln -sf $< $@
 

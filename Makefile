@@ -26,7 +26,7 @@ CONF=$(BUILDDIR)/.env_config
 
 .PHONY: components-% xvisor-% busybox-% openocd-% qemu-% uboot-% \
   prepare compile rootfs rootfs-img xvisor openocd debug qemu-img \
-  test clean% distclean% help
+  test clean% distclean% mrproper help
 
 # If the configuration file does not exist
 ifeq ($(wildcard $(CONF)),)
@@ -91,6 +91,10 @@ distclean-prepare:
 
 distclean:
 	$(Q)rm -rf $(BUILDDIR)
+
+mrproper: distclean clean
+	$(Q)$(RM) local.conf
+	$(Q)if [ -d ".git/" ]; then git clean -dfx; fi
 
 help:
 	@printf "Board			$(BOARDNAME)\n"

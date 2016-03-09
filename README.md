@@ -27,6 +27,7 @@ These components are:
 | Target | Function |
 | ------ | -------- |
 | prepare | Collects components (i.e. git clone + checkout) |
+| mrproper | Removes all additional files in the repository |
 | xvisor | Compile and generates Xvisor image |
 | disk   | Generates all necessary files (e.g. DTB, images, rootfs) in `build/disk/` |
 | xvisor-menuconfig | Runs Xvisor configuration utility |

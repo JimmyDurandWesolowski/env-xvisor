@@ -1,7 +1,7 @@
 #
 # This file is part of Xvisor Build Environment.
-# Copyright (C) 2015 Institut de Recherche Technologique SystemX
-# Copyright (C) 2015 OpenWide
+# Copyright (C) 2015-2016 Institut de Recherche Technologique SystemX
+# Copyright (C) 2015-2016 OpenWide
 # All rights reserved.
 #
 # This program is free software; you can redistribute it and/or

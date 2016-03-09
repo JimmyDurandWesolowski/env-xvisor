@@ -54,6 +54,7 @@ sd: disk-guests $(DISK_DIR)/uvmm.bin $(DISK_DIR)/vmm-imx6q-$(BOARDNAME).dtb
 ifneq ($(SDPART1),)
 	$(Q)pmount $(SDPART1) mmc1 && \
 	  rsync -rva $(DISK_DIR)/* /media/mmc1; \
+	  sync; \
 	  pumount /media/mmc1
 else # SDPART1 = ''
 	@echo "Could not find SD first partition from '$(SDDEV)'"

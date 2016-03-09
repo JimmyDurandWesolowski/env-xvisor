@@ -83,3 +83,7 @@ linux-oldconfig linux-menuconfig linux-savedefconfig linux-dtbs: | \
 	@echo "($(subst linux-,,$@)) Linux"
 	$(Q)$(MAKE) -C $(LINUX_DIR) O=$(LINUX_BUILD_DIR) $(subst linux-,,$@)
 
+linux-clean:
+	$(Q)$(RM) $(LINUX_BUILD_DIR)/vmlinux
+	$(Q)$(RM) $(LINUX_BUILD_DIR)/vmlinux.o
+	$(Q)$(RM) $(LINUX_BUILD_DIR)/vmlinux.unpatched

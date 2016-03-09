@@ -35,6 +35,7 @@ These components are:
 | xvisor-clean | Removes images of xvisor and symlinks. Allow a `make disk` or `make sd` to re-compile files in Xvisor that changed. |
 | xvisor-distclean | Same than xvisor-clean but a bit more aggressive |
 | xvisor-mrproper | Same than xvisor-clean but removes completely Xvisor build directory |
+| linux-clean | Removes vmlinux files in the linux build directory. Allow a `make disk` or `make sd` to re-compile files in Linux that changed. |
 
 
 __Example: Nitrogen6X__

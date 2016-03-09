@@ -40,7 +40,7 @@ BOARDNAME="$1"
 REVISION="$2"
 
 cd "$(dirname "$0")/.."
-rm -rf build
+make distclean
 
 # default to nitrogen6x (for now)
 if [ -z "${BOARDNAME}" ]; then
@@ -49,6 +49,16 @@ if [ -z "${BOARDNAME}" ]; then
   BOARDNAME=nitrogen6x
   echo "No target board defined, using ${BOARDNAME}."
 fi
+
+# Attempt to configure all boards... just to check nothing obvious has been
+# crashed...
+echo "-- Testing all configurations..."
+BOARDS="$(./configure -l | grep -o "\s*\-\s*[a-zA-Z0-9_-]*\:\s*" | sed -e 's/\s//g' -e 's/://g' -e 's/^\-//g')"
+for board in $BOARDS; do
+	echo "-- Testing configuration of board \"$board\"..."
+	./configure -b "$board" --xvisor "$REVISION"
+	make distclean
+done
 
 #Configure env-xvisor for ${BOARDNAME}
 ./configure -b "${BOARDNAME}" --xvisor "$REVISION"

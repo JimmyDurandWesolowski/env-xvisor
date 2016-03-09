@@ -57,10 +57,10 @@ fi
 echo "Running tests..."
 case "${BOARDNAME}" in
   ("nitrogen6x"|"sabrelite")
-    make V=1
-    make V=1 disk
+    make
+    make disk
     ;;
   (*)
-    make V=1 test
+    make test
     ;;
 esac

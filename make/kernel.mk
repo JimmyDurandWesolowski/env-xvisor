@@ -87,3 +87,6 @@ linux-clean:
 	$(Q)$(RM) $(LINUX_BUILD_DIR)/vmlinux
 	$(Q)$(RM) $(LINUX_BUILD_DIR)/vmlinux.o
 	$(Q)$(RM) $(LINUX_BUILD_DIR)/vmlinux.unpatched
+
+linux-mrproper: linux-clean
+	$(Q)$(RM) -r $(LINUX_BUILD_DIR)

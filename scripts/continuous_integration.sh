@@ -22,7 +22,22 @@
 # @file scripts/continuous_integration.sh
 #
 
+set -e
+set -u
+set -x
+
+err() {
+   echo "*** $@" 1>&2
+}
+
+if [ $# -ne 2 ]; then
+   err "Missing parameters"
+   err "Usage: $0 BOARD_NAME XVISOR_REVISION"
+   exit 1
+fi
+
 BOARDNAME="$1"
+REVISION="$2"
 
 cd "$(dirname "$0")/.."
 rm -rf build
@@ -36,20 +51,16 @@ if [ -z "${BOARDNAME}" ]; then
 fi
 
 #Configure env-xvisor for ${BOARDNAME}
-./configure -b "${BOARDNAME}"
-
-#Build env
-echo "Build env"
-make
+./configure -b "${BOARDNAME}" --xvisor "$REVISION"
 
 #Tests
-echo "Tests"
+echo "Running tests..."
 case "${BOARDNAME}" in
   ("nitrogen6x"|"sabrelite")
-    make xvisor-uimage
-    make disk-guests
+    make V=1
+    make V=1 disk
     ;;
   (*)
-    make test
+    make V=1 test
     ;;
 esac

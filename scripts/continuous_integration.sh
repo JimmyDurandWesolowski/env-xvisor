@@ -42,14 +42,6 @@ REVISION="$2"
 cd "$(dirname "$0")/.."
 make distclean
 
-# default to nitrogen6x (for now)
-if [ -z "${BOARDNAME}" ]; then
-  ./configure -l
-  echo
-  BOARDNAME=nitrogen6x
-  echo "No target board defined, using ${BOARDNAME}."
-fi
-
 # Attempt to configure all boards... just to check nothing obvious has been
 # crashed...
 echo "-- Testing all configurations..."

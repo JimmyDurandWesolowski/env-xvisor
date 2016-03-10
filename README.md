@@ -38,6 +38,7 @@ These components are:
 | xvisor-mrproper | Same than xvisor-clean but removes completely Xvisor build directory |
 | linux-clean | Removes vmlinux files in the linux build directory. Allow a `make disk` or `make sd` to re-compile files in Linux that changed. |
 | linux-mrproper | Same than linux-clean but removes completely Linux build directory |
+| disk-clean | Remove the disk directory. Allow to rebuild it later. |
 
 
 __Example: Nitrogen6X__

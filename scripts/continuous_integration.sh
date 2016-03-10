@@ -53,7 +53,8 @@ fi
 # Attempt to configure all boards... just to check nothing obvious has been
 # crashed...
 echo "-- Testing all configurations..."
-BOARDS="$(./configure -l | grep -o "\s*\-\s*[a-zA-Z0-9_-]*\:\s*" | sed -e 's/\s//g' -e 's/://g' -e 's/^\-//g')"
+BOARDS="$(./configure -l | grep -o "\s*\-\s*[a-zA-Z0-9_-]*\:\s*" \
+	| sed -e 's/\s//g' -e 's/://g' -e 's/^\-//g')"
 for board in $BOARDS; do
 	echo "-- Testing configuration of board \"$board\"..."
 	./configure -b "$board" --xvisor "$REVISION"

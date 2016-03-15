@@ -27,7 +27,7 @@ set -u
 set -x
 
 err() {
-   echo "*** $@" 1>&2
+   echo "*** $*" 1>&2
 }
 
 if [ $# -ne 2 ]; then

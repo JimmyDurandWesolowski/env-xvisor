@@ -112,7 +112,7 @@ $(XVISOR_BUILD_DIR)/$(XVISOR_CPATCH): | XVISOR-prepare $(XVISOR_BUILD_DIR)
 DISKA = $(DISK_DIR)/$(DISK_ARCH)
 DISKB = $(DISK_DIR)/$(DISK_BOARD)
 
-$(DISKA) $(DISKB):
+$(DISKA) $(DISKB) $(DISK_SYSTEM):
 	$(Q)mkdir -p $@
 
 $(DISKA)/$(ROOTFS_IMG): $(BUILDDIR)/$(ROOTFS_IMG) | $(DISKA)
@@ -167,6 +167,9 @@ else
 	$(Q)$(call FILE_SIZE,$(DISKA)/$(ROOTFS_IMG)) >> $@
 endif
 
+$(DISK_XVISOR_BANNER): $(XVISOR_BANNER) $(DISK_SYSTEM)
+	$(Q)cp $< $@
+
 $(DISK_IMG): $(STAMPDIR)/.disk_populate
 	@echo "(Genext2fs) $@"
 	$(Q)SIZE=$$(du -b --max-depth=0 $(DISK_DIR) | cut -f 1); \
@@ -175,9 +178,8 @@ $(DISK_IMG): $(STAMPDIR)/.disk_populate
 
 $(STAMPDIR)/.disk_populate: $(DISKB)/$(KERN_IMG) $(DISKB)/$(XVISOR_FW_IMG) \
   $(DISKB)/nor_flash.list $(DISKB)/cmdlist $(DISKA)/$(ROOTFS_IMG) \
-  $(DISKA)/$(DTB_IN_IMG).dtb $(DISKB_KERN_DTB) $(STAMPDIR)
+  $(DISKA)/$(DTB_IN_IMG).dtb $(DISKB_KERN_DTB) $(DISK_XVISOR_BANNER) $(STAMPDIR)
 	$(Q)touch $@
-
 
 xvisor-dump: $(XVISOR_BUILD_DIR)/vmm.elf
 	@echo "(Disassemble) $<"

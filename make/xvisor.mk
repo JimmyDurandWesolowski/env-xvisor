@@ -192,6 +192,7 @@ xvisor-clean:
 	$(Q)$(RM) $(XVISOR_BUILD_DIR)/vmm.bin
 	$(Q)$(RM) $(BUILDDIR)/vmm-$(BOARDNAME).dtb
 	$(Q)$(RM) $(XVISOR_BUILD_DIR)/vmm.elf
+	$(Q)$(RM) -r $(XVISOR_BUILD_DIR)/tests/$(XVISOR_ARCH)/$(GUEST_BOARDNAME)
 
 xvisor-distclean: xvisor-clean
 	$(Q)$(call cmd_xbuild,distclean)

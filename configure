@@ -25,49 +25,49 @@
 
 
 # The called program name, i.e. configure with its path
-PROGNAME=$0
+PROGNAME="$0"
 
 # Directory where the configure script is
 which realpath &>/dev/null
 if [ $? -ne 0 ]; then
-  CURDIR=$(dirname ${PROGNAME})
+  CURDIR="$(dirname "${PROGNAME}")"
 else
-  CURDIR=$(realpath $(dirname ${PROGNAME}))
+  CURDIR="$(realpath "$(dirname "${PROGNAME}")")"
 fi
 
 # Script directory
 SCRIPTDIR=${CURDIR}/scripts
 
 # Make file directory
-MAKEDIR=${CURDIR}/make
+MAKEDIR="${CURDIR}"/make
 
 # Test directory
-TESTDIR=${CURDIR}/test
+TESTDIR="${CURDIR}"/test
 
 # Configuration file directory
-CONFDIR=${CURDIR}/conf
+CONFDIR="${CURDIR}"/conf
 
 # Patch file directory
-PATCHDIR=${CURDIR}/patches
+PATCHDIR="${CURDIR}"/patches
 
 # Build directory, used by this script to write the resulting configuration
 # (the next variable)
-BUILDDIR=${CURDIR}/build
+BUILDDIR="${CURDIR}"/build
 
 # Temporary file directory
-TMPDIR=/tmp/xvisor_env-$(date "+%Y%m%d-%H%M%S")
+TMPDIR=/tmp/xvisor_env-"$(date "+%Y%m%d-%H%M%S")"
 
 # Downloaded archive directory
-ARCDIR=${BUILDDIR}/archives
+ARCDIR="${BUILDDIR}"/archives
 
 # Build stamp directory
-STAMPDIR=${BUILDDIR}/stamps
+STAMPDIR="${BUILDDIR}"/stamps
 
 # The target built rootfs
-TARGETDIR=${BUILDDIR}/target
+TARGETDIR="${BUILDDIR}"/target
 
 # The host build directory
-HOSTDIR=${BUILDDIR}/host
+HOSTDIR="${BUILDDIR}"/host
 
 # The host build directory
 TFTPDIR=/srv/tftp
@@ -88,12 +88,12 @@ VERBOSE=0
 GIT_BASE_REMOTE="https://github.com/IRT-SystemX"
 
 # Option functions used in this script
-source ${SCRIPTDIR}/options.sh
-source ${SCRIPTDIR}/package.sh
-source ${SCRIPTDIR}/config.sh
+source "${SCRIPTDIR}"/options.sh
+source "${SCRIPTDIR}"/package.sh
+source "${SCRIPTDIR}"/config.sh
 
 pre_option_check
-option_parse $*
+option_parse "$@"
 config_check_git
 option_board_validate
 option_board

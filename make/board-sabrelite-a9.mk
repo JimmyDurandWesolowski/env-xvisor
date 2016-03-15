@@ -26,6 +26,7 @@ disk: disk-xvisor disk-guests
 
 disk-clean:
 	$(RM) -r $(DISK_DIR)
+	$(RM) $(STAMPDIR)/.disk_populate
 
 # boundary u-boot script
 $(DISK_DIR)/6x_bootscript: $(XVISOR_DIR)/docs/arm/imx6-sabrelite-bootscript \

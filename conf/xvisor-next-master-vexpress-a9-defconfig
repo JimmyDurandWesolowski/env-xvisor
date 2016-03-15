@@ -659,6 +659,13 @@ CONFIG_EMU_GPIO=y
 CONFIG_EMU_GPIO_PL061=y
 # CONFIG_EMU_PCI is not set
 
+
+#
+# Watchdog Emulators
+#
+CONFIG_EMU_WDT=y
+CONFIG_EMU_WDT_SP805=y
+
 #
 # Tool Options
 #

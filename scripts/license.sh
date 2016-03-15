@@ -1,3 +1,4 @@
+#! /usr/bin/env bash
 #
 # This file is part of Xvisor Build Environment.
 # Copyright (C) 2015 Institut de Recherche Technologique SystemX

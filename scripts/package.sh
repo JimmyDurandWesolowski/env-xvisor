@@ -1,8 +1,8 @@
 #! /usr/bin/env bash
 #
 # This file is part of Xvisor Build Environment.
-# Copyright (C) 2015 Institut de Recherche Technologique SystemX
-# Copyright (C) 2015 OpenWide
+# Copyright (C) 2015-2016 Institut de Recherche Technologique SystemX
+# Copyright (C) 2015-2016 OpenWide
 # All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
@@ -161,6 +161,9 @@ packages_check() {
 
     # Checking that Git, used for cloning repositories, is installed
     package_check_binary 1 git "git" "dev-vcs/git"
+
+    # Checking that CPIO, used to generate initramfs, is installed
+    package_check_binary 1 cpio "cpio" "app-arch/cpio"
 
     # Checking that Qemu is installed
     package_check_binary_version ${BOARD_QEMU} qemu-system-${QEMU_ARCH} \

@@ -1,7 +1,7 @@
 #
 # This file is part of Xvisor Build Environment.
-# Copyright (C) 2015 Institut de Recherche Technologique SystemX
-# Copyright (C) 2015 OpenWide
+# Copyright (C) 2015-2016 Institut de Recherche Technologique SystemX
+# Copyright (C) 2015-2016 OpenWide
 # All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
@@ -115,7 +115,7 @@ DISKB = $(DISK_DIR)/$(DISK_BOARD)
 $(DISKA) $(DISKB) $(DISK_SYSTEM):
 	$(Q)mkdir -p $@
 
-$(DISKA)/$(ROOTFS_IMG): $(BUILDDIR)/$(ROOTFS_IMG) | $(DISKA)
+$(DISKA)/$(INITRD): $(BUILDDIR)/$(INITRD) | $(DISKA)
 	$(call COPY)
 
 $(DISKA)/$(DTB_IN_IMG).dtb: $(XVISOR_DIR)/tests/$(XVISOR_ARCH)/$(GUEST_BOARDNAME)/$(DTB_IN_IMG).dts \
@@ -142,14 +142,14 @@ $(DISKB)/nor_flash.list: $(CONF) | $(DISKB)
 ifeq ($(USE_KERN_DT),1)
 	$(Q)echo "$(ADDRH_FLASH_KERN_DT) /$(DISK_BOARD)/$(KERN_DT).dtb" >> $@
 endif
-	$(Q)echo "$(ADDRH_FLASH_RFS) /$(DISK_ARCH)/$(ROOTFS_IMG)" >> $@
+	$(Q)echo "$(ADDRH_FLASH_RFS) /$(DISK_ARCH)/$(INITRD)" >> $@
 
 
 ifeq ($(USE_KERN_DT),1)
   DISKB_KERN_DTB = $(DISKB)/$(KERN_DT).dtb
 endif
 
-$(DISKB)/cmdlist: $(CONF) $(DISKB)/$(KERN_IMG) $(DISKA)/$(ROOTFS_IMG) $(DISKB_KERN_DTB)
+$(DISKB)/cmdlist: $(CONF) $(DISKB)/$(KERN_IMG) $(DISKA)/$(INITRD) $(DISKB_KERN_DTB)
 	@echo "(Generating) cmdlist"
 	$(Q)printf "copy $(ADDRH_KERN) $(ADDRH_FLASH_KERN) " > $@
 	$(Q)$(call FILE_SIZE,$(DISKB)/$(KERN_IMG)) >> $@
@@ -158,13 +158,13 @@ ifeq ($(USE_KERN_DT),1)
 	$(Q)$(call FILE_SIZE,$(DISKB_KERN_DTB)) >> $@
 endif
 	$(Q)printf "copy $(ADDRH_RFS) $(ADDRH_FLASH_RFS) " >> $@
-	$(Q)$(call FILE_SIZE,$(DISKA)/$(ROOTFS_IMG)) >> $@
+	$(Q)$(call FILE_SIZE,$(DISKA)/$(INITRD)) >> $@
 ifeq ($(USE_KERN_DT),1)
 	$(Q)printf "start_linux_fdt $(ADDRH_KERN) $(ADDRH_KERN_DT) $(ADDRH_RFS) " >> $@
-	$(Q)$(call FILE_SIZE,$(DISKA)/$(ROOTFS_IMG)) >> $@
+	$(Q)$(call FILE_SIZE,$(DISKA)/$(INITRD)) >> $@
 else
 	$(Q)printf "start_linux $(ADDRH_KERN) $(ADDRH_RFS) " >> $@
-	$(Q)$(call FILE_SIZE,$(DISKA)/$(ROOTFS_IMG)) >> $@
+	$(Q)$(call FILE_SIZE,$(DISKA)/$(INITRD)) >> $@
 endif
 
 $(DISK_XVISOR_BANNER): $(XVISOR_BANNER) $(DISK_SYSTEM)
@@ -177,7 +177,7 @@ $(DISK_IMG): $(STAMPDIR)/.disk_populate
 	 	genext2fs -b $${SIZE} -N $${BLK_SZ} -d $(DISK_DIR) $@
 
 $(STAMPDIR)/.disk_populate: $(DISKB)/$(KERN_IMG) $(DISKB)/$(XVISOR_FW_IMG) \
-  $(DISKB)/nor_flash.list $(DISKB)/cmdlist $(DISKA)/$(ROOTFS_IMG) \
+  $(DISKB)/nor_flash.list $(DISKB)/cmdlist $(DISKA)/$(INITRD) \
   $(DISKA)/$(DTB_IN_IMG).dtb $(DISKB_KERN_DTB) $(DISK_XVISOR_BANNER) $(STAMPDIR)
 	$(Q)touch $@
 

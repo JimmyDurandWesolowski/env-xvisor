@@ -1,7 +1,7 @@
 #
 # This file is part of Xvisor Build Environment.
-# Copyright (C) 2015 Institut de Recherche Technologique SystemX
-# Copyright (C) 2015 OpenWide
+# Copyright (C) 2015-2016 Institut de Recherche Technologique SystemX
+# Copyright (C) 2015-2016 OpenWide
 # All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
@@ -44,11 +44,11 @@ ifeq ($(USE_KERN_DT),1)
 endif
 
 # Run the Linux guest without Xvisor for tests
-qemu-guest-run: $(LINUX_BUILD_DIR)/arch/$(ARCH)/boot/zImage $(DISKB_KERN_DTB) $(BUILDDIR)/$(ROOTFS_IMG)
+qemu-guest-run: $(LINUX_BUILD_DIR)/arch/$(ARCH)/boot/zImage $(DISKB_KERN_DTB) $(BUILDDIR)/$(INITRD)
 	qemu-system-$(ARCH) -M $(BOARDNAME) -m 256M $1 \
 	  -kernel $(LINUX_BUILD_DIR)/arch/$(ARCH)/boot/zImage \
 	  $(QEMU_KERN_DTB) \
-	  -initrd $(BUILDDIR)/$(ROOTFS_IMG) \
+	  -initrd $(BUILDDIR)/$(INITRD) \
 	  -append "root=/dev/ram rw earlyprintk console=ttyAMA0" \
 	  -serial stdio \
 	  $(QEMU_DISPLAY) \

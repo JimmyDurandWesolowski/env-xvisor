@@ -63,6 +63,7 @@ fetch: $(foreach component,$(COMPONENTS),$(component)-fetch)
 prepare: $(foreach component,$(COMPONENTS),$(component)-prepare)
 compile: xvisor-compile
 rootfs: busybox-install
+initrd: $(BUILDDIR)/$(INITRD)
 rootfs-img: $(BUILDDIR)/$(ROOTFS_IMG)
 xvisor: xvisor-compile
 qemu-img:

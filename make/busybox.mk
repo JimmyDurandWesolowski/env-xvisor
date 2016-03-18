@@ -1,7 +1,7 @@
 #
 # This file is part of Xvisor Build Environment.
-# Copyright (C) 2015 Institut de Recherche Technologique SystemX
-# Copyright (C) 2015 OpenWide
+# Copyright (C) 2015-2016 Institut de Recherche Technologique SystemX
+# Copyright (C) 2015-2016 OpenWide
 # All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
@@ -50,6 +50,15 @@ busybox-compile: $(STAMPDIR)/.target_compile
 $(STAMPDIR)/.target: $(STAMPDIR)/.target_compile
 	@echo "(install) $@"
 	$(call busybox_build,CONFIG_PREFIX=$(TARGETDIR) install)
+	$(Q)mkdir -p $(TARGETDIR)/dev
+	$(Q)mkdir -p $(TARGETDIR)/proc
+	$(Q)mkdir -p $(TARGETDIR)/sys
+	$(Q)mkdir -p $(TARGETDIR)/mnt
+	$(Q)mkdir -p $(TARGETDIR)/etc/init.d
+	$(Q)ln -sf /sbin/init $(TARGETDIR)/init
+	$(Q)cp -f $(XVISOR_DIR)/tests/common/busybox/fstab $(TARGETDIR)/etc/fstab
+	$(Q)cp -f $(XVISOR_DIR)/tests/common/busybox/rcS $(TARGETDIR)/etc/init.d/rcS
+	$(Q)cp -f $(XVISOR_DIR)/tests/common/busybox/motd $(TARGETDIR)/etc/motd
 	$(Q)touch $@
 
 BUSYBOX-install: $(STAMPDIR)/.target
@@ -71,3 +80,6 @@ $(BUILDDIR)/%.ext2: $(ROOTFS_LOCAL)
 	cp $(ROOTFS_LOCAL) $@
 endif
 
+$(BUILDDIR)/$(INITRD): $(STAMPDIR)/.target \
+	$(XVISOR_DIR)/$(BUSYBOX_XVISOR_DEV)
+	$(Q)cd $(TARGETDIR) &&  find . | cpio -o -H newc > $@

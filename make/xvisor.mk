@@ -59,8 +59,12 @@ xvisor-dtbs xvisor-modules xvisor-menuconfig xvisor-vars: \
 	@echo "($(subst xvisor-,,$@)) Xvisor"
 	$(call cmd_xbuild,$(subst xvisor-,,$@))
 
-$(BUILDDIR)/vmm-$(BOARDNAME).dtb: \
-  $(shell find $(XVISOR_DIR)/arch/ -name $(patsubst %.dtb,%.dts,$(DTB)))
+DTS_FILES := $(shell \
+   if [ -d $(XVISOR_DIR) ]; then \
+      find $(XVISOR_DIR)/arch/ -name $(patsubst %.dtb,%.dts,$(DTB)); \
+   fi)
+
+$(BUILDDIR)/vmm-$(BOARDNAME).dtb: $(DTS_FILES)
 	@echo "(dtbs) Xvisor"
 	$(call cmd_xbuild,dtbs)
 	@echo "(Link) $(@F)"

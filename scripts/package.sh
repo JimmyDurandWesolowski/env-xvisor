@@ -25,12 +25,14 @@
 
 
 package_install() {
-    PKG_DEBIAN=$1
-    PKG_GENTOO=$2
-    ENV_GENTOO=$3
+    PKG_DEBIAN="$1"
+    PKG_ARCH="$2"
+    PKG_GENTOO="$3"
+    ENV_GENTOO="$4"
 
     INSTALL_DEBIAN="${INSTALL_DEBIAN} ${PKG_DEBIAN}"
     INSTALL_GENTOO="${INSTALL_GENTOO} ${PKG_GENTOO}"
+    INSTALL_ARCH="${INSTALL_ARCH} ${PKG_ARCH}"
     if [ -n "${ENV_GENTOO}" ]; then
 	INSTALL_GENTOO_ENV=" ${ENV_GENTOO}"
     fi
@@ -43,11 +45,12 @@ package_install() {
 # $4: The Gentoo package name
 # $5: The optional Gentoo environment to install the package
 package_check_binary() {
-    TEST=$1
-    BIN=$2
-    PKG_DEBIAN=$3
-    PKG_GENTOO=$4
-    ENV_GENTOO=$5
+    TEST="$1"
+    BIN="$2"
+    PKG_DEBIAN="$3"
+    PKG_ARCH="$4"
+    PKG_GENTOO="$5"
+    ENV_GENTOO="$6"
 
     if [ ${TEST} -ne 1 ]; then
 	return 1
@@ -55,7 +58,7 @@ package_check_binary() {
 
     which ${BIN} &>/dev/null
     if [ $? -ne 0 ]; then
-	package_install $3 $4 $5
+	package_install $3 $4 $5 $6
 	return 1
     fi
     return 0
@@ -67,11 +70,12 @@ package_check_binary() {
 # $2: The binary to test
 # $3: The minimum expected version
 # $4: The Debian package name
-# $5: The Gentoo package name
-# $6: The optional Gentoo environment to install the package
+# $5: The Arch package name
+# $6: The Gentoo package name
+# $7: The optional Gentoo environment to install the package
 package_check_binary_version() {
     idx_max=2
-    package_check_binary $1 $2 $4 $5 $6
+    package_check_binary $1 $2 $4 $5 $6 $7
 
     if [ $? -eq 1 ]; then
 	# The package must be installed, version checking is not necessary
@@ -107,7 +111,7 @@ package_check_binary_version() {
 	    return 0
 	elif [ ${VERSION[$idx]} -lt ${REQ_VERS[$idx]} ]; then
 	    echo "\"$2\" minimum version is $3, please update it"
-	    package_install $4 $5 $6
+	    package_install $4 $5 $6 $7
 	    return 1
 	fi
     done
@@ -129,6 +133,7 @@ package_debian_installed() {
 packages_check() {
     INSTALL_DEBIAN=""
     INSTALL_GENTOO=""
+    INSTALL_ARCH=""
     INSTALL_GENTOO_ENV=""
     NCURSE_TMP="${TMPDIR}/ncurse_tmp"
     ISSUE_FILE=/etc/issue
@@ -142,46 +147,47 @@ packages_check() {
     fi
 
     # Check that realpath, used for these scripts is available
-    package_check_binary 1 realpath "realpath" "app-misc/realpath"
+    package_check_binary 1 realpath "realpath" "coreutils" "app-misc/realpath"
 
     # Checking that Make, used for building, is installed
-    package_check_binary_version 1 make "3.81" "make" "sys-devel/make"
+    package_check_binary_version 1 make "3.81" "make" "make" "sys-devel/make"
 
     # Checking that bc, used by the Linux, is installed
-    package_check_binary 1 bc "bc" "sys-devel/bc"
+    package_check_binary 1 bc "bc" "bc" "sys-devel/bc"
 
     # Checking that wget, used by downloading sources, is installed
-    package_check_binary 1 wget "wget" "net-misc/wget"
+    package_check_binary 1 wget "wget" "wget" "net-misc/wget"
 
     # Checking that autoconf, used to configure openocd, is installed
-    package_check_binary 1 autoconf "autoconf" "sys-devel/autoconf"
+    package_check_binary 1 autoconf "autoconf" "autoconf""sys-devel/autoconf"
 
     # Checking that Python, used by Xvisor, is installed
-    package_check_binary_version 1 python "2.7.0" "python" "dev-lang/python"
+    package_check_binary_version 1 python "2.7.0" "python" "python2" "dev-lang/python"
 
     # Checking that Git, used for cloning repositories, is installed
-    package_check_binary 1 git "git" "dev-vcs/git"
+    package_check_binary 1 git "git" "git" "dev-vcs/git"
 
     # Checking that CPIO, used to generate initramfs, is installed
-    package_check_binary 1 cpio "cpio" "app-arch/cpio"
+    package_check_binary 1 cpio "cpio" "cpio" "app-arch/cpio"
 
     # Checking that Qemu is installed
     package_check_binary_version ${BOARD_QEMU} qemu-system-${QEMU_ARCH} \
-	"1.6.1" "qemu-system" "\">=app-emulation/qemu-1.6.1\"" \
+	"1.6.1" "qemu-system" "qemu-arch-extra" "\">=app-emulation/qemu-1.6.1\"" \
 	"QEMU_SOFTMMU_TARGETS=${QEMU_ARCH} USE=fdt"
 
     # Checking that expect is installed
-    package_check_binary ${BOARD_QEMU} expect "expect" "dev-tcltk/expect"
+    package_check_binary ${BOARD_QEMU} expect "expect" "expect" "dev-tcltk/expect"
 
     # Checking that fakeroot, used by Busybox, is installed
-    package_check_binary ${BOARD_BUSYBOX} fakeroot "fakeroot" \
+    package_check_binary ${BOARD_BUSYBOX} fakeroot "fakeroot" "fakeroot" \
 	"sys-apps/fakeroot"
 
     # Checking that libtool, used by autotools, is installed
-    package_check_binary ${BOARD_OPENOCD} libtool "libtool" "sys-devel/libtool"
+    package_check_binary ${BOARD_OPENOCD} libtool "libtool" "libtool" \
+        "sys-devel/libtool"
 
     # Checking that telnet, useful with openocd
-    package_check_binary ${BOARD_OPENOCD} telnet "telnet" \
+    package_check_binary ${BOARD_OPENOCD} telnet "telnet" "inetutils" \
 	"net-misc/netkit-telnetd"
 
     # Check the tool required to create the rootfs image
@@ -192,16 +198,17 @@ packages_check() {
 	    TOOL=genext2fs
 	    DEBIAN_PKG=genext2fs
 	    GENTOO_PKG=sys-fs/genext2fs
+            ARCH_PKG="AUR:genext2fs"
 	    ;;
 	(*)
 	    printf "Unknown suffix \"${ROOTFS_IMG_SUFFIX}\" in the rootfs image "
 	    echo "name \"${ROOTFS_IMG}\", exiting..."
 	    exit 1
     esac
-    package_check_binary 1 "${TOOL}" "${DEBIAN_PKG}" "${GENTOO_PKG}"
+    package_check_binary 1 "${TOOL}" "${DEBIAN_PKG}" "${ARCH_PKG}" "${GENTOO_PKG}"
 
     # Check we can compile (not needed on Gentoo, of course)
-    package_check_binary 1 "gcc" "build-essential" ""
+    package_check_binary 1 "gcc" "build-essential" "gcc" ""
 
     # Checking that Ncurses is installed
     mkdir -p $(dirname ${NCURSE_TMP})
@@ -217,12 +224,13 @@ packages_check() {
     if [ $? -ne 0 ]; then
 	INSTALL_DEBIAN="${INSTALL_DEBIAN} libncurses5-dev"
 	INSTALL_GENTOO="${INSTALL_GENTOO} \">=sys-libs/ncurses-5\""
+        INSTALL_ARCH="${INSTALL_ARCH} ncurses"
     fi
     rm -f ${NCURSE_TMP} ${NCURSE_TMP}.c
 
     if [ ${BOARD_OPENOCD} -eq 0 ]; then
 	# Check we have pkg-config (not needed on Gentoo)
-	package_check_binary 1 "pkg-config" "pkg-config" ""
+	package_check_binary 1 "pkg-config" "pkg-config" "pkg-config" ""
 	RET_PKG_CONFIG=$?
 
 	RET_LIBUSB=1
@@ -234,12 +242,13 @@ packages_check() {
 	if [ ${RET_PKG_CONFIG} -eq 1 -o ${RET_LIBUSB} -eq 1 ]; then
 	    INSTALL_DEBIAN="${INSTALL_DEBIAN} libusb-1.0-0-dev"
 	    INSTALL_GENTOO="${INSTALL_GENTOO} \"dev-libs/libusb\""
+            INSTALL_ARCH="${INSTALL_ARCH} core/libusb"
 	fi
 
     fi
 
     package_check_binary ${BOARD_OPENOCD} "makeinfo" "texinfo" \
-			 "sys-apps/texinfo"
+			 "texinfo" "sys-apps/texinfo"
 
     case "${DISTRO}" in
     Gentoo)
@@ -261,6 +270,16 @@ packages_check() {
             printf "continuing:${NORMAL}\n"
             printf "  sudo apt-get install ${INSTALL_DEBIAN}\n"
 	    exit 1
+        fi
+        ;;
+    Arch)
+        if [ -n "${INSTALL_ARCH}" ]; then
+            printf "${BOLD}Please install the following packages before "
+            printf "continuing. Packages prefixed by \"AUR:\" must be installed"
+            printf " from AUR (https://aur.archlinux.org/). Others can be "
+            printf "installed with 'sudo pacman -S PACKAGE':${NORMAL}\n"
+            printf "  ${INSTALL_ARCH}\n"
+            exit 1
         fi
         ;;
     *)

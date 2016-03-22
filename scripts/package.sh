@@ -159,7 +159,7 @@ packages_check() {
     package_check_binary 1 wget "wget" "wget" "net-misc/wget"
 
     # Checking that autoconf, used to configure openocd, is installed
-    package_check_binary 1 autoconf "autoconf" "autoconf""sys-devel/autoconf"
+    package_check_binary 1 autoconf "autoconf" "autoconf" "sys-devel/autoconf"
 
     # Checking that Python, used by Xvisor, is installed
     package_check_binary_version 1 python "2.7.0" "python" "python2" "dev-lang/python"

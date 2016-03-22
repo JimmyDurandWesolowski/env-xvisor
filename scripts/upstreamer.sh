@@ -39,6 +39,11 @@ if [ $? -eq 0 ]; then # tput exists
    msg() {
       printf "$(tput setaf 6)INFO:$(tput sgr0) %s\n" "$@"
    }
+   highlight() {
+      attr="$1" ; shift
+      printf "$(tput setaf "$attr")$(tput bold)%s$(tput sgr0)\n" "$@"
+      unset attr
+   }
 else # tput is not present
    err() {
       echo "*** $*" 1>&2
@@ -46,6 +51,10 @@ else # tput is not present
    }
    msg() {
       echo "$@"
+   }
+   highlight() {
+      shift
+      echo "=> $*"
    }
 fi
 
@@ -93,7 +102,7 @@ for p in $patches; do # Print the list
 done
 
 # Warn that we are about to launch an editor
-prompt "Will now edit the cover letter"
+prompt "Will now edit the cover letter. Ready?"
 if [ $? -ne 0 ]; then
    sorry "You need to edit the cover letter"
 fi
@@ -103,7 +112,10 @@ if [ -z "$EDITOR" ]; then
    if [ $? -ne 0 ]; then
       EDITOR="vi" ; which "$EDITOR" &> /dev/null
       if [ $? -ne 0 ]; then
-         err "Unable to find a valid editor. Please set \$EDITOR"
+         EDITOR="emacs" ; which "$EDITOR" &> /dev/null
+         if [ $? -ne 0 ]; then
+            err "Unable to find a valid editor. Please set \$EDITOR"
+         fi
       fi
    fi
 fi
@@ -117,17 +129,24 @@ fi
 
 # Recap: what are we sending
 msg "Summary: cover letter:"
-cat "$cover_letter"
+highlight "2" "$(cat "$cover_letter")"
 msg "Summary: patches to be send:"
 for p in $patches; do
-   echo "$p"
+   highlight "3" "$p"
 done
 
 # Confirmation...
-prompt "About to send all patches above to $email"
+highlight "1" "=== DANGER ZONE! PLEASE ANSWER VERY CAREFULLY! ==="
+prompt "About to send all patches above to ${email}... Ok?"
 if [ $? -ne 0 ]; then
    msg "It's okay, take your time"
    exit 0
+else
+   prompt "Are you absolutely sure? You are about to send emails worldwide!"
+   if [ $? -ne 0 ]; then
+      msg "It's okay, take your time"
+      exit 0
+   fi
 fi
 
 # Actually send!

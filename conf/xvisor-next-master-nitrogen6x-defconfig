@@ -606,7 +606,7 @@ CONFIG_EMU_MISC_IMX6_CCM=y
 #
 # Pass-through Emulators
 #
-# CONFIG_EMU_PT_SIMPLE is not set
+CONFIG_EMU_PT_SIMPLE=y
 CONFIG_EMU_PT_DEDICATED=y
 
 #

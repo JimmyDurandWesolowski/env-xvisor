@@ -78,6 +78,10 @@ $(DISK_DIR)/$(DISK_BOARD)/$(KERN_DT).dtb: $(TMPDIR)/$(KERN_DT).dts \
 
 linux-configure: $(LINUX_BUILD_CONF)
 
+linux-modules: $(LINUX_BUILD_CONF) | LINUX-prepare TOOLCHAIN-prepare
+	@echo "(modules) Linux"
+	$(Q)$(MAKE) -C $(LINUX_DIR) -j 5 O=$(LINUX_BUILD_DIR) modules
+
 linux-oldconfig linux-menuconfig linux-savedefconfig linux-dtbs: | \
   $(LINUX_BUILD_DIR) LINUX-prepare TOOLCHAIN-prepare
 	@echo "($(subst linux-,,$@)) Linux"

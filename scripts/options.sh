@@ -63,6 +63,8 @@ usage() {
     printf "  -v, --verbose\t\t\t\tIncrease the build system " >> ${OUTPUT}
     printf "verbosity (implies -s)\n" >> ${OUTPUT}
     printf "  -d, --debug\t\t\t\tBuild system debugging\n" >> ${OUTPUT}
+    printf "  -D, --dynamic\t\t\t\tDynamic git remote choice for Xvisor\n" >> \
+	   ${OUTPUT}
     printf "  -V\t\t\t\t\tIncrease the configuration verbosity\n" >> ${OUTPUT}
     printf "  -j JOB_NB, --jobs JOB_NB\t\tManually set the number of " >> \
 	   ${OUTPUT}
@@ -168,6 +170,9 @@ option_parse() {
 	    (-d|--debug)
 		BUILD_DEBUG=1
 		;;
+
+	    (-D|--dynamic)
+		DYNAMIC=1
 
 	    (-V)
 		VERBOSE=1

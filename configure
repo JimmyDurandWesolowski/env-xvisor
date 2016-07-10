@@ -84,6 +84,9 @@ BOARD_QEMU=0
 # Verbosity option, that can be modify through the program arguments
 VERBOSE=0
 
+# Use a git remote dynamically chosen for Xvisor, disabled by default
+DYNAMIC=0
+
 # What git should use in its remote (fallback)
 GIT_BASE_REMOTE="https://github.com/IRT-SystemX"
 
@@ -94,7 +97,9 @@ source "${SCRIPTDIR}"/config.sh
 
 pre_option_check
 option_parse "$@"
-config_check_git
+if [ ${DYNAMIC} -eq 1 ]; then
+    config_check_git
+fi
 option_board_validate
 option_board
 packages_check

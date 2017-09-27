@@ -170,6 +170,9 @@ packages_check() {
     # Checking that CPIO, used to generate initramfs, is installed
     package_check_binary 1 cpio "cpio" "cpio" "app-arch/cpio"
 
+    # Checking that flex, used for dtc, is installed
+    package_check_binary 1 cpio "cpio" "cpio" "app-arch/cpio"
+
     # Checking that Qemu is installed
     package_check_binary_version ${BOARD_QEMU} qemu-system-${QEMU_ARCH} \
 	"1.6.1" "qemu-system" "qemu-arch-extra" "\">=app-emulation/qemu-1.6.1\"" \
@@ -228,7 +231,7 @@ packages_check() {
     fi
     rm -f ${NCURSE_TMP} ${NCURSE_TMP}.c
 
-    if [ ${BOARD_OPENOCD} -eq 0 ]; then
+    if [ ${BOARD_OPENOCD} -eq 1 ]; then
 	# Check we have pkg-config (not needed on Gentoo)
 	package_check_binary 1 "pkg-config" "pkg-config" "pkg-config" ""
 	RET_PKG_CONFIG=$?

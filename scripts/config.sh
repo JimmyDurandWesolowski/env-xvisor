@@ -34,24 +34,10 @@ config_check_git() {
          # Not a git repository
          echo "Not using git..."
       else # $? -eq 0
-
-         # Determine the remote of the current repository to use it
-         # to checkout other repositories later
-         remotes="$(git remote)"
-         for remote in ${remotes}; do
-            # Search for 'origin'. If origin does not exist, the last one
-            # will be retained
-            if [ "x${remote}" = "xorigin" ]; then
-               break
-            fi
-         done
-         # Get the remote (fetch)
-         remote_info="$(git remote -v | grep "${remote}" | grep "(fetch)")"
-         remote="$(echo "${remote_info}" | sed -e "s/${remote}\s*//" -e 's/\s*(fetch)//')"
-
-         # Base remote, with format: $GIT_PROTOCOL/$BASE_URL
-         GIT_BASE_REMOTE="$(dirname "${remote}")"
-
+	 REMOTE="$(git remote get-url origin)"
+	 if [ $? -eq 0 ]; then
+	     GIT_BASE_REMOTE=$(dirname "${REMOTE}")
+         fi
       fi # $? -ne 0
    fi # $? -ne 0
 }
@@ -158,7 +144,7 @@ config_write() {
 	echo >> ${CONF}
     done
 
-    for elt in GUEST_BOARDNAME MEMIMG XVISOR_BIN XVISOR_IMX \
+    for elt in GUEST_BOARDNAME MEMIMG XVISOR_BIN XVISOR_IMX LINUX_DEFCONFIG\
 	KERN_IMG DISK_DIR DISK_IMG \
 	DISK_ARCH DISK_BOARD UBOOT_BOARD_CFG UBOOT_BOARDNAME UBOOT_MKIMAGE \
 	XVISOR_ELF2C XVISOR_CPATCH XVISOR_FW_IMG BUSYBOX_XVISOR_DEV DTB \

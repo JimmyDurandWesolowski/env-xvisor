@@ -63,18 +63,19 @@ dtsflags += -x assembler-with-cpp -I$(XVISOR_LINUX_CONF_DIR)
 dtsflags += -I$(LINUX_DIR)/include -I$(LINUX_DIR)/arch/$(ARCH)/boot/dts
 
 
-$(TMPDIR)/$(KERN_DT).pre.dts: $(XVISOR_LINUX_CONF_DIR)/$(KERN_DT).dts | \
-  XVISOR-prepare $(DISK_DIR)/$(DISK_BOARD)
-	$(Q)sed -re 's|/include/|#include|' $< >$@
+# $(TMPDIR)/$(KERN_DT).pre.dts: $(XVISOR_LINUX_CONF_DIR)/$(KERN_DT).dts | \
+#   XVISOR-prepare $(DISK_DIR)/$(DISK_BOARD)
+# 	$(Q)sed -re 's|/include/|#include|' $< >$@
 
-$(TMPDIR)/$(KERN_DT).dts: $(TMPDIR)/$(KERN_DT).pre.dts
-	@echo "(cpp) $(KERN_DT)"
-	$(Q)$(CROSS_COMPILE)cpp $(dtsflags) $< -o $@
+# $(TMPDIR)/$(KERN_DT).dts: $(TMPDIR)/$(KERN_DT).pre.dts
+# 	@echo "(cpp) $(KERN_DT)"
+# 	$(Q)$(CROSS_COMPILE)cpp $(dtsflags) $< -o $@
 
-$(DISK_DIR)/$(DISK_BOARD)/$(KERN_DT).dtb: $(TMPDIR)/$(KERN_DT).dts \
-  $(XVISOR_BUILD_DIR)/tools/dtc/dtc
+$(DISK_DIR)/$(DISK_BOARD)/$(KERN_DT).dtb: $(LINUX_BUILD_CONF)
 	@echo "(dtc) $(KERN_DT)"
-	$(Q)$(XVISOR_BUILD_DIR)/tools/dtc/dtc -I dts -O dtb -p 0x800 -o $@ $<
+	$(Q)$(MAKE) linux-dtbs
+	$(Q)find $(LINUX_BUILD_DIR) -name $(KERN_DT).dtb -exec cp {} $@ \;
+#	$(Q)$(XVISOR_DIR)/tools/dtc/dtc -I dts -O dtb -p 0x800 -o $@ $<
 
 linux-configure: $(LINUX_BUILD_CONF)
 

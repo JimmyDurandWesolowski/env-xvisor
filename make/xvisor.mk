@@ -34,8 +34,8 @@ $(XVISOR_DIR)/$(XVISOR_ELF2C): XVISOR-prepare
 $(XVISOR_BUILD_DIR):
 	$(Q)mkdir -p $@
 
-$(XVISOR_DIR)/arch/$(ARCH)/configs/$(XVISOR_CONF): $(CONFDIR)/$(XVISOR_CONF) \
-  | XVISOR-prepare
+$(XVISOR_DIR)/arch/$(ARCH)/configs/$(XVISOR_CONF): $(CONFDIR)/$(XVISOR_CONF) |\
+  XVISOR-prepare
 	$(call COPY)
 
 # remove the V= variable before calling xvisor makefile
@@ -47,8 +47,8 @@ $(XVISOR_BUILD_DIR)/tools/dtc/dtc: | XVISOR-prepare $(XVISOR_BUILD_DIR)
 
 $(XVISOR_BUILD_DIR)/openconf: $(XVISOR_BUILD_DIR)/tools/dtc/dtc
 
-$(XVISOR_BUILD_CONF): $(XVISOR_DIR)/arch/$(ARCH)/configs/$(XVISOR_CONF) \
-  | TOOLCHAIN-prepare $(XVISOR_BUILD_DIR)/openconf
+$(XVISOR_BUILD_CONF): $(XVISOR_DIR)/arch/$(ARCH)/configs/$(XVISOR_CONF) | \
+  TOOLCHAIN-prepare $(XVISOR_BUILD_DIR)/openconf
 	@echo "(defconfig) Xvisor"
 	$(call cmd_xbuild,$(XVISOR_CONF))
 

@@ -1,31 +1,8 @@
 #
-# This file is part of Xvisor Build Environment.
-# Copyright (C) 2015 Institut de Recherche Technologique SystemX
-# Copyright (C) 2015 OpenWide
-# All rights reserved.
-#
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
-# of the License, or (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this Xvisor Build Environment. If not, see
-# <http://www.gnu.org/licenses/>.
-#
-# @file conf/xvisor-next-master-vexpress-a9-defconfig
-#
-
-#
 # Automatically generated make config: don't edit
 # Project: Xvisor (eXtensible Versatile hypervISOR)
-# Version: 0.2.6
-# Tue Jul 21 15:27:40 2015
+# Version: 0.2.9
+# Tue Sep 26 12:34:50 2017
 #
 CONFIG_ARCH_ARM=y
 # CONFIG_ARCH_x86 is not set
@@ -88,8 +65,8 @@ CONFIG_GENERIC_VEXPRESS=y
 # CONFIG_GENERIC_SABRELITE is not set
 # CONFIG_GENERIC_EXYNOS4 is not set
 # CONFIG_DEFTERM_EARLY_PRINT is not set
-CONFIG_ARM_SCU=y
 CONFIG_ARM_SMP_OPS=y
+CONFIG_ARM_SMP_SCU=y
 CONFIG_ARM_SMP_SPIN_TABLE=y
 CONFIG_ARM_SMP_PSCI=y
 CONFIG_ARM_SMP_IPI=y
@@ -97,9 +74,7 @@ CONFIG_VERSATILE_CLCD=y
 # CONFIG_OMAP is not set
 # CONFIG_ARCH_MXC is not set
 # CONFIG_SABRELITE_CONFIG is not set
-# CONFIG_IMX_CPU is not set
 # CONFIG_IMX6_CMD is not set
-# CONFIG_IMX6Q_CLK is not set
 # CONFIG_IMX6Q_PM is not set
 # CONFIG_IMX6Q_PHY is not set
 
@@ -113,14 +88,18 @@ CONFIG_VERSATILE_CLCD=y
 CONFIG_MODULES=y
 # CONFIG_VERBOSE_MODE is not set
 CONFIG_LOG_LEVEL=6
+# CONFIG_LOG_ANSI_COLORS is not set
 CONFIG_IRQ_STACK_SIZE=4096
 CONFIG_THREAD_STACK_SIZE=8192
 CONFIG_MAX_RAM_BANK_COUNT=16
 CONFIG_MAX_VCPU_COUNT=48
 CONFIG_MAX_GUEST_COUNT=16
+CONFIG_MEMMAP_HASH_SIZE=256
 CONFIG_VGPA2REG_CACHE_SIZE=8
 CONFIG_WFI_TIMEOUT_SECS=10
+# CONFIG_DEVEMU_DEBUG is not set
 # CONFIG_PROFILE is not set
+# CONFIG_LOADBAL is not set
 
 #
 # Heap Configuration
@@ -132,6 +111,7 @@ CONFIG_DMA_HEAP_SIZE_KB=512
 # Scheduler Configuration
 #
 CONFIG_SCHEDALGO_PRR=y
+# CONFIG_SCHEDALGO_PRM is not set
 # CONFIG_TSLICE_1MS is not set
 CONFIG_TSLICE_10MS=y
 # CONFIG_TSLICE_100MS is not set
@@ -143,12 +123,11 @@ CONFIG_IDLE_PERIOD_SECS=2
 # Load Balancer Configuration
 #
 CONFIG_LOADBAL_PERIOD_SECS=5
-CONFIG_LOADBAL_CRUDE=y
 
 #
 # Device Support
 #
-# CONFIG_IOMMU is not set
+CONFIG_IOMMU_MAX_GROUPS=256
 CONFIG_BLOCK=y
 CONFIG_BLOCKPART=y
 CONFIG_BLOCKPART_DOS=y
@@ -160,7 +139,10 @@ CONFIG_NET_BH_TIMEOUT_SECS=30
 #
 # Virtual IO Support
 #
+CONFIG_VIRTIO=y
+# CONFIG_VMSG is not set
 CONFIG_VSERIAL=y
+# CONFIG_VSPI is not set
 CONFIG_VDISK=y
 CONFIG_VDISPLAY=y
 CONFIG_VINPUT=y
@@ -208,6 +190,8 @@ CONFIG_VINPUT_KEYMAP_TR=y
 # General Commands
 #
 CONFIG_CMD_VERSION=y
+CONFIG_CMD_SLEEP=y
+CONFIG_CMD_ECHO=y
 CONFIG_CMD_RESET=y
 CONFIG_CMD_SHUTDOWN=y
 CONFIG_CMD_HOST=y
@@ -215,6 +199,7 @@ CONFIG_CMD_DEVTREE=y
 CONFIG_CMD_VCPU=y
 CONFIG_CMD_GUEST=y
 CONFIG_CMD_MEMORY=y
+CONFIG_CMD_SHMEM=y
 CONFIG_CMD_THREAD=y
 CONFIG_CMD_CHARDEV=y
 CONFIG_CMD_STDIO=y
@@ -236,9 +221,8 @@ CONFIG_CMD_VSCREEN=y
 #
 CONFIG_CMD_RTCDEV=y
 CONFIG_CMD_INPUT=y
+CONFIG_CMD_GPIO=y
 CONFIG_CMD_FB=y
-# CONFIG_CMD_FB_LOGO is not set
-# CONFIG_CMD_FB_IMAGE is not set
 CONFIG_CMD_BLOCKDEV=y
 CONFIG_CMD_RBD=y
 CONFIG_CMD_FLASH=y
@@ -276,6 +260,7 @@ CONFIG_VSCREEN=y
 # Network Stack Options
 #
 # CONFIG_NET_STACK is not set
+# CONFIG_VSDAEMON is not set
 
 #
 # Virtual Terminal Emulator Options
@@ -328,9 +313,11 @@ CONFIG_HAS_IOPORT_MAP=y
 #
 # CONFIG_ARM_VIC is not set
 CONFIG_ARM_GIC=y
+# CONFIG_ARM_GIC_V3 is not set
 # CONFIG_VERSATILE_FPGA_IRQ is not set
 # CONFIG_MXC_AVIC is not set
 # CONFIG_BCM2835_INTC is not set
+# CONFIG_BCM2836_LOCAL_INTC is not set
 CONFIG_SUN4I_VIC=y
 # CONFIG_OMAP_INTC is not set
 
@@ -347,6 +334,24 @@ CONFIG_MXC_EPIT=y
 CONFIG_SUN4I_TIMER=y
 
 #
+# Cache Color Drivers
+#
+# CONFIG_CACHECOLOR_GENERIC is not set
+
+#
+# IOMMU Drivers
+#
+
+#
+# Generic IOMMU Pagetable Support
+#
+# CONFIG_IOMMU_IO_PGTABLE is not set
+
+#
+# IOMMU Hardware Support
+#
+
+#
 # Serial Port Drivers
 #
 CONFIG_SERIAL=y
@@ -355,6 +360,9 @@ CONFIG_SERIAL_8250_UART=y
 CONFIG_SERIAL_PL01X=y
 # CONFIG_SERIAL_SAMSUNG is not set
 CONFIG_SERIAL_IMX=y
+# CONFIG_SERIAL_SCIF is not set
+# CONFIG_SERIAL_BCM283X_MU is not set
+# CONFIG_SERIAL_ZYNQ_UART is not set
 
 #
 # RTC Drivers
@@ -398,7 +406,7 @@ CONFIG_MMC_SUNXI=y
 # CONFIG_USB is not set
 
 #
-# USB Device Drivers
+# USB Storage Device Drivers
 #
 
 #
@@ -498,6 +506,11 @@ CONFIG_POWER_RESET_VEXPRESS=y
 CONFIG_POWER_RESET_SUN4I=y
 
 #
+# Mailbox drivers
+#
+# CONFIG_MAILBOX is not set
+
+#
 # Multifunction device drivers
 #
 CONFIG_REALVIEW_CONFIG=y
@@ -514,6 +527,7 @@ CONFIG_VEXPRESS_CONFIG=y
 CONFIG_GPIOLIB=y
 CONFIG_ARCH_NR_GPIO=1024
 CONFIG_GPIO_GENERIC=y
+# CONFIG_GPIO_GENERIC_PLATFORM is not set
 CONFIG_OF_GPIO=y
 
 #
@@ -524,6 +538,7 @@ CONFIG_PINMUX=y
 CONFIG_PINCONF=y
 CONFIG_GENERIC_PINCONF=y
 CONFIG_PINCTRL_SUNXI=y
+# CONFIG_PINCTRL_BCM2835 is not set
 
 #
 # SPI drivers
@@ -535,6 +550,12 @@ CONFIG_SPI_MASTER=y
 # SPI Master Controller Drivers
 #
 CONFIG_SPI_BITBANG=y
+# CONFIG_SPI_BCM2835 is not set
+
+#
+# SPI Protocol Masters
+#
+# CONFIG_SPI_SPIDEV is not set
 
 #
 # I2C support
@@ -553,6 +574,15 @@ CONFIG_RESET_CONTROLLER=y
 CONFIG_IMX_RESET=y
 
 #
+# Firmware Drivers
+#
+
+#
+# VirtIO Host Drivers
+#
+# CONFIG_VIRTIO_HOST is not set
+
+#
 # Miscellaneous Drivers
 #
 CONFIG_SRAM=y
@@ -562,9 +592,8 @@ CONFIG_SRAM=y
 #
 
 #
-# VirtIO Support
+# VirtIO Transport Emulators
 #
-CONFIG_EMU_VIRTIO=y
 CONFIG_EMU_VIRTIO_MMIO=y
 
 #
@@ -573,6 +602,7 @@ CONFIG_EMU_VIRTIO_MMIO=y
 CONFIG_EMU_SYS=y
 CONFIG_EMU_SYS_ARM_SYSREGS=y
 CONFIG_EMU_SYS_SP810=y
+CONFIG_EMU_SYS_VMINFO=y
 
 #
 # PIC Emulators
@@ -591,6 +621,7 @@ CONFIG_EMU_TIMER_SP804=y
 CONFIG_EMU_TIMER_ARM_MPTIMER=y
 # CONFIG_EMU_TIMER_INTEL_8254 is not set
 # CONFIG_EMU_TIMER_HPET is not set
+# CONFIG_EMU_TIMER_IMX_GPT is not set
 
 #
 # Cache Controller Emulators
@@ -604,6 +635,14 @@ CONFIG_EMU_MISC_ZERO=y
 CONFIG_EMU_MISC_ARM11MPCORE=y
 CONFIG_EMU_MISC_A9MPCORE=y
 # CONFIG_EMU_MISC_FW_CFG is not set
+# CONFIG_EMU_MISC_IMX6_ANATOP is not set
+# CONFIG_EMU_MISC_IMX6_CCM is not set
+# CONFIG_EMU_MISC_IMX6_APBH is not set
+
+#
+# Pass-through Emulators
+#
+# CONFIG_EMU_PT_PLATFORM is not set
 
 #
 # Network Interface Controller Emulators
@@ -624,6 +663,7 @@ CONFIG_EMU_BLOCK_VIRTIO=y
 #
 CONFIG_EMU_DISPLAY=y
 CONFIG_EMU_DISPLAY_PL110=y
+# CONFIG_EMU_DISPLAY_SIMPLEFB is not set
 
 #
 # Input Device Emulators
@@ -638,6 +678,7 @@ CONFIG_EMU_INPUT_PL050=y
 #
 CONFIG_EMU_SERIAL=y
 CONFIG_EMU_SERIAL_PL011=y
+# CONFIG_EMU_SERIAL_IMX is not set
 # CONFIG_EMU_SERIAL_NS16550 is not set
 
 #
@@ -658,8 +699,17 @@ CONFIG_EMU_RTC_PL031=y
 #
 CONFIG_EMU_GPIO=y
 CONFIG_EMU_GPIO_PL061=y
+# CONFIG_EMU_GPIO_POWER is not set
+# CONFIG_EMU_GPIO_FORWARD is not set
+
+#
+# PCI Bus Emulators
+#
 # CONFIG_EMU_PCI is not set
 
+#
+# Serial peripheral interface (SPI) Emulators
+#
 
 #
 # Watchdog Emulators

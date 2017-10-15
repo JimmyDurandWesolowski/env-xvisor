@@ -41,7 +41,12 @@ $(XVISOR_DIR)/arch/$(ARCH)/configs/$(XVISOR_CONF): $(CONFDIR)/$(XVISOR_CONF) |\
 # remove the V= variable before calling xvisor makefile
 $(XVISOR_BUILD_DIR)%: MAKEOVERRIDES := $(filter-out V=%,$(MAKEOVERRIDES))
 
-$(XVISOR_BUILD_DIR)/tools/dtc/dtc: | XVISOR-prepare $(XVISOR_BUILD_DIR)
+$(XVISOR_DIR)/tools/dtc/Makefile: | XVISOR-prepare $(XVISOR_DIR)
+	echo $<
+	$(Q)git -C ${XVISOR_DIR} submodule init
+	$(Q)git -C ${XVISOR_DIR} submodule update
+
+$(XVISOR_BUILD_DIR)/tools/dtc/dtc: $(XVISOR_DIR)/tools/dtc/Makefile
 	$(Q)mkdir -p $(@D)
 	$(call cmd_xbuild,,tools/dtc,tools/dtc)
 
@@ -55,16 +60,11 @@ $(XVISOR_BUILD_CONF): $(XVISOR_DIR)/arch/$(ARCH)/configs/$(XVISOR_CONF) | \
 xvisor-configure: $(XVISOR_BUILD_CONF)
 
 xvisor-dtbs xvisor-modules xvisor-menuconfig xvisor-vars: \
-  $(XVISOR_BUILD_DIR)/tools/dtc/dtc $(XVISOR_BUILD_CONF) | XVISOR-prepare
+  $(XVISOR_DIR)/tools/dtc/dtc $(XVISOR_BUILD_CONF) | XVISOR-prepare
 	@echo "($(subst xvisor-,,$@)) Xvisor"
 	$(call cmd_xbuild,$(subst xvisor-,,$@))
 
-DTS_FILES := $(shell \
-   if [ -d $(XVISOR_DIR) ]; then \
-      find $(XVISOR_DIR)/arch/ -name $(patsubst %.dtb,%.dts,$(DTB)); \
-   fi)
-
-$(BUILDDIR)/vmm-$(BOARDNAME).dtb: $(DTS_FILES)
+$(BUILDDIR)/vmm-$(BOARDNAME).dtb: $(XVISOR_BUILD_DIR)
 	@echo "(dtbs) Xvisor"
 	$(call cmd_xbuild,dtbs)
 	@echo "(Link) $(@F)"
@@ -107,7 +107,6 @@ $(XVISOR_UIMAGE): $(realpath $(XVISOR_BIN)) $(UBOOT_BUILD_DIR)/$(UBOOT_MKIMAGE)
 
 xvisor-uimage: $(XVISOR_BIN) $(XVISOR_UIMAGE) $(BUILDDIR)/vmm-$(BOARDNAME).dtb
 
-
 $(XVISOR_BUILD_DIR)/$(XVISOR_CPATCH): | XVISOR-prepare $(XVISOR_BUILD_DIR)
 	@echo "(Make) Xvisor cpatch"
 	$(Q)mkdir -p $(@D)
@@ -122,10 +121,14 @@ $(DISKA) $(DISKB) $(DISK_SYSTEM):
 $(DISKA)/$(INITRD): $(BUILDDIR)/$(INITRD) | $(DISKA)
 	$(call COPY)
 
-$(DISKA)/$(DTB_IN_IMG).dtb: $(XVISOR_DIR)/tests/$(XVISOR_ARCH)/$(GUEST_BOARDNAME)/$(DTB_IN_IMG).dts \
-  $(XVISOR_BUILD_DIR)/tools/dtc/dtc | $(DISKA)
+$(DISK_DIR)/vmm-$(BOARDNAME).dtb: $(BUILDDIR)/vmm-$(BOARDNAME).dtb
+	$(call COPY)
+
+$(DISKA)/$(DTB_IN_IMG).dtb: \
+  $(XVISOR_DIR)/tests/$(XVISOR_ARCH)/$(GUEST_BOARDNAME)/$(DTB_IN_IMG).dts \
+  $(XVISOR_DIR)/tools/dtc/dtc | $(DISKA)
 	@echo "(DTC) $(DTB_IN_IMG)"
-	$(Q)$(XVISOR_BUILD_DIR)/tools/dtc/dtc -I dts -O dtb -o $@ $<
+	$(Q)$(XVISOR_DIR)/tools/dtc/dtc -I dts -O dtb -o $@ $<
 
 FIRMWARE_DIR = $(XVISOR_BUILD_DIR)/tests/$(XVISOR_ARCH)/$(GUEST_BOARDNAME)/basic
 FIRMWARE = $(FIRMWARE_DIR)/firmware.bin.patched
@@ -171,8 +174,8 @@ else
 	$(Q)$(call FILE_SIZE,$(DISKA)/$(INITRD)) >> $@
 endif
 
-$(DISK_XVISOR_BANNER): $(XVISOR_BANNER) $(DISK_SYSTEM)
-	$(Q)cp $< $@
+$(DISK_XVISOR_BANNER): $(XVISOR_BANNER) | $(DISK_SYSTEM)
+	$(call COPY)
 
 $(DISK_IMG): $(STAMPDIR)/.disk_populate
 	@echo "(Genext2fs) $@"

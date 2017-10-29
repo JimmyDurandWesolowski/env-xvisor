@@ -42,8 +42,9 @@ package_install() {
 # $1: Test if the binary is necessary (set to 1 to force)
 # $2: The binary to test
 # $3: The Debian package name
-# $4: The Gentoo package name
-# $5: The optional Gentoo environment to install the package
+# $4: The Arch package name
+# $5: The Gentoo package name
+# $6: The optional Gentoo environment to install the package
 package_check_binary() {
     TEST="$1"
     BIN="$2"
@@ -74,7 +75,6 @@ package_check_binary() {
 # $6: The Gentoo package name
 # $7: The optional Gentoo environment to install the package
 package_check_binary_version() {
-    idx_max=2
     package_check_binary $1 $2 $4 $5 $6 $7
 
     if [ $? -eq 1 ]; then
@@ -82,15 +82,14 @@ package_check_binary_version() {
 	return 1
     fi
 
-    REGEX='s/.*([0-9]+)\.([0-9]+)\.([0-9]+).*/\1 \2 \3/p'
-    VERSION=($($2 --version 2>&1 | sed -rne "${REGEX}"))
+    REGEXXYZ='s/.*([0-9]+)\.([0-9]+)\.([0-9]+).*/\1 \2 \3/p'
+    REGEXXY='s/.*([0-9]+)\.([0-9]+).*/\1 \2 0/p'
+    VERSION=($($2 --version 2>&1 | sed -rne "${REGEXXYZ}"))
 
     # Check if the version retrieving failed
     if [ -z "${VERSION}" ]; then
-	# Try with format X.Y only
-	idx_max=1
-	REGEX='s/.*([0-9]+)\.([0-9]+).*/\1 \2/p'
-	VERSION=($($2 --version 2>&1 | sed -rne "${REGEX}"))
+        # Try to retrieve X.Y version as X.Y.0
+	VERSION=($($2 --version 2>&1 | sed -rne "${REGEXXY}"))
     fi
 
     # Check if the version retrieving failed again
@@ -99,14 +98,18 @@ package_check_binary_version() {
 	exit 1
     fi
 
-    REQ_VERS=($(echo $3 | sed -rne "${REGEX}"))
+    REQ_VERS=($(echo $3 | sed -rne "${REGEXXYZ}"))
+    if [ -z "${REQ_VERS}" ]; then
+	REQ_VERS=($(echo $3 | sed -rne "${REGEXXY}"))
+    fi
+
     if [ -z "${REQ_VERS}" ]; then
 	echo "Failed to parse the required version for \"$2\""
 	echo "It must be in the X.Y or X.Y.Z format (X, Y and Z being numbers)"
 	exit 1
     fi
 
-    for idx in $(seq 0 ${idx_max}); do
+    for idx in $(seq 0 2); do
 	if [ ${VERSION[$idx]} -gt ${REQ_VERS[$idx]} ]; then
 	    return 0
 	elif [ ${VERSION[$idx]} -lt ${REQ_VERS[$idx]} ]; then
@@ -171,7 +174,10 @@ packages_check() {
     package_check_binary 1 cpio "cpio" "cpio" "app-arch/cpio"
 
     # Checking that flex, used for dtc, is installed
-    package_check_binary 1 cpio "cpio" "cpio" "app-arch/cpio"
+    package_check_binary 1 flex "flex" "flex" "sys-devel/flex"
+
+    # Checking that bison, used for dtc, is installed
+    package_check_binary 1 bison "bison" "bison" "sys-devel/bison"
 
     # Checking that Qemu is installed
     package_check_binary_version ${BOARD_QEMU} qemu-system-${QEMU_ARCH} \

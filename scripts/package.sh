@@ -174,7 +174,7 @@ packages_check() {
     package_check_binary 1 cpio "cpio" "cpio" "app-arch/cpio"
 
     # Checking that flex, used for dtc, is installed
-    package_check_binary 1 cpio "cpio" "cpio" "app-arch/cpio"
+    package_check_binary 1 flex "flex" "flex" "sys-devel/flex"
 
     # Checking that Qemu is installed
     package_check_binary_version ${BOARD_QEMU} qemu-system-${QEMU_ARCH} \

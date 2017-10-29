@@ -42,8 +42,9 @@ package_install() {
 # $1: Test if the binary is necessary (set to 1 to force)
 # $2: The binary to test
 # $3: The Debian package name
-# $4: The Gentoo package name
-# $5: The optional Gentoo environment to install the package
+# $4: The Arch package name
+# $5: The Gentoo package name
+# $6: The optional Gentoo environment to install the package
 package_check_binary() {
     TEST="$1"
     BIN="$2"

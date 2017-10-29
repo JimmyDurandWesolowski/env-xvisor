@@ -176,6 +176,9 @@ packages_check() {
     # Checking that flex, used for dtc, is installed
     package_check_binary 1 flex "flex" "flex" "sys-devel/flex"
 
+    # Checking that bison, used for dtc, is installed
+    package_check_binary 1 bison "bison" "bison" "sys-devel/bison"
+
     # Checking that Qemu is installed
     package_check_binary_version ${BOARD_QEMU} qemu-system-${QEMU_ARCH} \
 	"1.6.1" "qemu-system" "qemu-arch-extra" "\">=app-emulation/qemu-1.6.1\"" \

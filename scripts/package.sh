@@ -74,7 +74,6 @@ package_check_binary() {
 # $6: The Gentoo package name
 # $7: The optional Gentoo environment to install the package
 package_check_binary_version() {
-    idx_max=2
     package_check_binary $1 $2 $4 $5 $6 $7
 
     if [ $? -eq 1 ]; then
@@ -82,15 +81,14 @@ package_check_binary_version() {
 	return 1
     fi
 
-    REGEX='s/.*([0-9]+)\.([0-9]+)\.([0-9]+).*/\1 \2 \3/p'
-    VERSION=($($2 --version 2>&1 | sed -rne "${REGEX}"))
+    REGEXXYZ='s/.*([0-9]+)\.([0-9]+)\.([0-9]+).*/\1 \2 \3/p'
+    REGEXXY='s/.*([0-9]+)\.([0-9]+).*/\1 \2 0/p'
+    VERSION=($($2 --version 2>&1 | sed -rne "${REGEXXYZ}"))
 
     # Check if the version retrieving failed
     if [ -z "${VERSION}" ]; then
-	# Try with format X.Y only
-	idx_max=1
-	REGEX='s/.*([0-9]+)\.([0-9]+).*/\1 \2/p'
-	VERSION=($($2 --version 2>&1 | sed -rne "${REGEX}"))
+        # Try to retrieve X.Y version as X.Y.0
+	VERSION=($($2 --version 2>&1 | sed -rne "${REGEXXY}"))
     fi
 
     # Check if the version retrieving failed again
@@ -99,14 +97,18 @@ package_check_binary_version() {
 	exit 1
     fi
 
-    REQ_VERS=($(echo $3 | sed -rne "${REGEX}"))
+    REQ_VERS=($(echo $3 | sed -rne "${REGEXXYZ}"))
+    if [ -z "${REQ_VERS}" ]; then
+	REQ_VERS=($(echo $3 | sed -rne "${REGEXXY}"))
+    fi
+
     if [ -z "${REQ_VERS}" ]; then
 	echo "Failed to parse the required version for \"$2\""
 	echo "It must be in the X.Y or X.Y.Z format (X, Y and Z being numbers)"
 	exit 1
     fi
 
-    for idx in $(seq 0 ${idx_max}); do
+    for idx in $(seq 0 2); do
 	if [ ${VERSION[$idx]} -gt ${REQ_VERS[$idx]} ]; then
 	    return 0
 	elif [ ${VERSION[$idx]} -lt ${REQ_VERS[$idx]} ]; then
